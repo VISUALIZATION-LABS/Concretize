@@ -18,6 +18,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 InternalModel="*res://Global/InternalModel/InternalModel.gd"
+InterfaceAnimator="*res://Global/AnimationUtils/InterfaceAnimator.gd"
+ModelAnimator="*res://Global/AnimationUtils/ModelAnimator.gd"
 
 [dotnet]
 
