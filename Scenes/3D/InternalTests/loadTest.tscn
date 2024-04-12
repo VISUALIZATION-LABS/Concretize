@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://dimt780ud7fyr"]
+
+[ext_resource type="Script" path="res://Scenes/3D/InternalTests/loadTest.gd" id="1_unuhn"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wao26"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_cnrgo"]
+sky_material = SubResource("ProceduralSkyMaterial_wao26")
+
+[sub_resource type="Environment" id="Environment_srw86"]
+background_mode = 2
+sky = SubResource("Sky_cnrgo")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_unuhn")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_srw86")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.857491, -0.212755, 0.46845, 0, 0.910496, 0.413518, -0.514499, -0.354588, 0.780742, 1.95417, 1.72501, 3.25691)
