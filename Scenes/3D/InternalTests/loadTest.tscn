@@ -1,19 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://dimt780ud7fyr"]
+[gd_scene load_steps=9 format=3 uid="uid://dimt780ud7fyr"]
 
 [ext_resource type="Script" path="res://Scenes/3D/InternalTests/loadTest.gd" id="1_unuhn"]
+[ext_resource type="PackedScene" uid="uid://ca6jgwlclp36v" path="res://test/sponza.glb" id="2_m66io"]
+[ext_resource type="PackedScene" uid="uid://ba6xvr6uft7sy" path="res://test1/living_room.glb" id="3_xdjr1"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wao26"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_l7dkd"]
 
 [sub_resource type="Sky" id="Sky_cnrgo"]
-sky_material = SubResource("ProceduralSkyMaterial_wao26")
+sky_material = SubResource("PhysicalSkyMaterial_l7dkd")
 
 [sub_resource type="Environment" id="Environment_srw86"]
 background_mode = 2
 sky = SubResource("Sky_cnrgo")
-tonemap_mode = 2
+ambient_light_source = 3
+reflected_light_source = 2
+tonemap_mode = 3
 glow_enabled = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_rfnxg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uro3p"]
+metallic = 1.0
+roughness = 0.0
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_unuhn")
@@ -21,5 +29,38 @@ script = ExtResource("1_unuhn")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_srw86")
 
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
+transform = Transform3D(0.810941, -0.50056, -0.30301, 0.18093, -0.277959, 0.9434, -0.556453, -0.819865, -0.134842, 0.0598372, 0.0977149, -0.185145)
+light_energy = 2.0
+shadow_enabled = true
+shadow_blur = 0.714
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.857491, -0.212755, 0.46845, 0, 0.910496, 0.413518, -0.514499, -0.354588, 0.780742, 1.95417, 1.72501, 3.25691)
+
+[node name="sponza" parent="." instance=ExtResource("2_m66io")]
+visible = false
+
+[node name="ReflectionProbe" type="ReflectionProbe" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0165005, 1.21271, -1.03443)
+visible = false
+max_distance = 16384.0
+size = Vector3(6.38182, 2.68117, 8.51799)
+origin_offset = Vector3(0.234375, 0.210449, 0.20752)
+box_projection = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.96863, 0)
+visible = false
+mesh = SubResource("SphereMesh_rfnxg")
+surface_material_override/0 = SubResource("StandardMaterial3D_uro3p")
+
+[node name="living_room" parent="." instance=ExtResource("3_xdjr1")]
+visible = false
+
+[node name="ReflectionProbe2" type="ReflectionProbe" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.762085, 5.40811, 0)
+visible = false
+update_mode = 1
+size = Vector3(30.2097, 13.0038, 20)
+box_projection = true
