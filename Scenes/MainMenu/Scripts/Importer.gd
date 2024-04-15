@@ -31,6 +31,7 @@ func importer(path: String):
 	match (path.rsplit(".", true, 0)[1].to_lower()):
 		"obj":
 			ModelParse.obj = FileAccess.get_file_as_string(path)
+			#ModelParse.generate_obj()
 			get_tree().change_scene_to_file("res://Scenes/3D/InternalTests/loadTest.tscn")
 			
 		"gltf":
