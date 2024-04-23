@@ -1,13 +1,13 @@
 extends Control
 
-@onready var testing_scene = preload("res://Scenes/3D/InternalTests/loadTest.tscn").instantiate()
+@onready var testing_scene = "res://Scenes/modelLoaderTest/modelLoaderTestScene.tscn"
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 
 
@@ -32,7 +32,7 @@ func importer(path: String):
 		"obj":
 			ModelParse.obj = FileAccess.get_file_as_string(path)
 			#ModelParse.generate_obj()
-			get_tree().change_scene_to_file("res://Scenes/3D/InternalTests/loadTest.tscn")
+			get_tree().change_scene_to_file("res://Scenes/modelLoaderTest/modelLoaderTestScene.tscn")
 			
 		"gltf":
 			#TODO: Implement

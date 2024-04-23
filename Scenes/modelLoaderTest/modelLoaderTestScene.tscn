@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://cx65f668m54wb"]
+
+[ext_resource type="Script" path="res://Scenes/modelLoaderTest/scripts/modelLoaderTestScene.gd" id="1_gdml0"]
+[ext_resource type="Script" path="res://Scenes/modelLoaderTest/freecam.gd" id="2_paexy"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_k0qyj"]
+
+[sub_resource type="Sky" id="Sky_35d0u"]
+sky_material = SubResource("ProceduralSkyMaterial_k0qyj")
+
+[sub_resource type="Environment" id="Environment_5delc"]
+background_mode = 2
+sky = SubResource("Sky_35d0u")
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_gdml0")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_5delc")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
+transform = Transform3D(0.707107, 0.353553, 0.612372, 0, -0.866025, 0.5, 0.707107, -0.353553, -0.612372, 0, 0, 0)
+light_energy = 10.744
+shadow_enabled = true
+
+[node name="pv" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.012, 2.84097)
+
+[node name="Camera3D" type="Camera3D" parent="pv"]
+script = ExtResource("2_paexy")
