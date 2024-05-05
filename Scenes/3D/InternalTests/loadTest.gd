@@ -7,7 +7,8 @@ func _ready() -> void:
 	
 	get_tree().root.add_child.call_deferred(mesh)
 	
-	mesh.mesh = ModelParse.generate_obj()
+	ModelParse.generate_obj()
+	#mesh.mesh = ModelParse.generate_obj()
 	
 
 
