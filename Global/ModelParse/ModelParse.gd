@@ -112,13 +112,14 @@ func generate_obj() -> IPMDL:
 				))
 
 			"usemtl":
-				use_mtl = true
 				mtl_name = parts[1]
 				print("Setting up materials for: " + mtl_name)
 				if use_mtl:
 					final_mesh.add_mesh(current_object, surface.commit())
 					surface.clear()
 					surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+				use_mtl = true
+				
 
 			"f":
 				# Mesh assembler (maybe move to new func?)
