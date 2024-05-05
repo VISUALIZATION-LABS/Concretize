@@ -7,7 +7,7 @@ class_name IPMDL
 	#"object_list": [
 		#{
 			#"object_name": "name:String"
-			#"meshes": [{"material:" "material:Material", "mesh": "mesh"}]
+			#"meshes": []
 		#}
 	#]
 #}
@@ -48,13 +48,6 @@ func add_object(name: String) -> int:
 func remove_object(object_name: String) -> int:
 	model["object_list"].remove_at(get_object_index(object_name))
 	return 0
-
-#func set_material(object_name: String, material: Material) -> int:
-	## This is used to change the material in an existing material
-	## If you need to create an object refrain from using this and just pass the
-	## material in the object creator (add_object)
-	#model["object_list"][get_object_index(object_name)]["material"] = material
-	#return 0
 
 func set_name(model_name:String) -> int:
 	model["name"] = model_name
