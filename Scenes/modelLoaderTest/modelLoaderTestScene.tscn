@@ -11,6 +11,7 @@ sky_material = SubResource("ProceduralSkyMaterial_k0qyj")
 [sub_resource type="Environment" id="Environment_5delc"]
 background_mode = 2
 sky = SubResource("Sky_35d0u")
+tonemap_mode = 3
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_gdml0")
@@ -19,8 +20,7 @@ script = ExtResource("1_gdml0")
 environment = SubResource("Environment_5delc")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
-transform = Transform3D(0.707107, 0.353553, 0.612372, 0, -0.866025, 0.5, 0.707107, -0.353553, -0.612372, 0, 0, 0)
-light_energy = 10.744
+transform = Transform3D(0.821796, -0.495481, 0.281335, 0, 0.49376, 0.869598, -0.569782, -0.714633, 0.40577, 0, 0, 0)
 shadow_enabled = true
 
 [node name="pv" type="Node3D" parent="."]
@@ -28,3 +28,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.012, 2.84097)
 
 [node name="Camera3D" type="Camera3D" parent="pv"]
 script = ExtResource("2_paexy")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shadow_enabled = true

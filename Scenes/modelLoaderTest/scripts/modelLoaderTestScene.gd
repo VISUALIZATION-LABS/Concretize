@@ -19,6 +19,7 @@ func _ready() -> void:
 		# TODO: Support mesh-names
 		for i in object["meshes"].size():
 			var mesh_instance = MeshInstance3D.new()
+			mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 			mesh_instance.mesh = object["meshes"][i]
 			mesh_instance.name = ("Mesh " + str(i))
 			object_node.add_child(mesh_instance)
