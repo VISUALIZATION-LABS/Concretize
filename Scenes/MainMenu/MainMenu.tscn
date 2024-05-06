@@ -37,4 +37,6 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Load"
 
+[node name="FileDialog" type="FileDialog" parent="MarginContainer/Control"]
+
 [connection signal="button_up" from="MarginContainer/Control/Button" to="." method="_on_button_button_up"]

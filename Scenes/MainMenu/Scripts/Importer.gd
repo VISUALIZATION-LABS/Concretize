@@ -1,13 +1,11 @@
 extends Control
 
-
+@onready var testing_scene = "res://Scenes/modelLoaderTest/modelLoaderTestScene.tscn"
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass
-
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 
 
@@ -19,29 +17,20 @@ func _on_button_button_up() -> void:
 	
 	file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 	file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	file_dialog.initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
+	file_dialog.size = Vector2(500, 300)
 	file_dialog.filters = PackedStringArray(["*.obj ; Wavefront"])
 	file_dialog.visible = true
 	
 	$MarginContainer/Control.add_child(file_dialog)
 	file_dialog.file_selected.connect(importer)
-	
 
 func importer(path: String):
-	match (path.rsplit(".", true, 0)[1].to_lower()):
+	match (path.rsplit(".", true, 1)[1].to_lower()):
 		"obj":
-			var model: PackedStringArray = FileAccess.open(path, FileAccess.READ).\
-			get_as_text().rsplit("\n")
-			
-			# TODO: Convert the model into the variables below
-			
-			# References:
-			# https://en.wikipedia.org/wiki/Wavefront_.obj_file
-			
-			var vertices: PackedVector3Array
-			var normals: PackedVector3Array
-			var uv: PackedVector3Array
-			var faces: PackedVector3Array
-			
+			ModelParse.model_path = path
+			#ModelParse.generate_obj()
+			get_tree().change_scene_to_file("res://Scenes/modelLoaderTest/modelLoaderTestScene.tscn")
 			
 		"gltf":
 			#TODO: Implement
