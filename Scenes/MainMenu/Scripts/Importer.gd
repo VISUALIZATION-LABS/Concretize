@@ -26,7 +26,7 @@ func _on_button_button_up() -> void:
 	file_dialog.file_selected.connect(importer)
 
 func importer(path: String):
-	match (path.rsplit(".", true, 0)[1].to_lower()):
+	match (path.rsplit(".", true, 1)[1].to_lower()):
 		"obj":
 			ModelParse.model_path = path
 			#ModelParse.generate_obj()
