@@ -2,9 +2,9 @@ extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	var imported_mesh: IPMDL = Shared.import_model
 	
-	var imported_mesh = ModelParse.generate_obj()
-	
+	# Node tree build
 	var header_node := Node3D.new()
 	header_node.name = "Model"
 	
@@ -27,7 +27,3 @@ func _ready() -> void:
 		header_node.add_child(object_node)
 	
 	get_tree().root.add_child.call_deferred(header_node)
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass

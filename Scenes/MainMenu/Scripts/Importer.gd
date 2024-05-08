@@ -19,19 +19,18 @@ func _on_button_button_up() -> void:
 	file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	file_dialog.initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
 	file_dialog.size = Vector2(500, 300)
-	file_dialog.filters = PackedStringArray(["*.obj ; Wavefront"])
+	file_dialog.filters = PackedStringArray(["*.obj ; Wavefront", "*.bin ; GLTF Bin"])
 	file_dialog.visible = true
 	
 	$MarginContainer/Control.add_child(file_dialog)
 	file_dialog.file_selected.connect(importer)
 
 func importer(path: String):
-	match (path.rsplit(".", true, 1)[1].to_lower()):
-		"obj":
-			ModelParse.model_path = path
-			#ModelParse.generate_obj()
-			get_tree().change_scene_to_file("res://Scenes/modelLoaderTest/modelLoaderTestScene.tscn")
-			
-		"gltf":
-			#TODO: Implement
-			pass
+	var model_parser: ModelParse = ModelParse.new()
+	model_parser.path = path
+	
+	if not model_parser.path.is_empty():
+		var model = model_parser.compile_mesh()
+		Shared.import_model = model
+		get_tree().change_scene_to_file("res://Scenes/modelLoaderTest/modelLoaderScene.tscn")
+	

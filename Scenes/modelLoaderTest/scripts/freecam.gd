@@ -1,12 +1,11 @@
 extends Camera3D
 
-# TODO:
-# DOCUMENT AND CREATE AN ACTUAL IMPLEMENTATION
+# This is a dirty implementation of a freecam feature, to be rewritten
 
 @onready var capt: bool = false
 @onready var sens: float = 5
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if event is InputEventMouseMotion && capt:
 		self.rotate_x(deg_to_rad(-event.relative.y * 0.2))
 		$"..".rotate_y(deg_to_rad(-event.relative.x * 0.2))
 	
@@ -24,5 +23,6 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	
 	var desired_move_vec: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	$"..".position += ($"..".transform.basis * self.transform.basis)\
-	* Vector3(desired_move_vec.x, 0, desired_move_vec.y).normalized() * delta * sens
+	var move_dir = ($"..".transform.basis * self.transform.basis)\
+	* Vector3(desired_move_vec.x, 0, desired_move_vec.y).normalized() * sens
+	$"..".position += move_dir
