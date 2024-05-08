@@ -43,19 +43,19 @@ func get_object_index(name: String) -> int:
 
 func add_object(name: String) -> int:
 	model["object_list"].append({"object_name": name, "meshes": []})
-	return 0
+	return OK
 
 func remove_object(object_name: String) -> int:
 	model["object_list"].remove_at(get_object_index(object_name))
-	return 0
+	return OK
 
 func set_name(model_name:String) -> int:
 	model["name"] = model_name
-	return 0
+	return OK
 
 # TODO: Add functions to get a mesh (cmp input mesh with arr mesh maybe) 
 # and mesh deletion
 
 func add_mesh(object_name: String, mesh: ArrayMesh) -> int:
 	model["object_list"][get_object_index(object_name)]["meshes"].append(mesh)
-	return 0
+	return OK
