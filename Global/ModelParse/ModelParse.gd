@@ -31,6 +31,8 @@ func compile_mesh() -> IPMDL:
 	var final_mesh: IPMDL = IPMDL.new()
 	
 	match extension:
+		# TODO: Basically rewrite so we can format the incoming OBJ into a standardized
+		# POBJ format (obj is hard man)
 		"obj":
 			var time_start = Time.get_unix_time_from_system()
 			
@@ -346,14 +348,34 @@ func compile_mesh() -> IPMDL:
 			
 			return final_mesh
 		
-		"bin":
+		# Needs to be implemented differently from glb i think
+		"gltf", "glb":
+			var gltf_document_load = GLTFDocument.new()
+			var gltf_state_load = GLTFState.new()
+			var error = gltf_document_load.append_from_file(path, gltf_state_load)
 			
-			# TODO: Implement
-			var bin := FileAccess.get_file_as_bytes(path)
-			var bits: PackedByteArray = PackedByteArray(bin)
-			for i in bits.size():
-				print("IDX: %s    0x%x" % [i, bits[i]])
-			var a = 1
+			if not path.is_empty():
+				# .../folder/object.obj -> [.../folder/, object.obj] -> [object, obj]
+				final_mesh.set_name(path.rsplit("/", false, 1)[1].rsplit(".", false, 1)[0])
+			
+			
+			if error == OK:
+				var gltf_scene_root_node = gltf_document_load.generate_scene(gltf_state_load)
+				var object = gltf_scene_root_node.get_children()
+				
+				# Will break if object starts as [Node3D] or has any children that are Node3D
+				# Attempt to fix this by:
+				#    Walking down the tree structure until a mesh is found
+				#    Modifying IPMDL
+				#    Writing custom GLTF parser
+				# Attempt these solutions in order (best to worst case)
+				for objects in object:
+					print("Compiling " + object.name + " to IPMDL")
+					final_mesh.add_object(object.name)
+					final_mesh.add_mesh(object.name, object.mesh)
+					final_mesh.set_position(object.name, object.position)
+					
+			
 			return final_mesh
 		
 		# Returns an effectivelly "null" final mesh if no extensions are supported

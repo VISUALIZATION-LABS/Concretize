@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://mf75mqdivxqm"
+path="res://.godot/imported/Gizmo.obj-b280e7c2f8f9873745d52ce2ab14f73c.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Gizmo.obj-b280e7c2f8f9873745d52ce2ab14f73c.mesh"]
+
+source_file="res://Scenes/Gizmo/Move/Gizmo.obj"
+dest_files=["res://.godot/imported/Gizmo.obj-b280e7c2f8f9873745d52ce2ab14f73c.mesh", "res://.godot/imported/Gizmo.obj-b280e7c2f8f9873745d52ce2ab14f73c.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

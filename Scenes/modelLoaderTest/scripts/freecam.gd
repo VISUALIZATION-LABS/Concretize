@@ -24,5 +24,5 @@ func _process(delta: float) -> void:
 	
 	var desired_move_vec: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var move_dir = ($"..".transform.basis * self.transform.basis)\
-	* Vector3(desired_move_vec.x, 0, desired_move_vec.y).normalized() * sens
+	* Vector3(desired_move_vec.x, 0, desired_move_vec.y).normalized() * sens * delta
 	$"..".position += move_dir

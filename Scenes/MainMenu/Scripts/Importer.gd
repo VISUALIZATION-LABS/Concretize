@@ -19,7 +19,7 @@ func _on_button_button_up() -> void:
 	file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	file_dialog.initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
 	file_dialog.size = Vector2(500, 300)
-	file_dialog.filters = PackedStringArray(["*.obj ; Wavefront", "*.bin ; GLTF Bin"])
+	file_dialog.filters = PackedStringArray(["*.obj ; Wavefront", "*.gltf, *.glb ; glTF model"])
 	file_dialog.visible = true
 	
 	$MarginContainer/Control.add_child(file_dialog)

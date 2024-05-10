@@ -17,13 +17,24 @@ func _ready() -> void:
 			object_node.name = object["object_name"]
 		
 		# TODO: Support mesh-names
-		for i in object["meshes"].size():
-			var mesh_instance = MeshInstance3D.new()
-			mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
-			mesh_instance.mesh = object["meshes"][i]
-			mesh_instance.name = ("Mesh " + str(i))
-			object_node.add_child(mesh_instance)
-
+		
+		if object["positions"].size() > 0:
+			for i in object["meshes"].size():
+				var mesh_instance = MeshInstance3D.new()
+				mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
+				mesh_instance.mesh = object["meshes"][i]
+				mesh_instance.name = ("Mesh " + str(i))
+				mesh_instance.position = object["positions"][i]
+				
+				object_node.add_child(mesh_instance)
+		else:
+			for i in object["meshes"].size():
+				var mesh_instance = MeshInstance3D.new()
+				mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
+				mesh_instance.mesh = object["meshes"][i]
+				mesh_instance.name = ("Mesh " + str(i))
+				
+				object_node.add_child(mesh_instance)
 		header_node.add_child(object_node)
 	
 	get_tree().root.add_child.call_deferred(header_node)

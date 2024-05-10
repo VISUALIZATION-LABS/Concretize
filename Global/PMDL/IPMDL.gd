@@ -8,6 +8,7 @@ class_name IPMDL
 		#{
 			#"object_name": "name:String"
 			#"meshes": []
+			#"positions": []
 		#}
 	#]
 #}
@@ -42,7 +43,7 @@ func get_object_index(name: String) -> int:
 	return object_index
 
 func add_object(name: String) -> int:
-	model["object_list"].append({"object_name": name, "meshes": []})
+	model["object_list"].append({"object_name": name, "meshes": [], "positions": []})
 	return OK
 
 func remove_object(object_name: String) -> int:
@@ -55,6 +56,10 @@ func set_name(model_name:String) -> int:
 
 # TODO: Add functions to get a mesh (cmp input mesh with arr mesh maybe) 
 # and mesh deletion
+
+func set_position(object_name: String, position: Vector3) -> int:
+	model["object_list"][get_object_index(object_name)]["positions"].append(position)
+	return OK
 
 func add_mesh(object_name: String, mesh: ArrayMesh) -> int:
 	model["object_list"][get_object_index(object_name)]["meshes"].append(mesh)
