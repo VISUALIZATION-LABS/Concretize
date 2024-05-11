@@ -27,6 +27,8 @@ func compile_mesh() -> IPMDL:
 	match extension:
 		# TODO: Basically rewrite so we can format the incoming OBJ into a standardized
 		# POBJ format (obj is hard man)
+		
+		# FIXME: OBJ files are not read proper properly, leading to errors like [ISSUE]
 		"obj":
 			var time_start = Time.get_unix_time_from_system()
 			

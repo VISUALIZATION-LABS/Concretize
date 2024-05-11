@@ -2,6 +2,8 @@ extends Camera3D
 
 # This is a dirty implementation of a freecam feature, to be rewritten
 
+var mouse_position: Vector2 = Vector2(0.0,0.0)
+
 @onready var capt: bool = false
 @onready var sens: float = 5
 func _input(event: InputEvent) -> void:
@@ -10,14 +12,15 @@ func _input(event: InputEvent) -> void:
 		$"..".rotate_y(deg_to_rad(-event.relative.x * 0.2))
 	
 	if event is InputEventMouseButton:
-		# m1
-		if event.button_mask == 1:
-			if capt == false:
+		# m2
+		if event.button_mask == 2:
 				capt = true
+				mouse_position = get_viewport().get_mouse_position()
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-			else:
-				capt = false
-				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		else: 
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			if capt: get_viewport().warp_mouse(mouse_position)
+			capt = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
