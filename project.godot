@@ -28,7 +28,11 @@ project/assembly_name="PocketViz2"
 
 [editor_plugins]
 
+<<<<<<< HEAD
 enabled=PackedStringArray("res://addons/Todo_Manager/plugin.cfg")
+=======
+enabled=PackedStringArray("res://addons/GizmoPlugin/plugin.cfg")
+>>>>>>> 05c64deab1afe0df49ef70a3e9fba9da463b7bb7
 
 [file_customization]
 
