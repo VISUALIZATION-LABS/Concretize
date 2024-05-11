@@ -6,6 +6,8 @@ func _ready() -> void:
 	
 	# Node tree build
 	var header_node := Node3D.new()
+	#var gizmo : Node3DGizmo
+	#header_node.add_gizmo(gizmo)
 	header_node.name = "Model"
 	
 	header_node.name = imported_mesh["model"]["name"]
@@ -26,6 +28,9 @@ func _ready() -> void:
 				mesh_instance.name = ("Mesh " + str(i))
 				mesh_instance.position = object["positions"][i]
 				
+				# Needed for raycasts
+				mesh_instance.create_trimesh_collision()
+				
 				object_node.add_child(mesh_instance)
 		else:
 			for i in object["meshes"].size():
@@ -33,6 +38,9 @@ func _ready() -> void:
 				mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 				mesh_instance.mesh = object["meshes"][i]
 				mesh_instance.name = ("Mesh " + str(i))
+				
+				# Needed for raycasts
+				mesh_instance.create_trimesh_collision()
 				
 				object_node.add_child(mesh_instance)
 		header_node.add_child(object_node)
