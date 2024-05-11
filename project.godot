@@ -26,6 +26,10 @@ LoadTest="*res://Scenes/3D/InternalTests/loadTest.gd"
 
 project/assembly_name="PocketViz2"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GizmoPlugin/plugin.cfg")
+
 [file_customization]
 
 folder_colors={
