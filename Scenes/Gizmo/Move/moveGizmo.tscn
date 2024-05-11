@@ -1,7 +1,7 @@
 [gd_scene load_steps=30 format=3 uid="uid://c5olq36p4bsy7"]
 
 [ext_resource type="Script" path="res://Scenes/Gizmo/Move/Scripts/moveGizmo.gd" id="1_yrgg5"]
-[ext_resource type="Script" path="res://Scenes/Gizmo/Move/Scripts/GizmoAxesClass.gd" id="2_1kdtb"]
+[ext_resource type="Script" path="res://addons/GizmoPlugin/Classes/GizmoAxesClass.gd" id="2_x0s34"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7t6oj"]
 shading_mode = 0
@@ -275,25 +275,27 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_77rkv")
 
 [node name="Gizmo" type="Node3D"]
+process_priority = 1
+process_physics_priority = 1
 script = ExtResource("1_yrgg5")
 
 [node name="+Y" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 mesh = SubResource("ArrayMesh_yp401")
 skeleton = NodePath("")
-script = ExtResource("2_1kdtb")
+script = ExtResource("2_x0s34")
 
 [node name="+X" type="MeshInstance3D" parent="."]
 transform = Transform3D(0, 0.1, 0, -0.1, 0, 0, 0, 0, 0.1, 0, 0, 0)
 mesh = SubResource("ArrayMesh_l1tfg")
 skeleton = NodePath("")
-script = ExtResource("2_1kdtb")
+script = ExtResource("2_x0s34")
 
 [node name="+Z" type="MeshInstance3D" parent="."]
 transform = Transform3D(1.19209e-08, 1.19209e-08, -0.1, -0.1, 0, -1.19209e-08, 0, 0.1, 1.19209e-08, 0, 0, 0)
 mesh = SubResource("ArrayMesh_3y80m")
 skeleton = NodePath("")
-script = ExtResource("2_1kdtb")
+script = ExtResource("2_x0s34")
 
 [node name="General" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.0771766, 0, 0, 0, 0.0771766, 0, 0, 0, 0.0771766, 0, 0, 0)
@@ -304,19 +306,19 @@ skeleton = NodePath("")
 transform = Transform3D(0.0896566, 0, 0, 0, 0.0896566, 0, 0, 0, 0.0896566, 0.5, 0, 0.5)
 mesh = SubResource("ArrayMesh_tymxh")
 skeleton = NodePath("")
-script = ExtResource("2_1kdtb")
+script = ExtResource("2_x0s34")
 
 [node name="XY" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.0896566, 0, 0, 0, 0, -0.0896566, 0, 0.0896566, 0, 0.5, 0.5, 0)
 mesh = SubResource("ArrayMesh_7kth6")
 skeleton = NodePath("")
-script = ExtResource("2_1kdtb")
+script = ExtResource("2_x0s34")
 
 [node name="YZ" type="MeshInstance3D" parent="."]
 transform = Transform3D(0, 0.0896566, 0, -0.0896566, 0, 0, 0, 0, 0.0896566, 0, 0.5, 0.5)
 mesh = SubResource("ArrayMesh_cv62f")
 skeleton = NodePath("")
-script = ExtResource("2_1kdtb")
+script = ExtResource("2_x0s34")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.917712, -0.177276, 0.355497, 0.0386391, 0.930494, 0.364263, -0.395363, -0.320552, 0.860776, 1.42512, 0.964258, 2.59583)
