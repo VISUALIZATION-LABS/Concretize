@@ -17,12 +17,6 @@ var path: String:
 		else:
 			push_error("Path is not valid")
 
-# Utils
-enum GLTF_component {
-	FLOAT = 5126, 
-	UNSIGNED_SHORT = 5123
-}
-
 # TODO: Make the generator a SINGLE function with some arguments that will be used
 # to select how the parser will function, maybe even just automatically detect what the file is.
 
@@ -128,7 +122,13 @@ func compile_mesh() -> IPMDL:
 									"map_Kd":
 										# Diffuse map
 										var diffuse_image = Image.new()
-										var err = diffuse_image.load(mtl[1])
+										var err: int = -1
+										
+										if not mtl[1].is_absolute_path():
+											var absolute_path = path.replace(path.rsplit("/", false, 1)[1], mtl[1])
+											err = diffuse_image.load(absolute_path)
+										else:
+											err = diffuse_image.load(mtl[1])
 										
 										if err != OK:
 											push_error("Image at " + mtl[1] + " could not be loaded, textures won't be created.")
@@ -143,7 +143,13 @@ func compile_mesh() -> IPMDL:
 									"map_Ns", "map_Pr":
 										# Roughness
 										var roughness_image = Image.new()
-										var err = roughness_image.load(mtl[1])
+										var err: int = -1
+										
+										if not mtl[1].is_absolute_path():
+											var absolute_path = path.replace(path.rsplit("/", false, 1)[1], mtl[1])
+											err = roughness_image.load(absolute_path)
+										else:
+											err = roughness_image.load(mtl[1])
 										
 										if err != OK:
 											push_error("Image at " + mtl[1] + " could not be loaded, textures won't be created.")
@@ -158,8 +164,13 @@ func compile_mesh() -> IPMDL:
 									"map_refl", "map_Pm":
 										# Metalness
 										var metalness_image = Image.new()
-										var err = metalness_image.load(mtl[1])
+										var err: int = -1
 										
+										if not mtl[1].is_absolute_path():
+											var absolute_path = path.replace(path.rsplit("/", false, 1)[1], mtl[1])
+											err = metalness_image.load(absolute_path)
+										else:
+											err = metalness_image.load(mtl[1])
 										if err != OK:
 											push_error("Image at " + mtl[1] + " could not be loaded, textures won't be created.")
 											return
@@ -181,14 +192,20 @@ func compile_mesh() -> IPMDL:
 											image_argument_index = 2
 											materials[current_material]["Normal_strenght"] = 1.0
 										
-										var err = normal_image.load(mtl[image_argument_index])
+										var err: int = -1
 										
-										normal_image.generate_mipmaps(true)
-										normal_image.normal_map_to_xy()
+										if not mtl[image_argument_index].is_absolute_path():
+											var absolute_path = path.replace(path.rsplit("/", false, 1)[1], mtl[image_argument_index])
+											err = normal_image.load(absolute_path)
+										else:
+											err = normal_image.load(mtl[image_argument_index])
 										
 										if err != OK:
 											push_error("Image at " + mtl[image_argument_index] + " could not be loaded, textures won't be created.")
 											return
+										
+										normal_image.generate_mipmaps(true)
+										normal_image.normal_map_to_xy()
 										
 										var normal_texture = ImageTexture.create_from_image(normal_image)
 										materials[current_material]["Normal_map"] = normal_texture
@@ -212,22 +229,22 @@ func compile_mesh() -> IPMDL:
 						
 						"v":
 							vertices.append(Vector3(
-								float(parts[1]),
+								float(parts[3]),
 								float(parts[2]),
-								float(parts[3])
+								float(parts[1])
 							))
 						
 						"vn":
 							vertex_normals.append(Vector3(
-								float(parts[1]),
+								float(parts[3]),
 								float(parts[2]),
-								float(parts[3])
+								float(parts[1])
 							))
 						
 						"vt":
 							vertex_textures.append(Vector2(
-								float(parts[1]),
-								float(parts[2])
+								float(parts[2]),
+								float(parts[1])
 							))
 						
 						"usemtl":
@@ -290,13 +307,12 @@ func compile_mesh() -> IPMDL:
 								surface.set_material(material)
 							
 							if f.size() < 4:
-								
 								# Vertex 0
-								surface.set_normal(vertex_normals[int(f[2].split("/", false)[2]) -1])
+								surface.set_normal(vertex_normals[int(f[0].split("/", false)[2]) -1])
 								
-								surface.set_uv(vertex_textures[int(f[2].split("/", false)[1]) - 1])
+								surface.set_uv(vertex_textures[int(f[0].split("/", false)[1]) - 1])
 								
-								surface.add_vertex(vertices[int(f[2].split("/", false)[0]) -1])
+								surface.add_vertex(vertices[int(f[0].split("/", false)[0]) -1])
 								
 								# Vertex 1
 								surface.set_normal(vertex_normals[int(f[1].split("/", false)[2]) -1])
@@ -306,11 +322,11 @@ func compile_mesh() -> IPMDL:
 								surface.add_vertex(vertices[int(f[1].split("/", false)[0]) -1])
 								
 								# Vertex 2	
-								surface.set_normal(vertex_normals[int(f[0].split("/", false)[2]) -1])
+								surface.set_normal(vertex_normals[int(f[2].split("/", false)[2]) -1])
 								
-								surface.set_uv(vertex_textures[int(f[0].split("/", false)[1]) - 1])
+								surface.set_uv(vertex_textures[int(f[2].split("/", false)[1]) - 1])
 								
-								surface.add_vertex(vertices[int(f[0].split("/", false)[0]) -1])
+								surface.add_vertex(vertices[int(f[2].split("/", false)[0]) -1])
 								
 							else:
 								
@@ -324,12 +340,9 @@ func compile_mesh() -> IPMDL:
 								
 								for face_group in f:
 									triangle_fan_vertices.append(vertices[int(face_group.split("/", false)[0]) - 1])
-									triangle_fan_vertex_normals.append(vertex_normals[int(face_group.split("/",false)[2]) - 1])
 									triangle_fan_vertex_textures.append(vertex_textures[int(face_group.split("/",false)[1]) - 1])
+									triangle_fan_vertex_normals.append(vertex_normals[int(face_group.split("/",false)[2]) - 1])
 								
-								triangle_fan_vertices.reverse()
-								triangle_fan_vertex_normals.reverse()
-								triangle_fan_vertex_textures.reverse()
 								
 								surface.add_triangle_fan(
 									triangle_fan_vertices, 
