@@ -12,6 +12,17 @@ func _input(event: InputEvent) -> void:
 		$"..".rotate_y(deg_to_rad(-event.relative.x * 0.2))
 	
 	if event is InputEventMouseButton:
+		
+		if event.button_mask == 1 and event.pressed:
+			var from = self.project_ray_origin(event.position)
+			var to = from + self.project_ray_normal(event.position) * 1000
+			var space_state = get_world_3d().direct_space_state
+			var query = PhysicsRayQueryParameters3D.create(from, to)
+			
+			var result := space_state.intersect_ray(query)
+			
+			if result:
+				DebugDraw3D.draw_line(from, result.position, Color("Red"), 90)
 		# m2
 		if event.button_mask == 2:
 				capt = true
@@ -21,6 +32,7 @@ func _input(event: InputEvent) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 			if capt: get_viewport().warp_mouse(mouse_position)
 			capt = false
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

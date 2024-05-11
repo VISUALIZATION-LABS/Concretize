@@ -28,7 +28,7 @@ project/assembly_name="PocketViz2"
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/GizmoPlugin/plugin.cfg", "res://addons/Todo_Manager/plugin.cfg")
 
 [file_customization]
 
