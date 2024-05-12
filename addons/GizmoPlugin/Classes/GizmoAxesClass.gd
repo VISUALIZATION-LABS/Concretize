@@ -56,6 +56,8 @@ func _input(event: InputEvent) -> void:
 			#gets where it was clicked on the screen
 			clickpos = result.position
 			#Check if the name of the collider is the same as the one selected
+			print(name)
+			print(resultcoll.name)
 			if resultcoll.name == name:
 			#Selector for which mode to use
 				#Check if Transform type of axis clicked is equal to the one equivalent to rotation
@@ -72,11 +74,9 @@ func _input(event: InputEvent) -> void:
 					mainbody(event, meshobj, "translate")
 			#I still have no fucking idea what this means honestly
 			else:
-				self.material_override.set("albedo_color",basecolor)
 				is_pressed = false
 				is_transformtype = ""
 		else:
-			self.material_override.set("albedo_color",basecolor)
 			#Makes all axis visible
 			toggle_otheraxis_visible(self,true)
 			is_pressed = false
@@ -106,8 +106,6 @@ func mainbody(event, meshobj, typestr: String = ""):
 			#---start transform
 			#mouse is being pressed
 			if mouseevent.pressed:
-				#Sets color to yellow
-				meshobj.material_override.set("albedo_color",selcolor)
 				#Let only the selected transform type visible
 				toggle_otheraxis_visible(meshobj,false)
 				is_transformtype = typestr
@@ -116,8 +114,6 @@ func mainbody(event, meshobj, typestr: String = ""):
 			else:
 				#---end transform
 				#mouse stop being pressed
-				#Set Color ot normal
-				meshobj.material_override.set("albedo_color",basecolor)
 				#Makes every axis visible
 				toggle_otheraxis_visible(meshobj,true)
 				#Removes the transform type from the variable

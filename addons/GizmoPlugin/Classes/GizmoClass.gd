@@ -14,8 +14,6 @@ signal gizmo_scaling(x:float, y:float, z:float, is_relative:bool)
 @export var current_camera: Camera3D
 @export var target_receiver: GizmoReceiver
 
-
-
 func _physics_process(delta: float) -> void:
 	if target != null:
 		#Position of the gizmo
@@ -33,9 +31,6 @@ func _physics_process(delta: float) -> void:
 		scale.z = basesize
 
 
-
-func input_event(camera:Node, event:InputEvent, position:Vector3, normal:Vector3, shape_idx:int):
-	pass
 
 #---Receive input event ring
 #---Receive input event ring

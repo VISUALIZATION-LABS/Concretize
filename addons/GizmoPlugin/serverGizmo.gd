@@ -9,7 +9,7 @@ var gizmo_template = preload("res://Scenes/Gizmo/Move/moveGizmo.tscn")
 #---target node to operate
 @export var target: Node3D = null
 #---Camera node
-@export var MainCamera: Camera3D
+@export var MainCamera: Camera3D 
 #Decides if gizmo funcitonality is enabled
 @export var enable_detect: bool = true
 
@@ -22,10 +22,8 @@ func _ready() -> void:
 		controller.visible = false
 		#Sets the camera on the gizmo class as the one on the scene
 		controller.current_camera = MainCamera
-		#Get how many childs there are on the scene
-		var cnt = get_tree().root.get_child_count()
 		#Adds gizmo to the root of the scene
-		get_tree().root.get_child(cnt-1).add_child.call_deferred(controller)
+		get_tree().root.add_child.call_deferred(controller)
 	
 	
 	if MainCamera == null:
@@ -73,22 +71,16 @@ func _input(event: InputEvent) -> void:
 							return
 							
 					#---check parent of hit object has TransformCtrlGizmoReceiver 
-					if check_TCGizmo(collparent) == false:
-						#---hit object own has TransformCtrlGizmoReceiver 
+					if check_TCGizmo(collparent.get_parent_node_3d()) == false:
+						#---hit object own has izmoReceiver 
 						check_TCGizmo(resultcoll)
 
-func check_TCGizmo(collparent):
+func check_TCGizmo(collparent) -> bool:
 	var ret: bool = false
-	var ishit: int = 0 #collparent.find_children("*","TransformCtrlGizmoSelfHost",true)
-	var ishit_receiver = 0
-	var ccld = collparent.get_children()
+	var ccld: Array = collparent.get_children()
 	var objreceiver = null
 	for cc in ccld:
-		if cc.name == "TransformCtrlGizmoReceiver":
-			#---node has Receiver version ?
-			ishit_receiver = 1
 			objreceiver = cc
-		if ishit_receiver > 0:
 			#--- synclonize position and rotation
 			controller.position.x = collparent.position.x
 			controller.position.y = collparent.position.y
