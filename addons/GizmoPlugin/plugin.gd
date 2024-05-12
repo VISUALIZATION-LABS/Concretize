@@ -1,9 +1,9 @@
 @tool
 extends EditorPlugin
 
-
 func _enter_tree():
-	# Initialization of the plugin goes here.
+	add_custom_type("GizmoReceiver", "Node3D", preload("receiverGizmo.gd"),null)
+	add_custom_type("GizmoServer", "Node3D", preload("serverGizmo.gd"),null)
 	pass
 
 

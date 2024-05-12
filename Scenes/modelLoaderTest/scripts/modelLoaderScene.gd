@@ -44,5 +44,10 @@ func _ready() -> void:
 				
 				object_node.add_child(mesh_instance)
 		header_node.add_child(object_node)
-	
+		
+	#Adds the object with the Gizmo script
+	var gizmo = Node3D.new()
+	gizmo.name = "GizmoReceiver"
+	gizmo.set_script("res://addons/GizmoPlugin/receiverGizmo.gd")
+	header_node.add_child(gizmo)
 	get_tree().root.add_child.call_deferred(header_node)

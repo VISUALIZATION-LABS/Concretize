@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cx65f668m54wb"]
+[gd_scene load_steps=7 format=3 uid="uid://cx65f668m54wb"]
 
 [ext_resource type="Script" path="res://Scenes/modelLoaderTest/scripts/modelLoaderScene.gd" id="1_k4gne"]
 [ext_resource type="Script" path="res://Scenes/modelLoaderTest/scripts/freecam.gd" id="2_wqbhb"]
+[ext_resource type="Script" path="res://addons/GizmoPlugin/serverGizmo.gd" id="3_4wxnu"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_k0qyj"]
 
@@ -13,7 +14,7 @@ background_mode = 2
 sky = SubResource("Sky_35d0u")
 tonemap_mode = 3
 
-[node name="Node3D" type="Node3D"]
+[node name="ModelRoot" type="Node3D"]
 script = ExtResource("1_k4gne")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -29,6 +30,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.012, 2.84097)
 [node name="Camera3D" type="Camera3D" parent="pv"]
 current = true
 script = ExtResource("2_wqbhb")
+
+[node name="GizmoServer" type="Node3D" parent="pv/Camera3D"]
+script = ExtResource("3_4wxnu")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
