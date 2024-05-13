@@ -27,7 +27,7 @@ func _ready() -> void:
 				mesh_instance.mesh = object["meshes"][i]
 				mesh_instance.name = ("Mesh " + str(i))
 				mesh_instance.position = object["positions"][i]
-				
+				mesh_instance.set_meta("model_header", header_node)
 				# Needed for raycasts
 				mesh_instance.create_trimesh_collision()
 				
@@ -38,7 +38,7 @@ func _ready() -> void:
 				mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 				mesh_instance.mesh = object["meshes"][i]
 				mesh_instance.name = ("Mesh " + str(i))
-				
+				mesh_instance.set_meta("model_header", header_node)
 				# Needed for raycasts
 				mesh_instance.create_trimesh_collision()
 				
@@ -46,8 +46,8 @@ func _ready() -> void:
 		header_node.add_child(object_node)
 		
 	#Adds the object with the Gizmo script
-	var gizmo = Node3D.new()
-	gizmo.name = "GizmoReceiver"
-	gizmo.set_script("res://addons/GizmoPlugin/receiverGizmo.gd")
-	header_node.add_child(gizmo)
+	#var gizmo = Node3D.new()
+	#gizmo.name = "GizmoReceiver"
+	#gizmo.set_script("res://addons/GizmoPlugin/receiverGizmo.gd")
+	#header_node.add_child(gizmo)
 	get_tree().root.add_child.call_deferred(header_node)

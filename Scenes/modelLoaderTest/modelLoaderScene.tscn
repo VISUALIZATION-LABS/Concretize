@@ -14,7 +14,7 @@ background_mode = 2
 sky = SubResource("Sky_35d0u")
 tonemap_mode = 3
 
-[node name="ModelRoot" type="Node3D"]
+[node name="ModelScene" type="Node3D"]
 script = ExtResource("1_k4gne")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
