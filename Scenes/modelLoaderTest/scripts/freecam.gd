@@ -25,13 +25,18 @@ func _input(event: InputEvent) -> void:
 			if result:
 				DebugDraw3D.draw_line(from, result.position, Color("Red"), 90)
 				print(result.collider.get_parent().get_meta("model_header"))
-				var result_parent: Node3D = result.collider.get_parent().get_meta("model_header")
-				if gizmo_object && not result_parent == null:
+				var result_parent: Node3D = null 
+				if result.collider.get_parent().has_meta("model_header"):
+					result_parent = result.collider.get_parent().get_meta("model_header")
+
+				if gizmo_object and not result_parent == null:
+					
 					gizmo_object.cleanup()
 					gizmo_object.free()
 					gizmo_object = null
 				
 				if result_parent:
+					result.collider.get_node("CollisionShape3D").disabled = true
 					gizmo_object = gizmo.new()
 					gizmo_object.add_gizmo_to_scene(
 						gizmo.selected_gizmo.MOVE, 

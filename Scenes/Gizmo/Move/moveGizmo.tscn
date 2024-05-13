@@ -383,3 +383,6 @@ skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="XY/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_8at54")
+
+[connection signal="mouse_entered" from="+Y/StaticBody3D" to="." method="_on_y_mouse_entered"]
+[connection signal="mouse_exited" from="+Y/StaticBody3D" to="." method="_on_y_mouse_exited"]
