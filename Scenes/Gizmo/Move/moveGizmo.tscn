@@ -1,4 +1,6 @@
-[gd_scene load_steps=35 format=3 uid="uid://c5olq36p4bsy7"]
+[gd_scene load_steps=36 format=3 uid="uid://c5olq36p4bsy7"]
+
+[ext_resource type="Script" path="res://Scenes/Gizmo/Move/Scripts/moveGizmo.gd" id="1_hrkp8"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7t6oj"]
 no_depth_test = true
@@ -310,6 +312,7 @@ data = PackedVector3Array(-1, 0, 1, 1, 0, -1, 1, 0, 1, -1, 0, 1, -1, 0, -1, 1, 0
 [node name="Gizmo" type="Node3D"]
 process_priority = 1
 process_physics_priority = 1
+script = ExtResource("1_hrkp8")
 
 [node name="+Y" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
