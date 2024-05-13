@@ -20,13 +20,14 @@ func _init() -> void:
 	# Assign the scenes into each gizmo variable
 	pass
 
-
-func _process(delta: float) -> void:
-	pass
-
 func add_gizmo_to_scene(gizmo_type: selected_gizmo, parent_node: Node3D) -> int:
 	match gizmo_type:
 		selected_gizmo.MOVE:
 			parent_node.add_child(move_gizmo)
 	
 	return OK
+
+
+func cleanup():
+	if move_gizmo:
+		move_gizmo.queue_free()
