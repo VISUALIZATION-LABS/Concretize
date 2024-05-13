@@ -1,12 +1,12 @@
 extends Camera3D
 
-# This is a dirty implementation of a freecam feature, to be rewritten
+# TODO: Decouple the raycasting from this to another node/script (maybe "selector" node?)
 
 var mouse_position: Vector2 = Vector2(0.0,0.0)
 
 @onready var capt: bool = false
 @onready var sens: float = 5
-@onready var gizmo_object = gizmo.new()
+@onready var gizmo_object: gizmo = null
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion && capt:
 		self.rotate_x(deg_to_rad(-event.relative.y * 0.2))
@@ -25,9 +25,22 @@ func _input(event: InputEvent) -> void:
 			if result:
 				DebugDraw3D.draw_line(from, result.position, Color("Red"), 90)
 				print(result.collider.get_parent().get_meta("model_header"))
-				gizmo_object.add_gizmo_to_scene(
-					gizmo.selected_gizmo.MOVE, 
-					result.collider.get_parent().get_meta("model_header"))
+				var result_parent: Node3D = result.collider.get_parent().get_meta("model_header")
+				if gizmo_object && not result_parent == null:
+					gizmo_object.cleanup()
+					gizmo_object.free()
+					gizmo_object = null
+				
+				if result_parent:
+					gizmo_object = gizmo.new()
+					gizmo_object.add_gizmo_to_scene(
+						gizmo.selected_gizmo.MOVE, 
+						result_parent)
+			else:
+				if gizmo_object:
+					gizmo_object.cleanup()
+					gizmo_object.free()
+					gizmo_object = null
 			
 			
 		# m2
