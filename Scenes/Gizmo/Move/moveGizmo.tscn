@@ -1,12 +1,10 @@
-[gd_scene load_steps=37 format=3 uid="uid://c5olq36p4bsy7"]
-
-[ext_resource type="Script" path="res://addons/GizmoPlugin/Classes/GizmoClass.gd" id="1_thkvy"]
-[ext_resource type="Script" path="res://addons/GizmoPlugin/Classes/GizmoAxesClass.gd" id="2_x0s34"]
+[gd_scene load_steps=35 format=3 uid="uid://c5olq36p4bsy7"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7t6oj"]
 no_depth_test = true
 shading_mode = 0
 albedo_color = Color(0.40019, 1, 0.369744, 1)
+disable_receive_shadows = true
 grow_amount = 0.438
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_spgce"]
@@ -48,6 +46,7 @@ data = PackedVector3Array(0, 8.9999, -1, 0.3827, 8.9999, -0.9239, 0, 11, 0, 0.38
 no_depth_test = true
 shading_mode = 0
 albedo_color = Color(1, 0.21268, 0.159696, 1)
+disable_receive_shadows = true
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_eymae"]
 _surfaces = [{
@@ -88,6 +87,7 @@ data = PackedVector3Array(0, 8.9999, -1, 0.3827, 8.9999, -0.9239, 0, 11, 0, 0.38
 no_depth_test = true
 shading_mode = 0
 albedo_color = Color(0.054242, 0.292073, 1, 1)
+disable_receive_shadows = true
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ej0xg"]
 _surfaces = [{
@@ -129,6 +129,7 @@ render_priority = 126
 no_depth_test = true
 shading_mode = 0
 albedo_color = Color(0.911893, 0.913114, 0.907592, 1)
+disable_receive_shadows = true
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_6xom2"]
 _surfaces = [{
@@ -176,6 +177,7 @@ fill_to = Vector2(1, 0.0042735)
 cull_mode = 2
 no_depth_test = true
 albedo_texture = SubResource("GradientTexture2D_mjjpd")
+disable_receive_shadows = true
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_7ujqk"]
 _surfaces = [{
@@ -223,6 +225,7 @@ cull_mode = 2
 no_depth_test = true
 shading_mode = 0
 albedo_texture = SubResource("GradientTexture2D_6vrt2")
+disable_receive_shadows = true
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_77rkv"]
 _surfaces = [{
@@ -269,6 +272,7 @@ cull_mode = 2
 no_depth_test = true
 shading_mode = 0
 albedo_texture = SubResource("GradientTexture2D_k8vba")
+disable_receive_shadows = true
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ygl5l"]
 _surfaces = [{
@@ -306,13 +310,11 @@ data = PackedVector3Array(-1, 0, 1, 1, 0, -1, 1, 0, 1, -1, 0, 1, -1, 0, -1, 1, 0
 [node name="Gizmo" type="Node3D"]
 process_priority = 1
 process_physics_priority = 1
-script = ExtResource("1_thkvy")
 
 [node name="+Y" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 mesh = SubResource("ArrayMesh_yp401")
 skeleton = NodePath("")
-script = ExtResource("2_x0s34")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="+Y"]
 
@@ -323,7 +325,6 @@ shape = SubResource("ConcavePolygonShape3D_gl5ff")
 transform = Transform3D(0, 0.1, 0, -0.1, 0, 0, 0, 0, 0.1, 0, 0, 0)
 mesh = SubResource("ArrayMesh_l1tfg")
 skeleton = NodePath("")
-script = ExtResource("2_x0s34")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="+X"]
 
@@ -334,7 +335,6 @@ shape = SubResource("ConcavePolygonShape3D_l0dkh")
 transform = Transform3D(1.19209e-08, 1.19209e-08, -0.1, -0.1, 0, -1.19209e-08, 0, 0.1, 1.19209e-08, 0, 0, 0)
 mesh = SubResource("ArrayMesh_3y80m")
 skeleton = NodePath("")
-script = ExtResource("2_x0s34")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="+Z"]
 
@@ -345,7 +345,6 @@ shape = SubResource("ConcavePolygonShape3D_tohpw")
 transform = Transform3D(0.0771766, 0, 0, 0, 0.0771766, 0, 0, 0, 0.0771766, 0, 0, 0)
 mesh = SubResource("ArrayMesh_ynkh7")
 skeleton = NodePath("")
-script = ExtResource("2_x0s34")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="General"]
 
@@ -356,7 +355,6 @@ shape = SubResource("ConcavePolygonShape3D_roib4")
 transform = Transform3D(0.0896566, 0, 0, 0, 0.0896566, 0, 0, 0, 0.0896566, 0.5, 0, 0.5)
 mesh = SubResource("ArrayMesh_tymxh")
 skeleton = NodePath("")
-script = ExtResource("2_x0s34")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="XZ"]
 
@@ -367,7 +365,6 @@ shape = SubResource("ConcavePolygonShape3D_vxym5")
 transform = Transform3D(0, 0.0896566, 0, -0.0896566, 0, 0, 0, 0, 0.0896566, 0, 0.5, 0.5)
 mesh = SubResource("ArrayMesh_cv62f")
 skeleton = NodePath("")
-script = ExtResource("2_x0s34")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="YZ"]
 
@@ -378,7 +375,6 @@ shape = SubResource("ConcavePolygonShape3D_vnkj2")
 transform = Transform3D(0.0896566, 0, 0, 0, 0, -0.0896566, 0, 0.0896566, 0, 0.5, 0.5, 0)
 mesh = SubResource("ArrayMesh_7kth6")
 skeleton = NodePath("")
-script = ExtResource("2_x0s34")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="XY"]
 
