@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dwl1yeuwl46xf"]
 
-[ext_resource type="Script" path="res://Scenes/MainMenu/Scripts/Importer.gd" id="1_lq1rc"]
+[ext_resource type="Script" path="res://Scenes/2D/MainMenu/Scripts/Importer.gd" id="1_lq1rc"]
 
 [node name="Control" type="Control"]
 layout_mode = 3

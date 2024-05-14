@@ -15,8 +15,8 @@ enum gizmo_control_types {
 
 
 var current_control = gizmo_control_types.OUTSIDE
-var outline_3d_material = load("res://Scenes/Gizmo/Shared/selected_outline.tres")
-var outline_planar_material = load("res://Scenes/Gizmo/Shared/selected_outline_planar.tres")
+# var outline_3d_material = load("res://Scenes/Gizmo/Shared/selected_outline.tres")
+# var outline_planar_material = load("res://Scenes/Gizmo/Shared/selected_outline_planar.tres")
 var block_exit_and_enter: bool = false
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -25,11 +25,13 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	match current_control:
 		gizmo_control_types.OUTSIDE:
-			print("Mouse is outside of all controls")
+			#print("Mouse is outside of all controls")
+			pass
 		gizmo_control_types.X:
-			print("Mouse is inside of X at " + str(get_viewport().get_mouse_position()))
+			#print("Mouse is inside of X at " + str(get_viewport().get_mouse_position()))
+			pass
 		gizmo_control_types.Y:
-			print("Mouse is inside of Y at " + str(get_viewport().get_mouse_position()))
+			#print("Mouse is inside of Y at " + str(get_viewport().get_mouse_position()))
 			
 			if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 				
@@ -42,9 +44,9 @@ func _input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	var camera_position = get_viewport().get_camera_3d().global_position.length()
-	var delta_position = camera_position - self.global_position.length()
+	var delta_position = camera_position - abs(self.global_position.length())
 	
-	self.scale = Vector3(delta_position, delta_position, delta_position) * scaling_factor
+	self.scale = clamp(Vector3(delta_position, delta_position, delta_position) * scaling_factor, Vector3(1,1,1), Vector3(999,999,999))
 	
 	
 	

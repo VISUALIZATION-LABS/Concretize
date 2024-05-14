@@ -15,7 +15,7 @@ enum selected_gizmo {
 
 func _init() -> void:
 	# Load all of the gizmo scene files in memory
-	move_gizmo = preload("res://Scenes/Gizmo/Move/moveGizmo.tscn").instantiate()
+	move_gizmo = preload("res://Scenes/3D/Gizmo/Move/moveGizmo.tscn").instantiate()
 	
 	# Assign the scenes into each gizmo variable
 	pass

@@ -32,5 +32,5 @@ func importer(path: String):
 	if not model_parser.path.is_empty():
 		var model = model_parser.compile_mesh()
 		Shared.import_model = model
-		get_tree().change_scene_to_file("res://Scenes/modelLoaderTest/modelLoaderScene.tscn")
+		get_tree().change_scene_to_file("res://Scenes/3D/modelLoader/modelLoaderScene.tscn")
 	
