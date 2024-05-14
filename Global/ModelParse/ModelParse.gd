@@ -56,7 +56,8 @@ func compile_mesh() -> IPMDL:
 			
 			if not path.is_empty():
 				# .../folder/object.obj -> [.../folder/, object.obj] -> [object, obj]
-				final_mesh.set_name(path.rsplit("/", false, 1)[1].rsplit(".", false, 1)[0])
+				#final_mesh.set_name(path.rsplit("/", false, 1)[1].rsplit(".", false, 1)[0])
+				final_mesh.compiled_model.model_name = path.rsplit("/", false, 1)[1].rsplit(".", false, 1)[0]
 			
 			if lines != null:
 				while lines.get_position() < lines.get_length():
@@ -227,7 +228,8 @@ func compile_mesh() -> IPMDL:
 						
 						"o":
 								current_object = parts[1]
-								final_mesh.add_object(current_object)
+								#final_mesh.add_object(current_object)
+								final_mesh.compiled_model.add_object(current_object)
 						
 						"v":
 							vertices.append(Vector3(
@@ -255,7 +257,8 @@ func compile_mesh() -> IPMDL:
 							print("Setting up materials for: " + mtl_name)
 							
 							if use_mtl:
-								final_mesh.add_mesh(current_object, surface.commit())
+								#final_mesh.add_mesh(current_object, surface.commit())
+								final_mesh.compiled_model.add_mesh(current_object, surface.commit())
 								surface.clear()
 								surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 								#surface.set_material(material)
@@ -354,7 +357,8 @@ func compile_mesh() -> IPMDL:
 									triangle_fan_vertex_normals)
 								
 				# Finish up addign all meshes
-				final_mesh.add_mesh(current_object, surface.commit())
+				#final_mesh.add_mesh(current_object, surface.commit())
+				final_mesh.compiled_model.add_mesh(current_object, surface.commit())
 				surface.clear()
 			
 			var time_elapsed = Time.get_unix_time_from_system() - time_start
