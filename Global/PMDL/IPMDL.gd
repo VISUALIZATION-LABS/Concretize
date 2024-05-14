@@ -1,16 +1,5 @@
 class_name IPMDL
 
-# IPMDL IS STRUCTURED LIKE SO:
-
-#{
-	#"name": "name:String"
-	#"object_list": [
-		#{
-			#"object_name": "name:String"
-			#"meshes": []
-			#"positions": []
-		#}
-	#]
 #}
 
 # PMDL IS STRUCTURED LIKE SO:
@@ -24,43 +13,48 @@ class_name IPMDL
 	#objEnd
 #}
 
-# TODO: Document and add proper error values
-
-var model: Dictionary = {"name": null, "object_list": []}:
-	get:
-		return model
-	set(value):
-		push_error("Can't modify the model data structure without the use of helper functions.")
-
-func get_object_index(name: String) -> int:
-	var object_index: int = -1
+class modelObject:
+	var object_name: String = "Object"
+	var meshes: Array[ArrayMesh] = []
+	var positions: PackedVector3Array = []
 	
-	# Find the index of the desired object
-	for i in model["object_list"].size():
-		if model["object_list"][i]["object_name"] == name:
-			object_index = i
-			break
-	return object_index
 
-func add_object(name: String) -> int:
-	model["object_list"].append({"object_name": name, "meshes": [], "positions": []})
-	return OK
+class model:
+	var model_name: String = "Model"
+	var object_list: Array[modelObject] = []
+	
+	func get_object_index(object_name: String) -> int:
+		var object_index: int = -1
+		
+		for current_object in object_list:
+			if current_object.object_name == object_name:
+				object_index = object_list.bsearch(current_object, true)
+				break
+		
+		return object_index
+	
+	func add_object(object_name: String) -> int:
+		var object_to_add: modelObject = modelObject.new()
+		object_to_add.object_name = object_name
+		object_list.append(object_to_add)
+		return OK
+	
+	func add_mesh(object_name: String, mesh: ArrayMesh) -> int:
+		var object_index: int = get_object_index(object_name)
+		
+		if object_index > -1:
+			object_list[object_index].meshes.append(mesh)
+			return OK
+		
+		return ERR_DOES_NOT_EXIST
+	
+	func remove_object(object_name: String) -> int:
+		var object_to_remove: int = get_object_index(object_name)
+		
+		if object_to_remove > -1:
+			object_list.remove_at(object_to_remove)
+			return OK
+	
+		return ERR_DOES_NOT_EXIST
 
-func remove_object(object_name: String) -> int:
-	model["object_list"].remove_at(get_object_index(object_name))
-	return OK
-
-func set_name(model_name:String) -> int:
-	model["name"] = model_name
-	return OK
-
-# TODO: Add functions to get a mesh (cmp input mesh with arr mesh maybe) 
-# and mesh deletion
-
-func set_position(object_name: String, position: Vector3) -> int:
-	model["object_list"][get_object_index(object_name)]["positions"].append(position)
-	return OK
-
-func add_mesh(object_name: String, mesh: ArrayMesh) -> int:
-	model["object_list"][get_object_index(object_name)]["meshes"].append(mesh)
-	return OK
+var compiled_model: model = model.new()
