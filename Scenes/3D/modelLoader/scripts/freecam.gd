@@ -1,14 +1,27 @@
 extends Camera3D
 
-# TODO: Decouple the raycasting from this to another node/script (maybe "selector" node?)
-
 var mouse_position: Vector2 = Vector2(0.0,0.0)
 
 @onready var capt: bool = false
 @onready var sens: float = 5
 @onready var gizmo_object: gizmo = null
 @onready var selector: ObjectSelector3D = ObjectSelector3D.new()
+
+
 func _input(event: InputEvent) -> void:
+	# TODO: Remove
+	# This is only here for the presentation on the 14th, remove after
+	
+	if event is InputEventKey:
+		if event.physical_keycode == KEY_1 and event.is_released():
+			print("Spawning light")
+			var spot_light: Node3D = load("res://Global/BuiltInModels/3D/Spot3D/Spot3D.tscn").instantiate()
+			get_tree().root.add_child.call_deferred(spot_light)
+		if event.physical_keycode == KEY_2 and event.is_released():
+			print("Spawning light (omni)")
+			var omni_light: Node3D = load("res://Global/BuiltInModels/3D/Omni3D/Omni3D.tscn").instantiate()
+			get_tree().root.add_child.call_deferred(omni_light)
+	
 	if event is InputEventMouseMotion && capt:
 		self.rotate_x(deg_to_rad(-event.relative.y * 0.2))
 		$"..".rotate_y(deg_to_rad(-event.relative.x * 0.2))

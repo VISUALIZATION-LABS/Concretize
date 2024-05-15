@@ -1,0 +1,64 @@
+[gd_scene load_steps=7 format=3 uid="uid://ddpvrbd0128bg"]
+
+[ext_resource type="PackedScene" uid="uid://xk58em1thudm" path="res://Scenes/3D/Presentation/Model/Varanda/varanda.glb" id="1_mjyrm"]
+[ext_resource type="Script" path="res://Scenes/3D/modelLoader/scripts/freecam.gd" id="2_nnc8u"]
+[ext_resource type="Script" path="res://Scenes/3D/Presentation/Scripts/UI.gd" id="3_gnaid"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_l724v"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_tgbdy"]
+sky_material = SubResource("ProceduralSkyMaterial_l724v")
+
+[sub_resource type="Environment" id="Environment_t0v7x"]
+background_mode = 2
+sky = SubResource("Sky_tgbdy")
+ambient_light_source = 2
+ambient_light_color = Color(0.116267, 0.125491, 0.15157, 1)
+reflected_light_source = 2
+tonemap_mode = 3
+glow_enabled = true
+
+[node name="PresentationTest" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.512812, -0.759003, 0.401171, 0.351707, 0.612017, 0.708334, -0.783151, -0.222148, 0.580796, 0, 0, 0)
+light_color = Color(0.848259, 0.855952, 0.831721, 1)
+light_energy = 0.735
+shadow_enabled = true
+shadow_blur = 0.807
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_t0v7x")
+
+[node name="varanda" parent="." instance=ExtResource("1_mjyrm")]
+
+[node name="pv" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.20441, 3.84963)
+
+[node name="Camera3D" type="Camera3D" parent="pv"]
+current = true
+script = ExtResource("2_nnc8u")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+script = ExtResource("3_gnaid")
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.132
+anchor_bottom = 0.035
+offset_right = -0.0639954
+offset_bottom = 0.32
+text = "Add model"
+
+[connection signal="button_down" from="CanvasLayer/Control/Button" to="CanvasLayer" method="_on_button_button_down"]

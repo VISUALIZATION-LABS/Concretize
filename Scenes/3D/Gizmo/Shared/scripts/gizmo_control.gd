@@ -23,11 +23,13 @@ func _init() -> void:
 func add_gizmo_to_scene(gizmo_type: selected_gizmo, parent_node: Node3D) -> int:
 	match gizmo_type:
 		selected_gizmo.MOVE:
+
 			parent_node.add_child(move_gizmo)
+			move_gizmo.global_position = parent_node.position
 	
 	return OK
 
 
 func cleanup():
-	if move_gizmo:
+	if move_gizmo != null:
 		move_gizmo.queue_free()

@@ -17,9 +17,6 @@ var path: String:
 		else:
 			push_error("Path is not valid")
 
-# TODO: Make the generator a SINGLE function with some arguments that will be used
-# to select how the parser will function, maybe even just automatically detect what the file is.
-
 func compile_mesh() -> IPMDL:
 	var extension = path.rsplit(".", true,1)[1]
 	var final_mesh: IPMDL = IPMDL.new()

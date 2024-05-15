@@ -33,4 +33,9 @@ func importer(path: String):
 		var model = model_parser.compile_mesh()
 		Shared.import_model = model
 		get_tree().change_scene_to_file("res://Scenes/3D/modelLoader/modelLoaderScene.tscn")
-	
+
+
+
+
+func _on_button_2_button_down() -> void:
+	get_tree().change_scene_to_file("res://Scenes/3D/Presentation/Presentation_test.tscn")

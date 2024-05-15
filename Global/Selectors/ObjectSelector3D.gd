@@ -5,7 +5,7 @@ var depth_counted: int = 0
 var recursing: bool = false
 var gizmo_object: gizmo = null
 
-@export var enable_debug: bool = true
+@export var enable_debug: bool = false
 
 signal gizmo_selected(axis: int)
 
@@ -18,13 +18,15 @@ func make_selection(projected_ray_origin: Vector3,projected_ray_normal: Vector3,
 	if raycast_result:
 		if enable_debug: DebugDraw3D.draw_line(projected_ray_origin, raycast_result.position, Color.RED, 90)
 		# TODO: Make the tree walkable
-		
 		var header_node:Node3D = null
+		var use_editor_object: bool = false
 		
-		if raycast_result.collider.get_parent().has_meta("header_node"):
-			header_node = raycast_result.collider.get_parent().get_meta("header_node")
+		if raycast_result.collider.name.begins_with("_editor"): use_editor_object = true
+		if raycast_result.collider.get_parent().has_meta("header_node") or use_editor_object:
+			if not use_editor_object: header_node = raycast_result.collider.get_parent().get_meta("header_node")
+			else: header_node = raycast_result.collider.get_parent().get_parent()
 			
-			if raycast_result.collider.get_parent().get_meta("header_node") != selected_object:
+			if header_node != selected_object:
 				
 				# Make sure to cleanup the gizmo or else we have a memory leak
 				if gizmo_object:
@@ -39,9 +41,23 @@ func make_selection(projected_ray_origin: Vector3,projected_ray_normal: Vector3,
 				# Recursion is used so we can keep clicking on the same object and keep having it selected,
 				# maybe in the future we can have it so every 2 clicks we'll walk down one node
 				recursing = true
+				depth_counted += 1
+				
+				if depth_counted >= 50:
+					depth_counted = 0
+					push_warning("Recurse steps greater than or equal to 50!")
+					return
 				make_selection(raycast_result.position, projected_ray_normal, selection_distance, scene_tree, space_state)
 		else: if raycast_result.collider.get_parent().get_parent().name == "Gizmo":
-			print("Gizmo selected!")
+			var gizmo_object_header: Node3D = raycast_result.collider.get_parent().get_parent()
+			
+			match raycast_result.collider.get_parent().name:
+				"+Y":
+					gizmo_object_header.set_control_as_selected(Shared.gizmo_control_types.Y)
+				"+X":
+					gizmo_object_header.set_control_as_selected(Shared.gizmo_control_types.X)
+				"+Z":
+					gizmo_object_header.set_control_as_selected(Shared.gizmo_control_types.Z)
 	# Cleanup for a non recursive null raycast_result
 	else: if not recursing:
 		if gizmo_object:
