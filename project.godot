@@ -11,15 +11,13 @@ config_version=5
 [application]
 
 config/name="PocketViz2"
-run/main_scene="res://Scenes/2D/MainMenu/MainMenu.tscn"
+run/main_scene="res://Scenes/2D/MainMenu/main_menu.tscn"
 config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-Shared="*res://Global/Shared/Shared.gd"
-InterfaceAnimator="*res://Global/AnimationUtils/InterfaceAnimator.gd"
-ModelAnimator="*res://Global/AnimationUtils/ModelAnimator.gd"
+SceneManager="*res://Global/SceneManager/scene_manager.gd"
 
 [dotnet]
 
@@ -34,13 +32,17 @@ enabled=PackedStringArray("res://addons/Todo_Manager/plugin.cfg")
 folder_colors={
 "res://Art/": "pink",
 "res://Global/": "blue",
+"res://Resources/": "teal",
+"res://Resources/Shaders/": "pink",
 "res://Scenes/": "yellow",
 "res://Scenes/2D/": "teal",
 "res://Scenes/2D/MainMenu/Scripts/": "orange",
 "res://Scenes/3D/": "purple",
+"res://Scenes/3D/Freecam/Scripts/": "orange",
 "res://Scenes/3D/Gizmo/Move/Scripts/": "orange",
 "res://Scenes/3D/Gizmo/Shared/": "green",
 "res://Scenes/3D/Gizmo/Shared/scripts/": "orange",
+"res://Scenes/3D/ModelBuilder/Scripts/": "orange",
 "res://Scenes/3D/modelLoader/scripts/": "orange",
 "res://addons/": "gray"
 }
