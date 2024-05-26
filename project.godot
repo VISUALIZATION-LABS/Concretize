@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+ModelCompiler="*res://Global/ModelCompiler/model_compiler.gd"
 SceneManager="*res://Global/SceneManager/scene_manager.gd"
 
 [dotnet]

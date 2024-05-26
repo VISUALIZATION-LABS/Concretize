@@ -42,9 +42,10 @@ func _process(delta: float) -> void:
 	var input_vector: Vector2 = Input.get_vector("move_forward", "move_back", "move_left", "move_right")
 	
 	# TODO: Implement lerping
-	# Then transform the camera based on it's basis (global rot matrix in practice)
-	camera.global_translate((camera.transform.basis.z * input_vector.x) * camera_speed / 10)
-	camera.global_translate((camera.transform.basis.x * input_vector.y) * camera_speed / 10)
+	var desired_movement = (camera.basis.z * input_vector.x) + (camera.basis.x * input_vector.y)
 	
-	# MOVEMENT SECTION ----
+	# Then transform the camera based on it's basis (global rot matrix in practice)
+	camera.global_translate(desired_movement * camera_speed / 10)
+	
+	# END OF MOVEMENT SECTION ----
 	
