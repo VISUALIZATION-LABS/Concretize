@@ -13,28 +13,37 @@ environment = ExtResource("2_v7mx4")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
 transform = Transform3D(0.678517, -0.425394, 0.598877, -0.606344, 0.135894, 0.783505, -0.414682, -0.894747, -0.165729, 0, 0, 0)
 shadow_enabled = true
-shadow_bias = 0.0
-shadow_blur = 1.698
 
 [node name="Freecam" parent="." instance=ExtResource("1_b5ukr")]
 sensitivity = 2.4
 
-[node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.713135, -0.686218, -0.720947)
+[node name="Sala" type="Node3D" parent="."]
 visible = false
+
+[node name="Chao" type="CSGBox3D" parent="Sala"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.713135, -0.686218, -0.720947)
 size = Vector3(2.42627, 0.363403, 2.44189)
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="."]
+[node name="Parede" type="CSGBox3D" parent="Sala"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.713135, 0.203708, -0.72406)
-visible = false
 size = Vector3(2.42627, 1.47272, 2.43567)
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="CSGBox3D2"]
+[node name="CSGBox3D3" type="CSGBox3D" parent="Sala/Parede"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0940857, 0, 0.0906526)
 operation = 2
 size = Vector3(2.2381, 1.47272, 2.34244)
 
-[node name="CSGBox3D4" type="CSGBox3D" parent="CSGBox3D2"]
+[node name="CSGBox3D4" type="CSGBox3D" parent="Sala/Parede"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.793633, -0.00908661, 0.000663757)
 operation = 2
 size = Vector3(1.61909, 0.646866, 1.56783)
+
+[node name="Moveis" type="Node3D" parent="Sala"]
+
+[node name="MESA" type="CSGBox3D" parent="Sala/Moveis"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.539452, -0.395264, 0)
+size = Vector3(1, 0.209473, 1)
+
+[node name="PRATELEIRA" type="CSGBox3D" parent="Sala/Moveis"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.539452, -0.0635986, -1.67507)
+size = Vector3(1, 0.872803, 0.287109)
