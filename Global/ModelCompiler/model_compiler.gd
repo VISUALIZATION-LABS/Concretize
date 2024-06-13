@@ -20,12 +20,12 @@ class _material:
 	# If is not null then enable displacements
 	var height_texture: ImageTexture = null
 
-
+# TODO: Either test with ArrayMesh or improve the import times somewhat but everything is funcional here!
 func compile_mesh() -> Node3D:
 	var start_time = Time.get_unix_time_from_system()
 
 	var thread_mtl_ldr: Thread
-	var path: String = "C:/Users/Felipe/dev/tcc/program/TestFiles/Models/obj/MTLTEST/MaterialRoom/texturedNoPBR/mtlRoom.obj"
+	var path: String = "C:/Users/Felipe/dev/tcc/program/TestFiles/ModelsV2/Mesh_tests/Dense/StanfordDragon/stabfordDragon.obj"
 	var current_mesh: MeshInstance3D
 	var current_material_group: StringName = &""
 	var final_mesh_tree: Node3D = Node3D.new()
@@ -73,7 +73,7 @@ func compile_mesh() -> Node3D:
 				uv_coordinates.append(Vector2(
 					float(current_line[1]),
 					float(current_line[2])
-				))
+				) * Vector2(1,-1))
 
 			"o":
 				current_object = Node3D.new()
@@ -306,7 +306,7 @@ func _mtl_parse(mtl_path: String):
 				if err != OK:
 					push_error("Image at %s could not be loaded, textures won't be created." % image_path)
 
-				diffuse_image.generate_mipmaps(true)
+				diffuse_image.generate_mipmaps()
 
 				var diffuse_texture = ImageTexture.create_from_image(diffuse_image)
 
@@ -325,8 +325,6 @@ func _mtl_parse(mtl_path: String):
 					image_path = mtl_line[1]
 				else: if mtl_line[1].is_relative_path():
 					image_path = mtl_path.get_base_dir().path_join(mtl_line[1])
-
-
 
 				err = roughness_image.load(image_path)
 
@@ -351,15 +349,12 @@ func _mtl_parse(mtl_path: String):
 				else: if mtl_line[1].is_relative_path():
 					image_path = mtl_path.get_base_dir().path_join(mtl_line[1])
 
-
-
 				err = metallic_image.load(image_path)
 
 				if err != OK:
 					push_error("Image at %s could not be loaded, textures won't be created." % image_path)
 
-				metallic_image.generate_mipmaps(true)
-
+				metallic_image.generate_mipmaps()
 
 				var metallic_texture = ImageTexture.create_from_image(metallic_image)
 				current_material.metallic_texture = metallic_texture
@@ -370,8 +365,6 @@ func _mtl_parse(mtl_path: String):
 				var normal_image = Image.new()
 				var err: int = -1
 				var path_index: int = 1
-
-
 
 				if mtl_line.find("-bm") > 0:
 					path_index = 3
