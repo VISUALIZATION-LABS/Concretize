@@ -1,6 +1,3 @@
-
-
-
 extends Node
 
 var _materials: Dictionary
@@ -25,7 +22,7 @@ func compile_mesh() -> Node3D:
 	var start_time = Time.get_unix_time_from_system()
 
 	var thread_mtl_ldr: Thread
-	var path: String = "C:/Users/Felipe/dev/tcc/program/TestFiles/ModelsV2/Mesh_tests/Dense/StanfordDragon/stabfordDragon.obj"
+	var path: String = "C:/Users/Felipe/dev/tcc/program/TestFiles/ModelsV2/Mesh_tests/Dense/StanfordDragon/stabfordDragonPureTri.obj"
 	var current_mesh: MeshInstance3D
 	var current_material_group: StringName = &""
 	var final_mesh_tree: Node3D = Node3D.new()
@@ -39,17 +36,16 @@ func compile_mesh() -> Node3D:
 
 	# THIS IS HERE FOR INITIAL DEBUG
 	var obj_file:FileAccess = FileAccess.open(path,FileAccess.READ)
-
+	var file_length = obj_file.get_length()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 
 	# Sequential read
-	while obj_file.get_position() < obj_file.get_length():
+	while obj_file.get_position() < file_length:
+		#printraw("%s \r" % str((100 * obj_file.get_position()) / file_length))
 		var current_line:PackedStringArray = obj_file.get_line().split(" ", false)
 		current_mesh = MeshInstance3D.new()
 
 		# Mesh should receive material name when those are implemented
-
-
 		match current_line[0]:
 			"#":
 				print(current_line)
@@ -87,6 +83,7 @@ func compile_mesh() -> Node3D:
 					thread_mtl_ldr.wait_to_finish()
 
 				if current_material_group:
+					current_mesh.name = current_material_group
 					current_mesh.mesh = surface_tool.commit()
 					current_object.add_child(current_mesh)
 
@@ -135,13 +132,13 @@ func compile_mesh() -> Node3D:
 
 					for index in range(3, 0, -1):
 						surface_tool.set_normal(
-							vertex_normals[float(current_line[index].split("/", false)[2]) -1 ]
+							vertex_normals[int(current_line[index].split("/", false)[2]) -1 ]
 						)
 						surface_tool.set_uv(
-							uv_coordinates[float(current_line[index].split("/", false)[1]) -1 ]
+							uv_coordinates[int(current_line[index].split("/", false)[1]) -1 ]
 						)
 						surface_tool.add_vertex(
-							vertices[float(current_line[index].split("/", false)[0]) -1 ]
+							vertices[int(current_line[index].split("/", false)[0]) -1 ]
 						)
 				else:
 
@@ -218,14 +215,23 @@ func compile_mesh() -> Node3D:
 	# TODO: Work on a better way to do this instead of commiting a leftover mesh section
 	print("Finished %s" % current_material_group)
 
+	current_mesh.name = current_material_group
 	current_mesh.mesh = surface_tool.commit()
 	current_object.add_child(current_mesh)
 
 	surface_tool.clear()
-	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	current_material_group = &""
 
 	print("Elapsed time %s" % str(Time.get_unix_time_from_system() - start_time))
+
+	# Deallocate everything
+
+	vertices.clear()
+	vertex_normals.clear()
+	uv_coordinates.clear()
+	_materials.clear()
+	obj_file.close()
+
 	return final_mesh_tree
 
 func _mtl_parse(mtl_path: String):
