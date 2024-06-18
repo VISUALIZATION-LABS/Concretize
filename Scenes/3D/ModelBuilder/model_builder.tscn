@@ -40,10 +40,6 @@ size = Vector3(1.61909, 0.646866, 1.56783)
 
 [node name="Moveis" type="Node3D" parent="Sala"]
 
-[node name="MESA" type="CSGBox3D" parent="Sala/Moveis"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.539452, -0.395264, 0)
-size = Vector3(1, 0.209473, 1)
-
 [node name="PRATELEIRA" type="CSGBox3D" parent="Sala/Moveis"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.539452, -0.0635986, -1.67507)
 size = Vector3(1, 0.872803, 0.287109)
