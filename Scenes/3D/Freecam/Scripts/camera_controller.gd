@@ -5,7 +5,7 @@ extends Node
 @export_range(1, 10, 0.1, "or_greater") var camera_speed: float = 1.0
 
 
-@onready var camera = $Camera3D
+@onready var camera: Camera3D = $Camera3D
 
 var camera_lock: bool = true
 var previous_mouse_coordinates: Vector2 = Vector2(0,0)
@@ -35,14 +35,14 @@ func _input(event: InputEvent) -> void:
 
 
 # We do movement in process in case the refresh rate is dirrerent to the physics step rate (60HZ)
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	
 	# MOVEMENT SECTION ----
 	
 	var input_vector: Vector2 = Input.get_vector("move_forward", "move_back", "move_left", "move_right")
 	
 	# TODO: Implement lerping
-	var desired_movement = (camera.basis.z * input_vector.x) + (camera.basis.x * input_vector.y)
+	var desired_movement: Vector3 = (camera.basis.z * input_vector.x) + (camera.basis.x * input_vector.y)
 	
 	# Then transform the camera based on it's basis (global rot matrix in practice)
 	camera.global_translate(desired_movement * camera_speed / 10)

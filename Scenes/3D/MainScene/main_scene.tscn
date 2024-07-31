@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=3 uid="uid://dc845ju7r8wmi"]
+
+[ext_resource type="PackedScene" uid="uid://bln1i361dl82r" path="res://Scenes/2D/MainMenuUI/main_menu_ui.tscn" id="1_deost"]
+[ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="1_pi0xa"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wyyue"]
+
+[sub_resource type="Sky" id="Sky_f7how"]
+sky_material = SubResource("ProceduralSkyMaterial_wyyue")
+
+[sub_resource type="Environment" id="Environment_beru5"]
+background_mode = 2
+sky = SubResource("Sky_f7how")
+
+[node name="MainScene" type="Node3D"]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="MainMenuUI" parent="UI" instance=ExtResource("1_deost")]
+
+[node name="Freecam" parent="." instance=ExtResource("1_pi0xa")]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_beru5")

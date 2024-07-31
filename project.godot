@@ -10,20 +10,25 @@ config_version=5
 
 [application]
 
-config/name="PocketViz2"
+config/name="Concretize"
 config/tags=PackedStringArray("tcc")
-run/main_scene="res://Scenes/2D/MainMenu/main_menu.tscn"
+run/main_scene="res://Scenes/3D/MainScene/main_scene.tscn"
 config/features=PackedStringArray("4.2", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-ModelCompiler="*res://Global/ModelCompiler/model_compiler.gd"
 SceneManager="*res://Global/SceneManager/scene_manager.gd"
+
+[debug]
+
+gdscript/warnings/untyped_declaration=1
+gdscript/warnings/unsafe_cast=1
+gdscript/warnings/unsafe_call_argument=1
 
 [dotnet]
 
-project/assembly_name="PocketViz2"
+project/assembly_name="Concretize"
 
 [editor_plugins]
 
@@ -48,6 +53,10 @@ folder_colors={
 "res://Scenes/3D/modelLoader/scripts/": "orange",
 "res://addons/": "gray"
 }
+
+[filesystem]
+
+import/blender/enabled=false
 
 [input]
 

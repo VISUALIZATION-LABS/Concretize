@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://bln1i361dl82r"]
+
+[ext_resource type="Script" path="res://Scenes/2D/MainMenuUI/main_menu_ui.gd" id="1_qx2ki"]
+
+[node name="MainMenuUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qx2ki")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 44.0
+grow_horizontal = 2
+color = Color(0.0430392, 0.0430392, 0.0430392, 1)
+
+[node name="MainMargin" type="MarginContainer" parent="BG"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="MainControl" type="Control" parent="BG/MainMargin"]
+layout_mode = 2
+
+[node name="MenuButton" type="MenuButton" parent="BG/MainMargin/MainControl"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.00788091
+anchor_top = 0.0588235
+anchor_right = 0.00788091
+anchor_bottom = 0.059
+offset_right = 169.0
+offset_bottom = 30.994
+text = "Project"
+item_count = 3
+popup/item_0/text = "New"
+popup/item_0/id = 0
+popup/item_1/text = "Save"
+popup/item_1/id = 1
+popup/item_2/text = "Import"
+popup/item_2/id = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="Button" type="Button" parent="BG/MainMargin/MainControl"]
+layout_mode = 0
+offset_right = 207.0
+offset_bottom = 37.0
+text = "Mesh it"
+
+[connection signal="button_down" from="BG/MainMargin/MainControl/Button" to="." method="_on_button_button_down"]

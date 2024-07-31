@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dyqbucn7btpvn"]
+
+[ext_resource type="Script" path="res://Scenes/3D/RuntimeAssetImporter/RuntimeAssetImporter.cs" id="1_hep1n"]
+
+[node name="RuntimeAssetImporter" type="Node3D"]
+script = ExtResource("1_hep1n")
