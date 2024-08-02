@@ -9,3 +9,6 @@ sky_material = SubResource("ProceduralSkyMaterial_b8igq")
 background_mode = 2
 sky = SubResource("Sky_emmlu")
 tonemap_mode = 3
+sdfgi_use_occlusion = true
+sdfgi_bounce_feedback = 1.15
+sdfgi_energy = 2.0
