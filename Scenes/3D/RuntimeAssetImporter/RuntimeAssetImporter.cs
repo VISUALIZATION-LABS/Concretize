@@ -1,7 +1,10 @@
 using Godot;
+using Godot.NativeInterop;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 
 public partial class RuntimeAssetImporter : Node3D
@@ -24,7 +27,7 @@ public partial class RuntimeAssetImporter : Node3D
         // Texture assignment
 
         bool useTextures = false;
-        Color albedoColor = new Color(1,1,1,1);
+        Color albedoColor = new(1,1,1,1);
         ImageTexture albedoTexture = null;
         ImageTexture normalTexture = null;
         ImageTexture roughnessTexture = null;
@@ -45,9 +48,9 @@ public partial class RuntimeAssetImporter : Node3D
 		public const string gltf = "gltf";
 	}
 
-
+	
     Error Compile_mesh(string path) {
-        Node3D modelNode = new Node3D();
+        Node3D modelNode = new() {Name = "modelNode"};
 		// First check if the path is valid
 
 		if (!FileAccess.FileExists(path)) {
@@ -61,12 +64,9 @@ public partial class RuntimeAssetImporter : Node3D
 			case FileType.obj:
 				GD.Print("Compiling for obj");
 				string data = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText();
-
 				ObjMeshAssembler(ref modelNode, ref data);
-
-
 				break;
-			case FileType.glb:
+			case FileType.glb:	
 				GD.Print("Compiling for glb");
 				break;
 			case FileType.gltf:
@@ -98,21 +98,18 @@ public partial class RuntimeAssetImporter : Node3D
 		// -F
 
 		// Mesh data
-		List<Vector3> vertexPositions = new List<Vector3>();
-		List<Vector3> vertexNormals = new List<Vector3>();
-		List<Vector2> vertexTextureCoordinates = new List<Vector2>();
+		List<Vector3> vertexPositions = new();
+		List<Vector3> vertexNormals = new();
+		List<Vector2> vertexTextureCoordinates = new();
 
-		List<Vector3> currentVertices = new List<Vector3>();
-		List<Vector3> currentNormals = new List<Vector3>();
-		List<Vector2> currentVertexTextureCoordinates = new List<Vector2>();
+		List<int[]> indices = new();
+
 		
-		// Parser data
-		// currentObject
-
-		ArrayMesh arrayMesh = new ArrayMesh();
-		Godot.Collections.Array arrayMeshData = new Godot.Collections.Array();
+		ArrayMesh arrayMesh = new();
+		Godot.Collections.Array arrayMeshData = new();
 		arrayMeshData.Resize((int)Mesh.ArrayType.Max);
-		
+
+		/*
 		List<Vector3> vtx1 = new List<Vector3>() {
 			new Vector3(-1, -1, 0),
 			new Vector3(-1, 1, 0),
@@ -141,15 +138,16 @@ public partial class RuntimeAssetImporter : Node3D
 
 		
 
-		MeshInstance3D testMesh1 = new MeshInstance3D();
+		MeshInstance3D testMesh1 = new();
 
 
 
 
 		modelNode.AddChild(testMesh1);
+		*/
 
 
-		/*
+		
 		string[] dataLine = data.Split('\n', StringSplitOptions.None);
 		foreach (string line in dataLine) {
 			string[] token = line.Split(' ', StringSplitOptions.None);
@@ -196,31 +194,64 @@ public partial class RuntimeAssetImporter : Node3D
 						// We add nf to the end of every single idxGroup
 						// so we know when a face declaration ends
 
-						string[] indices = idxGroup.Split('/', StringSplitOptions.None);
+						string[] idx = idxGroup.Split('/', StringSplitOptions.None);
 
-						if (token.Length < 4) {
-							GD.Print("Simple triangles");
-						} else {
-							// We need to triangulate the mesh so we only pass triangles
+						int[] idxArray = {int.Parse(idx[0]) - 1, int.Parse(idx[1]) - 1, int.Parse(idx[2]) - 1};
+						indices.Add(idxArray);
 
-							
-							currentVertices.Add(vertexPositions[int.Parse(indices[0]) - 1]);
-						}
 					}
 					break;
 			} // Switch ends here
-		} // Foreach ends here
+		} // Foreach ends here		
 
-		arrayMeshData[(int)Mesh.ArrayType.Vertex] = currentVertices.ToArray();
+		//arrayMeshData[(int)Mesh.ArrayType.Vertex] = currentVertices.ToArray();
+		indices.Reverse();
 
+		AssembleSurfaceMeshData(ref indices, ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref arrayMeshData);
+
+		Image uvCheckerboardImage = new();
+
+		uvCheckerboardImage.Load("res://Art/Debug/3D/uvgrid.png");
+
+		Texture2D uvCheckerboardTexture = ImageTexture.CreateFromImage(uvCheckerboardImage);
+		
 		arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrayMeshData);
-
-		MeshInstance3D meshObject = new MeshInstance3D() {Mesh = arrayMesh};
-
+		arrayMesh.SurfaceSetMaterial(0, new StandardMaterial3D() {AlbedoTexture = uvCheckerboardTexture});			
+		
+		MeshInstance3D meshObject = new();
+		
+		meshObject.Mesh = arrayMesh;
+		
 		modelNode.AddChild(meshObject);
-		*/
+
 
         return Error.Ok;
+	}
+
+	private static Error AssembleSurfaceMeshData(ref List<int[]> indices, ref List<Vector3> vertexPositions, ref List<Vector3> vertexNormals, ref List<Vector2> vertexTextureCoordinates, ref Godot.Collections.Array arrayMeshData) {
+		List<Vector3> fullMeshPositions = new();	
+		List<Vector3> fullMeshNormals = new();
+		List<Vector2> fullMeshVertexTextures = new();
+
+		foreach (int[] index in indices) {
+				fullMeshPositions.Add(vertexPositions[index[0]]);
+				fullMeshVertexTextures.Add(vertexTextureCoordinates[index[1]]);
+				fullMeshNormals.Add(vertexNormals[index[2]]);
+		}
+
+		if (indices.Count % 3 == 0) {
+			arrayMeshData[(int)Mesh.ArrayType.Vertex] =	fullMeshPositions.ToArray();
+			arrayMeshData[(int)Mesh.ArrayType.TexUV] = fullMeshVertexTextures.ToArray();
+			arrayMeshData[(int)Mesh.ArrayType.Normal] = fullMeshNormals.ToArray();
+		} else {
+			// Use surfaceTool to "triangulate mesh"
+			SurfaceTool surfaceTool = new();
+			surfaceTool.AddTriangleFan(fullMeshPositions.ToArray(), fullMeshVertexTextures.ToArray(), null, null, fullMeshNormals.ToArray());
+
+			arrayMeshData = surfaceTool.CommitToArrays();
+		}
+
+		return Error.Ok;
 	}
 
 	private static Error ObjMaterialAssembler(ref Material material) {
