@@ -102,52 +102,12 @@ public partial class RuntimeAssetImporter : Node3D
 		List<Vector3> vertexNormals = new();
 		List<Vector2> vertexTextureCoordinates = new();
 
-		List<int[]> indices = new();
+		List<List<int[]>> indices = new();
 
-		
 		ArrayMesh arrayMesh = new();
 		Godot.Collections.Array arrayMeshData = new();
 		arrayMeshData.Resize((int)Mesh.ArrayType.Max);
 
-		/*
-		List<Vector3> vtx1 = new List<Vector3>() {
-			new Vector3(-1, -1, 0),
-			new Vector3(-1, 1, 0),
-			new Vector3(1, 1, 0),
-			new Vector3(0.5f, -0.5f, 0),
-			new Vector3(1, -1, 0)
-		};
-
-
-	
-		MeshInstance3D testMesh = new MeshInstance3D();
-
-		SurfaceTool st = new SurfaceTool();
-		st.Begin(Mesh.PrimitiveType.Triangles);
-
-		st.AddTriangleFan(vtx1.ToArray());
-
-		arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, st.CommitToArrays());
-
-		arrayMesh.SurfaceSetMaterial(0, new StandardMaterial3D(){AlbedoColor = new Color("red")});
-
-
-		testMesh.Mesh = arrayMesh;
-
-		modelNode.AddChild(testMesh);
-
-		
-
-		MeshInstance3D testMesh1 = new();
-
-
-
-
-		modelNode.AddChild(testMesh1);
-		*/
-
-
-		
 		string[] dataLine = data.Split('\n', StringSplitOptions.None);
 		foreach (string line in dataLine) {
 			string[] token = line.Split(' ', StringSplitOptions.None);
@@ -189,6 +149,7 @@ public partial class RuntimeAssetImporter : Node3D
 					// Conversion is needed to "reverse" mesh data without mirroring the mesh
 
 					token = token.Skip(1).ToArray();
+					List<int[]> facedef = new();
 
 					foreach (string idxGroup in token) {
 						// We add nf to the end of every single idxGroup
@@ -197,15 +158,16 @@ public partial class RuntimeAssetImporter : Node3D
 						string[] idx = idxGroup.Split('/', StringSplitOptions.None);
 
 						int[] idxArray = {int.Parse(idx[0]) - 1, int.Parse(idx[1]) - 1, int.Parse(idx[2]) - 1};
-						indices.Add(idxArray);
-
+						facedef.Add(idxArray);
 					}
+
+					indices.Add(facedef);
 					break;
 			} // Switch ends here
 		} // Foreach ends here		
 
 		//arrayMeshData[(int)Mesh.ArrayType.Vertex] = currentVertices.ToArray();
-		indices.Reverse();
+		//indices.Reverse();
 
 		AssembleSurfaceMeshData(ref indices, ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref arrayMeshData);
 
@@ -228,29 +190,42 @@ public partial class RuntimeAssetImporter : Node3D
         return Error.Ok;
 	}
 
-	private static Error AssembleSurfaceMeshData(ref List<int[]> indices, ref List<Vector3> vertexPositions, ref List<Vector3> vertexNormals, ref List<Vector2> vertexTextureCoordinates, ref Godot.Collections.Array arrayMeshData) {
-		List<Vector3> fullMeshPositions = new();	
-		List<Vector3> fullMeshNormals = new();
-		List<Vector2> fullMeshVertexTextures = new();
 
-		foreach (int[] index in indices) {
-				fullMeshPositions.Add(vertexPositions[index[0]]);
-				fullMeshVertexTextures.Add(vertexTextureCoordinates[index[1]]);
-				fullMeshNormals.Add(vertexNormals[index[2]]);
+	
+	// Assembles meshes with SurfaceTool for mesh triangulation.
+	private static Error AssembleSurfaceMeshData(ref List<List<int[]>> indices, ref List<Vector3> vertexPositions, ref List<Vector3> vertexNormals, ref List<Vector2> vertexTextureCoordinates, ref Godot.Collections.Array arrayMeshData) {
+		SurfaceTool surfaceTool = new();
+		surfaceTool.Begin(Mesh.PrimitiveType.Triangles);
+
+		foreach (List<int[]> faceDef in indices) {
+			if (faceDef.Count < 4) {
+				for (int i = faceDef.Count - 1; i >= 0; i--) {
+					surfaceTool.SetUV(vertexTextureCoordinates[faceDef[i][1]]);
+					surfaceTool.SetNormal(vertexNormals[faceDef[i][2]]);
+					surfaceTool.AddVertex(vertexPositions[faceDef[i][0]]);
+					
+				}
+			} else if (faceDef.Count > 3) {
+				List<Vector3> surfMeshPositions = new();
+				List<Vector3> surfMeshNormals = new();
+				List<Vector2> surfMeshTextureCoordinates = new();
+				for (int i = faceDef.Count - 1; i >= 0; i--) {
+					surfMeshPositions.Add(vertexPositions[faceDef[i][0]]);
+					surfMeshNormals.Add(vertexNormals[faceDef[i][2]]);
+					surfMeshTextureCoordinates.Add(vertexTextureCoordinates[faceDef[i][1]]);
+				}
+				surfaceTool.AddTriangleFan(surfMeshPositions.ToArray(), surfMeshTextureCoordinates.ToArray(), null, null, surfMeshNormals.ToArray());
+				//surfaceTool.AddTriangleFan(fullMeshPositions.ToArray(), fullMeshVertexTextures.ToArray(), null, null, fullMeshNormals.ToArray());
+				surfMeshPositions.Clear();
+				surfMeshNormals.Clear();
+				surfMeshTextureCoordinates.Clear();
+			}
+
 		}
 
-		if (indices.Count % 3 == 0) {
-			arrayMeshData[(int)Mesh.ArrayType.Vertex] =	fullMeshPositions.ToArray();
-			arrayMeshData[(int)Mesh.ArrayType.TexUV] = fullMeshVertexTextures.ToArray();
-			arrayMeshData[(int)Mesh.ArrayType.Normal] = fullMeshNormals.ToArray();
-		} else {
-			// Use surfaceTool to "triangulate mesh"
-			SurfaceTool surfaceTool = new();
-			surfaceTool.AddTriangleFan(fullMeshPositions.ToArray(), fullMeshVertexTextures.ToArray(), null, null, fullMeshNormals.ToArray());
+		arrayMeshData = surfaceTool.CommitToArrays();
 
-			arrayMeshData = surfaceTool.CommitToArrays();
-		}
-
+		
 		return Error.Ok;
 	}
 
