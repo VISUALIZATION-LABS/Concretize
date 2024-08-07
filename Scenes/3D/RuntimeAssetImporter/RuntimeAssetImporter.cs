@@ -1,10 +1,13 @@
 using Godot;
 using Godot.NativeInterop;
+using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 public partial class RuntimeAssetImporter : Node3D
@@ -19,27 +22,23 @@ public partial class RuntimeAssetImporter : Node3D
 
 	}
 
-	private struct Material {
+	// TODO: Investigate if class is the best choise, may eat a lot of memory with a lot of materials
+	// https://stackoverflow.com/questions/414981/directly-modifying-listt-elements
+	private class Material {
         // General stuff for finding the material
-
-        string name = "";
         
         // Texture assignment
 
-        bool useTextures = false;
-        Color albedoColor = new(1,1,1,1);
-        ImageTexture albedoTexture = null;
-        ImageTexture normalTexture = null;
-        ImageTexture roughnessTexture = null;
-        ImageTexture metallicTexture = null;
-        float normalStrength = 1.0f;
-        float roughness = 0.5f;
-        float metallic = 0.0f;
-        float alpha = 1.0f;
-
-        // Material constructor
-
-        public Material() {}
+        public bool useTextures = false;
+        public Color albedoColor = new(1,1,1,1);
+        public ImageTexture albedoTexture = null;
+        public ImageTexture normalTexture = null;
+        public ImageTexture roughnessTexture = null;
+        public ImageTexture metallicTexture = null;
+        public float normalStrength = 1.0f;
+        public float roughness = 0.5f;
+        public float metallic = 0.0f;
+        public float alpha = 1.0f;
     }
 
 	private struct FileType{
@@ -63,8 +62,7 @@ public partial class RuntimeAssetImporter : Node3D
 		switch (path.GetFile().Split(".", false)[1]) {
 			case FileType.obj:
 				GD.Print("Compiling for obj");
-				string data = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText();
-				ObjMeshAssembler(ref modelNode, ref data);
+				ObjMeshAssembler(ref modelNode, ref path);
 				break;
 			case FileType.glb:	
 				GD.Print("Compiling for glb");
@@ -91,30 +89,45 @@ public partial class RuntimeAssetImporter : Node3D
 		return Error.Ok;
     }
 	
-	private static Error ObjMeshAssembler(ref Node3D modelNode, ref String data) {
-		// Philosophy this time will be: use more memory and avoid disk reads
-		// avoid duplicating memory and a few more CPU cycles are ok, this is
-		// not run often enough where this'll be an issue
-		// -F
+	private static Error ObjMeshAssembler(ref Node3D modelNode, ref string path){
+		// Bad, will change original variable. Either remove ref or figure out a better way
+		path = path.Replace('\\','/');
+
+		string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
 
 		// Mesh data
 		List<Vector3> vertexPositions = new();
 		List<Vector3> vertexNormals = new();
 		List<Vector2> vertexTextureCoordinates = new();
 
-		List<List<int[]>> indices = new();
+		//List<List<int[]>> indices = new();
+
+		string currentMaterial = "DefaultSurface";
+
+		Dictionary<string, StandardMaterial3D> materials = new();
+		Dictionary<string, List<List<int[]>>> surfDict = new()
+        {
+            { currentMaterial, new List<List<int[]>>() }
+        };
+		
+		List<Godot.Collections.Array> surfaces = new();
 
 		ArrayMesh arrayMesh = new();
 		Godot.Collections.Array arrayMeshData = new();
 		arrayMeshData.Resize((int)Mesh.ArrayType.Max);
 
-		string[] dataLine = data.Split('\n', StringSplitOptions.None);
 		foreach (string line in dataLine) {
 			string[] token = line.Split(' ', StringSplitOptions.None);
 
 			switch (token[0]) {
 				case "#":
-					GD.Print(token.Skip(1).ToArray());
+					GD.Print(token[1..].ToArray());
+					break;
+				case "mtllib":
+					string mtllibPath = token[1];
+					mtllibPath = path[..path.LastIndexOf("/")] + '/' + mtllibPath;
+					GD.Print($"Opening mtllib file at {mtllibPath}");
+					ObjMaterialAssembler(ref materials, ref mtllibPath);
 					break;
 				case "o":
 					GD.Print($"Creating object for {token[1]}");
@@ -142,49 +155,50 @@ public partial class RuntimeAssetImporter : Node3D
 				case "s":
 
 					// FIXME: This actually means "smooth" in the OBJ standard
-
-					
 					break;
+				
+				case "usemtl":
+					currentMaterial = token[1];
+					surfDict.Add(currentMaterial, new List<List<int[]>>());
+					break;
+
 				case "f":
 					// Conversion is needed to "reverse" mesh data without mirroring the mesh
 
-					token = token.Skip(1).ToArray();
+					token = token[1..].ToArray();
 					List<int[]> facedef = new();
 
 					foreach (string idxGroup in token) {
-						// We add nf to the end of every single idxGroup
-						// so we know when a face declaration ends
-
 						string[] idx = idxGroup.Split('/', StringSplitOptions.None);
 
 						int[] idxArray = {int.Parse(idx[0]) - 1, int.Parse(idx[1]) - 1, int.Parse(idx[2]) - 1};
 						facedef.Add(idxArray);
 					}
 
-					indices.Add(facedef);
+					GD.Print(currentMaterial);
+					surfDict[currentMaterial].Add(facedef);
 					break;
 			} // Switch ends here
 		} // Foreach ends here		
 
-		//arrayMeshData[(int)Mesh.ArrayType.Vertex] = currentVertices.ToArray();
-		//indices.Reverse();
+		int surfIdx = -1;
+		foreach(string surfDef in surfDict.Keys) {
+			surfIdx++;
 
-		AssembleSurfaceMeshData(ref indices, ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref arrayMeshData);
-
-		Image uvCheckerboardImage = new();
-
-		uvCheckerboardImage.Load("res://Art/Debug/3D/uvgrid.png");
-
-		Texture2D uvCheckerboardTexture = ImageTexture.CreateFromImage(uvCheckerboardImage);
-		
-		arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrayMeshData);
-		arrayMesh.SurfaceSetMaterial(0, new StandardMaterial3D() {AlbedoTexture = uvCheckerboardTexture});			
+			Godot.Collections.Array surfaceArrayData = new();
+			GD.Print(surfDict[surfDef].Count);
+			AssembleSurfaceMeshData(surfDict[surfDef], ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref surfaceArrayData);
+			arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArrayData);
+			//arrayMesh.SurfaceSetName(surfIdx, surfDef);
+			//arrayMesh.SurfaceSetMaterial(surfIdx, materials[surfDef]);
+		}
 		
 		MeshInstance3D meshObject = new();
 		
 		meshObject.Mesh = arrayMesh;
 		
 		modelNode.AddChild(meshObject);
+		
 
 
         return Error.Ok;
@@ -193,12 +207,11 @@ public partial class RuntimeAssetImporter : Node3D
 
 	
 	// Assembles meshes with SurfaceTool for mesh triangulation.
-	private static Error AssembleSurfaceMeshData(ref List<List<int[]>> indices, ref List<Vector3> vertexPositions, ref List<Vector3> vertexNormals, ref List<Vector2> vertexTextureCoordinates, ref Godot.Collections.Array arrayMeshData) {
+	private static Error AssembleSurfaceMeshData(List<List<int[]>> indices, ref List<Vector3> vertexPositions, ref List<Vector3> vertexNormals, ref List<Vector2> vertexTextureCoordinates, ref Godot.Collections.Array arrayMeshData) {
 		SurfaceTool surfaceTool = new();
 		surfaceTool.Begin(Mesh.PrimitiveType.Triangles);
-
 		foreach (List<int[]> faceDef in indices) {
-			if (faceDef.Count < 4) {
+			if (faceDef.Count  == 3) {
 				for (int i = faceDef.Count - 1; i >= 0; i--) {
 					surfaceTool.SetUV(vertexTextureCoordinates[faceDef[i][1]]);
 					surfaceTool.SetNormal(vertexNormals[faceDef[i][2]]);
@@ -215,10 +228,12 @@ public partial class RuntimeAssetImporter : Node3D
 					surfMeshTextureCoordinates.Add(vertexTextureCoordinates[faceDef[i][1]]);
 				}
 				surfaceTool.AddTriangleFan(surfMeshPositions.ToArray(), surfMeshTextureCoordinates.ToArray(), null, null, surfMeshNormals.ToArray());
-				//surfaceTool.AddTriangleFan(fullMeshPositions.ToArray(), fullMeshVertexTextures.ToArray(), null, null, fullMeshNormals.ToArray());
 				surfMeshPositions.Clear();
 				surfMeshNormals.Clear();
 				surfMeshTextureCoordinates.Clear();
+			} else {
+				GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::OBJ::ASSEMBLE_SURFACE_MESH_DATA::CORRUPTED_MESH_DATA");
+				return Error.FileCorrupt;
 			}
 
 		}
@@ -229,14 +244,66 @@ public partial class RuntimeAssetImporter : Node3D
 		return Error.Ok;
 	}
 
-	private static Error ObjMaterialAssembler(ref Material material) {
+	private static Error ObjMaterialAssembler(ref Dictionary<string, StandardMaterial3D> materials, ref string path) {
+		// We have to loop through the entire array to find the fucking material
+		// because obj is not standardized and randomly orders their definition
+		// This could get real expensive quick, figure out a better solution please
+		// -F
+		GD.Print("ASSEMBLING MATERIAL");
+		GD.Print(path);
 
+		Dictionary<string, Material> internalMaterialDict = new();
+
+
+		string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
+		string currentMaterial = "DefaultMaterial";
+		foreach (string line in dataLine) {
+			string[] token = line.Split(' ', StringSplitOptions.None);
+
+			switch (token[0]) {
+				case "newmtl":
+					GD.Print($"Creating material definition for {token[1]}");
+					currentMaterial = token[1];
+
+					internalMaterialDict.Add(currentMaterial, new Material());
+
+					// TODO: Check if material names (for newmtl) can have spaces
+
+					break;
+				case "Ns":
+					// TODO: Implement (convert to roughness)
+					break;
+				case "Ka":
+					GD.PushWarning("MTL \"Ka\" definition is unused for this renderer.");
+					break;
+				case "Kd":
+					internalMaterialDict[currentMaterial].albedoColor = new Color(
+						float.Parse(token[1]),
+						float.Parse(token[2]),
+						float.Parse(token[3])
+					);
+					break;
+				case "Ks":
+					// TODO: Investigate
+					break;
+				case "Ke":
+					// TODO: Investigate
+					break;
+				case "d":
+					internalMaterialDict[currentMaterial].alpha = float.Parse(token[1]);
+					break;
+			}
+		}
+
+		// Assemble godot materials
+
+		foreach (string materialName in internalMaterialDict.Keys) {
+			StandardMaterial3D godotMaterial = new() {
+				AlbedoColor = internalMaterialDict[materialName].albedoColor
+			};
+
+			materials.Add(materialName, godotMaterial);
+		}
 		return Error.Ok;
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		
 	}
 }
