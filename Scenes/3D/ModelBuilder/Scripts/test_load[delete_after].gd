@@ -17,4 +17,5 @@ func _ready() -> void:
 	call_deferred("compile_mesh")
 
 func compile_mesh() -> void:	
-	mesh_compiler.Compile_mesh("/home/felipe/Development/Godot/Concretize/TestAssets/TestMeshes/MaterialsTest/0/0.obj")
+	mesh_compiler.Compile_mesh("/home/felipe/Development/Godot/Concretize/TestAssets/TestMeshes/TriangleLayersSurfTest/2/2.obj")
+
