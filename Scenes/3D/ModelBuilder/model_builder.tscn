@@ -14,6 +14,9 @@ environment = ExtResource("2_v7mx4")
 transform = Transform3D(0.308862, 0.316661, 0.896845, -0.950529, 0.0698906, 0.302673, 0.0331637, -0.94596, 0.322582, 0, 0, 0)
 light_energy = 2.0
 shadow_enabled = true
+shadow_bias = 0.05
+shadow_blur = 0.795
+directional_shadow_split_1 = 0.05
 
 [node name="Freecam" parent="." instance=ExtResource("1_b5ukr")]
 sensitivity = 2.4
