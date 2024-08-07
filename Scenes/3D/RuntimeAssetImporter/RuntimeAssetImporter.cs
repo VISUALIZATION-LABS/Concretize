@@ -4,11 +4,16 @@ using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks.Dataflow;
 
 public partial class RuntimeAssetImporter : Node3D
 {
@@ -105,11 +110,11 @@ public partial class RuntimeAssetImporter : Node3D
 		string currentMaterial = "DefaultSurface";
 
 		Dictionary<string, StandardMaterial3D> materials = new();
-		Dictionary<string, List<List<int[]>>> surfDict = new()
-        {
-            { currentMaterial, new List<List<int[]>>() }
-        };
-		
+		Dictionary<string, List<List<int[]>>> surfDict = new();
+        //{
+        //    { currentMaterial, new List<List<int[]>>() }
+        //};
+
 		List<Godot.Collections.Array> surfaces = new();
 
 		ArrayMesh arrayMesh = new();
@@ -175,7 +180,6 @@ public partial class RuntimeAssetImporter : Node3D
 						facedef.Add(idxArray);
 					}
 
-					GD.Print(currentMaterial);
 					surfDict[currentMaterial].Add(facedef);
 					break;
 			} // Switch ends here
@@ -186,11 +190,10 @@ public partial class RuntimeAssetImporter : Node3D
 			surfIdx++;
 
 			Godot.Collections.Array surfaceArrayData = new();
-			GD.Print(surfDict[surfDef].Count);
 			AssembleSurfaceMeshData(surfDict[surfDef], ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref surfaceArrayData);
 			arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArrayData);
-			//arrayMesh.SurfaceSetName(surfIdx, surfDef);
-			//arrayMesh.SurfaceSetMaterial(surfIdx, materials[surfDef]);
+			arrayMesh.SurfaceSetName(surfIdx, surfDef);
+			arrayMesh.SurfaceSetMaterial(surfIdx, materials[surfDef]);
 		}
 		
 		MeshInstance3D meshObject = new();
@@ -245,18 +248,15 @@ public partial class RuntimeAssetImporter : Node3D
 	}
 
 	private static Error ObjMaterialAssembler(ref Dictionary<string, StandardMaterial3D> materials, ref string path) {
-		// We have to loop through the entire array to find the fucking material
-		// because obj is not standardized and randomly orders their definition
-		// This could get real expensive quick, figure out a better solution please
-		// -F
-		GD.Print("ASSEMBLING MATERIAL");
-		GD.Print(path);
+		Dictionary<string, StandardMaterial3D> internalMaterialDict = new();
 
-		Dictionary<string, Material> internalMaterialDict = new();
-
+		// TODO: Implement a texture lookup database to avoid loading repeats
+		// Could work by storing the currentMaterial name and the texture paths it holds, so any subsequent
+		// materials can just "steal" from the original without loading from disk
 
 		string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
 		string currentMaterial = "DefaultMaterial";
+		string texturePath = "";
 		foreach (string line in dataLine) {
 			string[] token = line.Split(' ', StringSplitOptions.None);
 
@@ -265,45 +265,108 @@ public partial class RuntimeAssetImporter : Node3D
 					GD.Print($"Creating material definition for {token[1]}");
 					currentMaterial = token[1];
 
-					internalMaterialDict.Add(currentMaterial, new Material());
+					internalMaterialDict.Add(currentMaterial, new StandardMaterial3D());
 
 					// TODO: Check if material names (for newmtl) can have spaces
 
 					break;
 				case "Ns":
-					// TODO: Implement (convert to roughness)
+					internalMaterialDict[currentMaterial].Roughness = float.Parse(token[1]);
 					break;
+
+				case "Pr":
+					internalMaterialDict[currentMaterial].Roughness = float.Parse(token[1]);
+					break;
+				
+				case "Pm":
+					internalMaterialDict[currentMaterial].Metallic = float.Parse(token[1]);
+					break;
+				
 				case "Ka":
-					GD.PushWarning("MTL \"Ka\" definition is unused for this renderer.");
+					//GD.PushWarning("MTL \"Ka\" definition is unused for this renderer.");
 					break;
 				case "Kd":
-					internalMaterialDict[currentMaterial].albedoColor = new Color(
+					internalMaterialDict[currentMaterial].AlbedoColor = new Color(
 						float.Parse(token[1]),
 						float.Parse(token[2]),
 						float.Parse(token[3])
 					);
 					break;
 				case "Ks":
-					// TODO: Investigate
-					break;
-				case "Ke":
-					// TODO: Investigate
+					float specExp = internalMaterialDict[currentMaterial].Roughness;
+                    float specCoeff = float.Parse(token[1]);
+
+                    // FIXME: This approximation is not good enough
+                    float approxRough = (float)Mathf.Clamp(specExp/(1000*specCoeff), 0.0, 1.0);
+                    internalMaterialDict[currentMaterial].Roughness = approxRough;
+
+                    GD.Print($"Approximated roughness for {currentMaterial} = {internalMaterialDict[currentMaterial].Roughness}");
+					GD.PushWarning("Using approximated roughness for non-PBR OBJ materials is not reccomended, re-export the mesh with PBR extensions enabled.");
 					break;
 				case "d":
-					internalMaterialDict[currentMaterial].alpha = float.Parse(token[1]);
+					float alpha = float.Parse(token[1]);
+					if (alpha < 1.0) {
+						internalMaterialDict[currentMaterial].AlbedoColor = new Color(internalMaterialDict[currentMaterial].AlbedoColor, alpha);
+						internalMaterialDict[currentMaterial].Transparency = Godot.BaseMaterial3D.TransparencyEnum.Alpha;
+					}
+					break;
+				case "map_Kd":
+	
+					if (texturePath.IsAbsolutePath()) {
+						internalMaterialDict[currentMaterial].AlbedoTexture = TextureLoader(token[1..].ToString(), false);
+					} else if (texturePath.IsRelativePath()) {
+						texturePath = path.GetBaseDir().PathJoin(texturePath);
+						internalMaterialDict[currentMaterial].AlbedoTexture = TextureLoader(path.GetBaseDir().PathJoin(token[1..].ToString()), false);
+					}
+					break;
+				case "map_refl" or "map_Pm":
+					if (texturePath.IsAbsolutePath()) {
+						internalMaterialDict[currentMaterial].RoughnessTexture = TextureLoader(token[1..].ToString(), false);
+					} else if (texturePath.IsRelativePath()) {
+						texturePath = path.GetBaseDir().PathJoin(texturePath);
+						internalMaterialDict[currentMaterial].RoughnessTexture = TextureLoader(path.GetBaseDir().PathJoin(token[1..].ToString()), false);
+					}
+					break;
+				case "map_Bump":
+					ushort tokenIndex = 1;
+
+					if (token.Contains("-bm")) {
+						tokenIndex = 3;
+						internalMaterialDict[currentMaterial].NormalScale = float.Parse(token[2]);
+					}
+					if (texturePath.IsAbsolutePath()) {
+						internalMaterialDict[currentMaterial].NormalTexture = TextureLoader(token[tokenIndex..].ToString(), true);
+					} else if (texturePath.IsRelativePath()) {
+						texturePath = path.GetBaseDir().PathJoin(texturePath);
+						internalMaterialDict[currentMaterial].NormalTexture = TextureLoader(path.GetBaseDir().PathJoin(token[tokenIndex..].ToString()), true);
+					}
 					break;
 			}
 		}
 
-		// Assemble godot materials
-
+		// Copy
 		foreach (string materialName in internalMaterialDict.Keys) {
-			StandardMaterial3D godotMaterial = new() {
-				AlbedoColor = internalMaterialDict[materialName].albedoColor
-			};
-
-			materials.Add(materialName, godotMaterial);
+			materials.Add(materialName, internalMaterialDict[materialName]);
 		}
 		return Error.Ok;
+	}
+
+	private static ImageTexture TextureLoader(string path, bool isNormal) {
+		Image image = new();
+		Error err = image.Load(path);
+
+		if (err != Error.Ok) {
+			GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::IMAGE_LOADER::NONEXISTENT_OR_CORRUPT_IMAGE");
+			return ImageTexture.CreateFromImage(image);
+		} else {
+			if (isNormal) {
+				image.GenerateMipmaps(true);
+
+				image.NormalMapToXy();
+			} else {
+				image.GenerateMipmaps();
+			}
+			return ImageTexture.CreateFromImage(image);
+		}
 	}
 }
