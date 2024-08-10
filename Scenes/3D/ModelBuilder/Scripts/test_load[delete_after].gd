@@ -10,6 +10,7 @@ func _ready() -> void:
 	RenderingServer.set_debug_generate_wireframes(true);
 	#get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
 	#mesh_compiler.Compile_mesh("")
+	
 
 
 	self.add_child.call_deferred(mesh_compiler)
@@ -17,5 +18,9 @@ func _ready() -> void:
 	call_deferred("compile_mesh")
 
 func compile_mesh() -> void:	
-	mesh_compiler.Compile_mesh("/home/felipe/Development/Godot/Concretize/TestAssets/TestMeshes/MaterialsTest/1/1.obj")
+	mesh_compiler.Compile_mesh("/home/felipe/Development/Godot/Concretize/TestAssets/TestMeshes/Gltf/0/0.glb")
+
+	
+		
+		
 
