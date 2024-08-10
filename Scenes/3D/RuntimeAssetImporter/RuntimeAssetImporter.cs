@@ -71,6 +71,7 @@ public partial class RuntimeAssetImporter : Node3D
 				break;
 			case FileType.glb:	
 				GD.Print("Compiling for glb");
+				GLTFImporter(ref modelNode, ref path);
 				break;
 			case FileType.gltf:
 				GD.Print("Compiling for gltf");
@@ -90,8 +91,13 @@ public partial class RuntimeAssetImporter : Node3D
 
 
 		GetParent().AddChild(modelNode);
+		//VoxelGI vgi = (VoxelGI)modelNode.GetNode("VOXELGI-AREA");
+		//vgi.Bake();
+
+		//ReflectionProbe rfl = (ReflectionProbe)modelNode.GetNode("REFLECTION-AREA");
+		//rfl.Position = new Vector3(rfl.Position.X, rfl.Position.Y + 0.0001f, rfl.Position.Z);
 		QueueFree();
-		return Error.Ok;
+		return Error.Ok;	
     }
 	
 	private static Error ObjMeshAssembler(ref Node3D modelNode, ref string path){
@@ -164,7 +170,9 @@ public partial class RuntimeAssetImporter : Node3D
 				
 				case "usemtl":
 					currentMaterial = token[1];
-					surfDict.Add(currentMaterial, new List<List<int[]>>());
+					if (!surfDict.ContainsKey(currentMaterial)) {
+						surfDict.Add(currentMaterial, new List<List<int[]>>());
+					}
 					break;
 
 				case "f":
@@ -199,16 +207,38 @@ public partial class RuntimeAssetImporter : Node3D
 		MeshInstance3D meshObject = new();
 		
 		meshObject.Mesh = arrayMesh;
-		
+
+        // This will never be used in prod and is just for testing
+		/*
+        VoxelGI voxelGIArea = new()
+        {
+            Scale = meshObject.GetAabb().Size * 1.5f,
+            Position = meshObject.GetAabb().Position + meshObject.GetAabb().End,
+            Name = "VOXELGI-AREA",
+            Subdiv = VoxelGI.SubdivEnum.Subdiv512		
+        };
+
+        voxelGIArea.Position = new Vector3(voxelGIArea.Position.X, voxelGIArea.Position.Y / 2, voxelGIArea.Position.Z);
+
+
+		ReflectionProbe reflProbe = new() {
+			Scale = meshObject.GetAabb().Size * 1.5f,
+            Position = meshObject.GetAabb().Position + meshObject.GetAabb().End,
+            Name = "REFLECTION-AREA",
+			BoxProjection = true,
+			Interior = true
+		};
+
+		reflProbe.Position = new Vector3(reflProbe.Position.X, reflProbe.Position.Y / 2, reflProbe.Position.Z);
+		*/
 		modelNode.AddChild(meshObject);
-		
-
-
+		//modelNode.AddChild(reflProbe);
+		//modelNode.AddChild(voxelGIArea);
         return Error.Ok;
 	}
 
 
-	
+	// TODO: Rename these functions to explicitly reference the OBJ file format to minize confusion
 	// Assembles meshes with SurfaceTool for mesh triangulation.
 	private static Error AssembleSurfaceMeshData(List<List<int[]>> indices, ref List<Vector3> vertexPositions, ref List<Vector3> vertexNormals, ref List<Vector2> vertexTextureCoordinates, ref Godot.Collections.Array arrayMeshData) {
 		SurfaceTool surfaceTool = new();
@@ -254,11 +284,24 @@ public partial class RuntimeAssetImporter : Node3D
 		// Could work by storing the currentMaterial name and the texture paths it holds, so any subsequent
 		// materials can just "steal" from the original without loading from disk
 
+		// FIXME: Looks ugly and botched, fix later for organization and readability
+
 		string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
 		string currentMaterial = "DefaultMaterial";
 		string texturePath = "";
+		ushort tokenIndex = 1;
+
 		foreach (string line in dataLine) {
 			string[] token = line.Split(' ', StringSplitOptions.None);
+			
+			bool containsScaleAttribute = false;
+			bool containsBumpNormalScaleAttribute = false;
+
+			if (token.Contains("-s"))
+				containsScaleAttribute = true;
+			
+			if (token.Contains("-bm"))
+				containsBumpNormalScaleAttribute = true;
 
 			switch (token[0]) {
 				case "newmtl":
@@ -266,8 +309,6 @@ public partial class RuntimeAssetImporter : Node3D
 					currentMaterial = token[1];
 
 					internalMaterialDict.Add(currentMaterial, new StandardMaterial3D());
-
-					// TODO: Check if material names (for newmtl) can have spaces
 
 					break;
 				case "Ns":
@@ -307,42 +348,95 @@ public partial class RuntimeAssetImporter : Node3D
 					float alpha = float.Parse(token[1]);
 					if (alpha < 1.0) {
 						internalMaterialDict[currentMaterial].AlbedoColor = new Color(internalMaterialDict[currentMaterial].AlbedoColor, alpha);
-						internalMaterialDict[currentMaterial].Transparency = Godot.BaseMaterial3D.TransparencyEnum.Alpha;
+						internalMaterialDict[currentMaterial].Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
 					}
 					break;
 				case "map_Kd":
-	
-					if (texturePath.IsAbsolutePath()) {
-						internalMaterialDict[currentMaterial].AlbedoTexture = TextureLoader(token[1..].ToString(), false);
-					} else if (texturePath.IsRelativePath()) {
-						texturePath = path.GetBaseDir().PathJoin(texturePath);
-						internalMaterialDict[currentMaterial].AlbedoTexture = TextureLoader(path.GetBaseDir().PathJoin(token[1..].ToString()), false);
+					tokenIndex = 1;
+
+					if (containsScaleAttribute) {
+						tokenIndex = 5;
+
+						// TODO: Test is we always have 3 scale indexes
+						internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
 					}
+						
+
+					texturePath=token[tokenIndex..].Join();
+
+					if (texturePath.IsRelativePath()) {
+						texturePath = path.GetBaseDir().PathJoin(texturePath);
+					}
+
+					//internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(30.0f,30.0f,30.0f);
+					internalMaterialDict[currentMaterial].AlbedoTexture = TextureLoader(texturePath, false);
+
 					break;
-				case "map_refl" or "map_Pm":
-					if (texturePath.IsAbsolutePath()) {
-						internalMaterialDict[currentMaterial].RoughnessTexture = TextureLoader(token[1..].ToString(), false);
-					} else if (texturePath.IsRelativePath()) {
-						texturePath = path.GetBaseDir().PathJoin(texturePath);
-						internalMaterialDict[currentMaterial].RoughnessTexture = TextureLoader(path.GetBaseDir().PathJoin(token[1..].ToString()), false);
+				case "map_refl" or "map_Pr":
+					tokenIndex = 1;
+
+					if (containsScaleAttribute) {
+						tokenIndex = 5;
+
+						// TODO: Test is we always have 3 scale indexes
+						internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
 					}
+
+
+					texturePath=token[tokenIndex..].Join();
+
+					if (texturePath.IsRelativePath()) {
+						texturePath = path.GetBaseDir().PathJoin(texturePath);
+					}
+
+
+					internalMaterialDict[currentMaterial].Roughness = 1.0f;
+					internalMaterialDict[currentMaterial].RoughnessTextureChannel = BaseMaterial3D.TextureChannel.Grayscale;
+					internalMaterialDict[currentMaterial].RoughnessTexture = TextureLoader(texturePath, false);
+					
 					break;
 				case "map_Bump":
-					ushort tokenIndex = 1;
+					tokenIndex = 1;
 
-					if (token.Contains("-bm")) {
-						tokenIndex = 3;
-						internalMaterialDict[currentMaterial].NormalScale = float.Parse(token[2]);
+					if (containsScaleAttribute) {
+						tokenIndex = 5;
+
+						// TODO: Test is we always have 3 scale indexes
+						internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
 					}
-					if (texturePath.IsAbsolutePath()) {
-						internalMaterialDict[currentMaterial].NormalTexture = TextureLoader(token[tokenIndex..].ToString(), true);
-					} else if (texturePath.IsRelativePath()) {
+
+
+					if (containsBumpNormalScaleAttribute) {
+						if (containsScaleAttribute) {
+							// We do this so we offset the index to make sure the code below runs
+							// without a -s arg
+							tokenIndex = 7;
+						} else {
+							tokenIndex = 3;
+						}
+						
+						
+						
+						GD.Print(tokenIndex);
+
+						internalMaterialDict[currentMaterial].NormalScale = float.Parse(token[tokenIndex - 1]);
+					}
+
+					texturePath=token[tokenIndex..].Join();
+
+
+					if (texturePath.IsRelativePath()) {
 						texturePath = path.GetBaseDir().PathJoin(texturePath);
-						internalMaterialDict[currentMaterial].NormalTexture = TextureLoader(path.GetBaseDir().PathJoin(token[tokenIndex..].ToString()), true);
 					}
+
+					GD.Print(texturePath);
+
+					internalMaterialDict[currentMaterial].NormalEnabled = true;
+					internalMaterialDict[currentMaterial].NormalTexture = TextureLoader(texturePath, false);
+					
 					break;
 			}
-		}
+		}	
 
 		// Copy
 		foreach (string materialName in internalMaterialDict.Keys) {
@@ -355,18 +449,41 @@ public partial class RuntimeAssetImporter : Node3D
 		Image image = new();
 		Error err = image.Load(path);
 
-		if (err != Error.Ok) {
+			if (err != Error.Ok) {
 			GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::IMAGE_LOADER::NONEXISTENT_OR_CORRUPT_IMAGE");
 			return ImageTexture.CreateFromImage(image);
 		} else {
 			if (isNormal) {
 				image.GenerateMipmaps(true);
-
+				
 				image.NormalMapToXy();
 			} else {
 				image.GenerateMipmaps();
 			}
+			
 			return ImageTexture.CreateFromImage(image);
 		}
+	}
+
+
+	// FIXME: Doesn't load mip-maps, there are 3 possible course of actions:
+	// Leave-as-is and ask for help in the Godot discord server;
+	// Leave-as-is and reccoment using OBJ for now
+	// Write custom iplementation
+	private static Error GLTFImporter(ref Node3D modelnode, ref string path) {
+		GltfDocument gltfDocumentLoad = new();
+		GltfState gltfStateLoad = new();
+		Error error = gltfDocumentLoad.AppendFromFile(path, gltfStateLoad);
+		if (error == Error.Ok) {
+			Node gltfSceneRootNode = gltfDocumentLoad.GenerateScene(gltfStateLoad);
+			
+			modelnode.AddChild(gltfSceneRootNode);
+		} else {
+			// TODO: Add better error reporting
+			GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::GLTF_IMPORTER::ERROR");
+			return error;
+		}
+
+		return Error.Ok;
 	}
 }
