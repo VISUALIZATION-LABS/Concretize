@@ -4,7 +4,6 @@ extends Node
 @export_range(1, 10, 0.1, "or_greater") var sensitivity: float = 1.0
 @export_range(1, 10, 0.1, "or_greater") var camera_speed: float = 1.0
 
-
 @onready var camera: Camera3D = $Camera3D
 
 var camera_lock: bool = true
