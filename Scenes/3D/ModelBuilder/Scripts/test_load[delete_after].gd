@@ -8,7 +8,7 @@ func _ready() -> void:
 
 	mesh_compiler = preload("res://Scenes/3D/RuntimeAssetImporter/runtime_asset_importer.tscn").instantiate()
 	RenderingServer.set_debug_generate_wireframes(true);
-	#get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
+	#get_viewport().debug_draw = Viewport.DEBUG_DRAW_OVERDRAW
 	#mesh_compiler.Compile_mesh("")
 	
 
@@ -18,7 +18,7 @@ func _ready() -> void:
 	call_deferred("compile_mesh")
 
 func compile_mesh() -> void:	
-	mesh_compiler.Compile_mesh("/home/felipe/Development/Godot/Concretize/TestAssets/TestMeshes/Gltf/0/0.glb")
+	mesh_compiler.Compile_mesh("/home/felipe/Downloads/wooden_picnic_table_4k.blend/wooden_picnic_table_4k.obj")
 
 	
 		
