@@ -4,7 +4,10 @@ scenes/3D/Presentation/Model
 test
 test1
 TestAssets
-.vscode
+
 
 # This is an auxiliary file that is created whenever Godot is running
 .addons/debug_draw_3d/libs/libdd3d.windows.editor.x86_64.dll
+
+# Os specific vscode info
+.vscode

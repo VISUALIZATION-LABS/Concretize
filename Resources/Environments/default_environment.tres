@@ -1,0 +1,14 @@
+[gd_resource type="Environment" load_steps=3 format=3 uid="uid://cauncl1cy33h6"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_b8igq"]
+
+[sub_resource type="Sky" id="Sky_emmlu"]
+sky_material = SubResource("ProceduralSkyMaterial_b8igq")
+
+[resource]
+background_mode = 2
+sky = SubResource("Sky_emmlu")
+tonemap_mode = 3
+sdfgi_use_occlusion = true
+sdfgi_bounce_feedback = 1.15
+sdfgi_energy = 2.0

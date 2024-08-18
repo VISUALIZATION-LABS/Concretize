@@ -10,20 +10,25 @@ config_version=5
 
 [application]
 
-config/name="PocketViz2"
-run/main_scene="res://Scenes/2D/MainMenu/MainMenu.tscn"
-config/features=PackedStringArray("4.2", "Mobile")
+config/name="Concretize"
+config/tags=PackedStringArray("tcc")
+run/main_scene="res://Scenes/3D/MainScene/main_scene.tscn"
+config/features=PackedStringArray("4.3", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-Shared="*res://Global/Shared/Shared.gd"
-InterfaceAnimator="*res://Global/AnimationUtils/InterfaceAnimator.gd"
-ModelAnimator="*res://Global/AnimationUtils/ModelAnimator.gd"
+SceneManager="*res://Global/SceneManager/scene_manager.gd"
+
+[debug]
+
+gdscript/warnings/untyped_declaration=1
+gdscript/warnings/unsafe_cast=1
+gdscript/warnings/unsafe_call_argument=1
 
 [dotnet]
 
-project/assembly_name="PocketViz2"
+project/assembly_name="Concretize"
 
 [editor_plugins]
 
@@ -34,37 +39,45 @@ enabled=PackedStringArray("res://addons/Todo_Manager/plugin.cfg")
 folder_colors={
 "res://Art/": "pink",
 "res://Global/": "blue",
+"res://Resources/": "teal",
+"res://Resources/Shaders/": "pink",
 "res://Scenes/": "yellow",
 "res://Scenes/2D/": "teal",
 "res://Scenes/2D/MainMenu/Scripts/": "orange",
 "res://Scenes/3D/": "purple",
+"res://Scenes/3D/Freecam/Scripts/": "orange",
 "res://Scenes/3D/Gizmo/Move/Scripts/": "orange",
 "res://Scenes/3D/Gizmo/Shared/": "green",
 "res://Scenes/3D/Gizmo/Shared/scripts/": "orange",
+"res://Scenes/3D/ModelBuilder/Scripts/": "orange",
 "res://Scenes/3D/modelLoader/scripts/": "orange",
 "res://addons/": "gray"
 }
+
+[filesystem]
+
+import/blender/enabled=false
 
 [input]
 
 move_forward={
 "deadzone": 0.5,
-"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":119,"echo":false,"script":null)
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":119,"location":0,"echo":false,"script":null)
 ]
 }
 move_back={
 "deadzone": 0.5,
-"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":83,"key_label":0,"unicode":115,"echo":false,"script":null)
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":83,"key_label":0,"unicode":115,"location":0,"echo":false,"script":null)
 ]
 }
 move_left={
 "deadzone": 0.5,
-"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":65,"key_label":0,"unicode":97,"echo":false,"script":null)
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":65,"key_label":0,"unicode":97,"location":0,"echo":false,"script":null)
 ]
 }
 move_right={
 "deadzone": 0.5,
-"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":68,"key_label":0,"unicode":100,"echo":false,"script":null)
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":68,"key_label":0,"unicode":100,"location":0,"echo":false,"script":null)
 ]
 }
 
@@ -72,4 +85,5 @@ move_right={
 
 renderer/rendering_method="mobile"
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
+lights_and_shadows/directional_shadow/16_bits=false
 lights_and_shadows/positional_shadow/soft_shadow_filter_quality=3
