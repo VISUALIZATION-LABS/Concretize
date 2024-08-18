@@ -20,30 +20,3 @@ directional_shadow_split_1 = 0.05
 
 [node name="Freecam" parent="." instance=ExtResource("1_b5ukr")]
 sensitivity = 2.4
-
-[node name="Sala" type="Node3D" parent="."]
-visible = false
-
-[node name="Chao" type="CSGBox3D" parent="Sala"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.713135, -0.686218, -0.720947)
-size = Vector3(2.42627, 0.363403, 2.44189)
-
-[node name="Parede" type="CSGBox3D" parent="Sala"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.713135, 0.203708, -0.72406)
-size = Vector3(2.42627, 1.47272, 2.43567)
-
-[node name="CSGBox3D3" type="CSGBox3D" parent="Sala/Parede"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0940857, 0, 0.0906526)
-operation = 2
-size = Vector3(2.2381, 1.47272, 2.34244)
-
-[node name="CSGBox3D4" type="CSGBox3D" parent="Sala/Parede"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.793633, -0.00908661, 0.000663757)
-operation = 2
-size = Vector3(1.61909, 0.646866, 1.56783)
-
-[node name="Moveis" type="Node3D" parent="Sala"]
-
-[node name="PRATELEIRA" type="CSGBox3D" parent="Sala/Moveis"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.539452, -0.0635986, -1.67507)
-size = Vector3(1, 0.872803, 0.287109)
