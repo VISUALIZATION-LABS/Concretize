@@ -1,19 +1,12 @@
 using Godot;
-using Godot.NativeInterop;
-using Microsoft.Win32;
 using System;
-using System.Collections;
+using System.Buffers;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Common;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks.Dataflow;
+
+// FIXME: This code has some ugly hacks, but perfect code doesnt ship...
+// Consider fixing in the distant future
 
 public partial class RuntimeAssetImporter : Node3D
 {
@@ -62,9 +55,10 @@ public partial class RuntimeAssetImporter : Node3D
 			return Error.FileNotFound;
 		}
 
-
+		modelNode.Name = path.GetFile().Split(".", false)[0];
 
 		switch (path.GetFile().Split(".", false)[1]) {
+			
 			case FileType.obj:
 				GD.Print("Compiling for obj");
 				ObjMeshAssembler(ref modelNode, ref path);
@@ -113,19 +107,19 @@ public partial class RuntimeAssetImporter : Node3D
 
 		//List<List<int[]>> indices = new();
 
-		string currentMaterial = "DefaultSurface";
+		string currentMaterial = "DefaultMaterial";
+		string currentObject = "DefaultObject";
+		string currentMesh = currentObject + '_' + currentMaterial;
 
 		Dictionary<string, StandardMaterial3D> materials = new();
+
 		Dictionary<string, List<List<int[]>>> surfDict = new();
-        //{
-        //    { currentMaterial, new List<List<int[]>>() }
-        //};
+		//Dictionary<string, Dictionary<string, List<List<int[]>>>> surfaces = new();
 
-		List<Godot.Collections.Array> surfaces = new();
+		Dictionary<string, Dictionary<string, List<List<int[]>>>> objects = new();
+		//Dictionary<string, List<List<int[]>>> surfaces = new();
 
-		ArrayMesh arrayMesh = new();
-		Godot.Collections.Array arrayMeshData = new();
-		arrayMeshData.Resize((int)Mesh.ArrayType.Max);
+
 
 		foreach (string line in dataLine) {
 			string[] token = line.Split(' ', StringSplitOptions.None);
@@ -141,7 +135,17 @@ public partial class RuntimeAssetImporter : Node3D
 					ObjMaterialAssembler(ref materials, ref mtllibPath);
 					break;
 				case "o":
-					GD.Print($"Creating object for {token[1]}");
+					currentObject = token[1];
+					
+					objects.Add(currentObject, new Dictionary<string, List<List<int[]>>>());
+
+					/*
+					currentMesh = currentObject + "_DefaultMaterial";
+
+					if (!surfDict.ContainsKey(currentMesh)) {
+						surfDict.Add(currentMesh, new List<List<int[]>>());
+					}
+					*/
 					break;
 				case "v":
                     vertexPositions.Add(new Vector3(
@@ -169,10 +173,28 @@ public partial class RuntimeAssetImporter : Node3D
 					break;
 				
 				case "usemtl":
+
 					currentMaterial = token[1];
-					if (!surfDict.ContainsKey(currentMaterial)) {
-						surfDict.Add(currentMaterial, new List<List<int[]>>());
+
+					objects[currentObject].Add(currentMaterial, new List<List<int[]>>());
+
+					/*
+					currentMesh = currentObject + '_' + currentMaterial;
+					
+					if (surfDict.ContainsKey(currentObject + "_DefaultMaterial")) {
+						GD.Print("REPLACING");
+						// Replace
+						List<List<int[]>> oldSurfDef = surfDict[currentObject + "_DefaultMaterial"];
+
+						surfDict.Remove(currentObject + "_DefaultMaterial");
+						surfDict.Add(currentMesh, oldSurfDef);
 					}
+
+					if (!surfDict.ContainsKey(currentMesh)) {
+						surfDict.Add(currentMesh, new List<List<int[]>>());
+					} 
+					*/
+
 					break;
 
 				case "f":
@@ -188,52 +210,90 @@ public partial class RuntimeAssetImporter : Node3D
 						facedef.Add(idxArray);
 					}
 
-					surfDict[currentMaterial].Add(facedef);
+					if (!objects[currentObject].ContainsKey(currentMaterial)) {
+						objects[currentObject].Add(currentMaterial, new List<List<int[]>>());
+					} 
+
+					objects[currentObject][currentMaterial].Add(facedef);
+					
+					//surfDict[currentMesh].Add(facedef);
 					break;
 			} // Switch ends here
 		} // Foreach ends here		
 
 		int surfIdx = -1;
+
+		GD.Print("\n");
+		
+		foreach(string objectDef in objects.Keys) {
+			GD.Print($"Object:\n\n\t{objectDef}\n\nSurfaces:\n");
+
+			ArrayMesh arrayMesh = new();
+			
+
+			MeshInstance3D meshObject = new();
+
+			foreach(string surfaceDef in objects[objectDef].Keys) {
+				surfIdx++;
+				Godot.Collections.Array arrayMeshData = new();
+				arrayMeshData.Resize((int)Mesh.ArrayType.Max);
+				AssembleSurfaceMeshData(objects[objectDef][surfaceDef], ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref arrayMeshData);
+				arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrayMeshData);
+				arrayMesh.SurfaceSetName(surfIdx, surfaceDef);
+				arrayMesh.SurfaceSetMaterial(surfIdx, materials[surfaceDef]);
+				GD.Print($"\t{surfaceDef}\n\t{objects[objectDef][surfaceDef].Count}\n");
+			}
+
+			meshObject.Mesh = arrayMesh;
+			meshObject.Name = objectDef;
+			modelNode.AddChild(meshObject);
+			
+			surfIdx = -1;
+			GD.Print("\n");
+		}
+
+
+
+		// FIXME: Improper surface definitions
+		// We're creating more than one surfdef because of materials
+		// this shouldn't happen, like, ever...
+		// maybe return to this later idk man
+		/*
+
 		foreach(string surfDef in surfDict.Keys) {
 			surfIdx++;
+
+			GD.Print(surfDef + "\n");
+
+			
+			string surfaceName = string.Join("_", surfDef.Split('_')[..^1]);
+			string materialName = surfDef.Split('_')[^1];
+
+			GD.Print($"SurfaceName = {surfaceName}\n");
+			GD.Print($"MaterialName = {materialName}\n");
+			GD.Print($"SurfCount = {surfDict[surfDef].Count}\n----");
 
 			Godot.Collections.Array surfaceArrayData = new();
 			AssembleSurfaceMeshData(surfDict[surfDef], ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref surfaceArrayData);
 			arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArrayData);
-			arrayMesh.SurfaceSetName(surfIdx, surfDef);
-			arrayMesh.SurfaceSetMaterial(surfIdx, materials[surfDef]);
+			arrayMesh.SurfaceSetName(surfIdx, materialName);
+			arrayMesh.SurfaceSetMaterial(surfIdx, materials[materialName]);
+
+			MeshInstance3D meshObject = new() {
+				Name = surfaceName,
+				Mesh = arrayMesh
+			};
+
+			modelNode.AddChild(meshObject);
+			
+			if (surfIdx >= 999) {
+				break;
+			}
+			
+			
 		}
-		
-		MeshInstance3D meshObject = new();
-		
-		meshObject.Mesh = arrayMesh;
-
-        // This will never be used in prod and is just for testing
-		/*
-        VoxelGI voxelGIArea = new()
-        {
-            Scale = meshObject.GetAabb().Size * 1.5f,
-            Position = meshObject.GetAabb().Position + meshObject.GetAabb().End,
-            Name = "VOXELGI-AREA",
-            Subdiv = VoxelGI.SubdivEnum.Subdiv512		
-        };
-
-        voxelGIArea.Position = new Vector3(voxelGIArea.Position.X, voxelGIArea.Position.Y / 2, voxelGIArea.Position.Z);
-
-
-		ReflectionProbe reflProbe = new() {
-			Scale = meshObject.GetAabb().Size * 1.5f,
-            Position = meshObject.GetAabb().Position + meshObject.GetAabb().End,
-            Name = "REFLECTION-AREA",
-			BoxProjection = true,
-			Interior = true
-		};
-
-		reflProbe.Position = new Vector3(reflProbe.Position.X, reflProbe.Position.Y / 2, reflProbe.Position.Z);
 		*/
-		modelNode.AddChild(meshObject);
-		//modelNode.AddChild(reflProbe);
-		//modelNode.AddChild(voxelGIArea);
+
         return Error.Ok;
 	}
 
@@ -261,9 +321,9 @@ public partial class RuntimeAssetImporter : Node3D
 					surfMeshTextureCoordinates.Add(vertexTextureCoordinates[faceDef[i][1]]);
 				}
 				surfaceTool.AddTriangleFan(surfMeshPositions.ToArray(), surfMeshTextureCoordinates.ToArray(), null, null, surfMeshNormals.ToArray());
-				surfMeshPositions.Clear();
-				surfMeshNormals.Clear();
-				surfMeshTextureCoordinates.Clear();
+				//surfMeshPositions.Clear();
+				//surfMeshNormals.Clear();
+				//surfMeshTextureCoordinates.Clear();
 			} else {
 				GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::OBJ::ASSEMBLE_SURFACE_MESH_DATA::CORRUPTED_MESH_DATA");
 				return Error.FileCorrupt;
@@ -293,7 +353,7 @@ public partial class RuntimeAssetImporter : Node3D
 
 		foreach (string line in dataLine) {
 			string[] token = line.Split(' ', StringSplitOptions.None);
-			
+
 			bool containsScaleAttribute = false;
 			bool containsBumpNormalScaleAttribute = false;
 
@@ -362,7 +422,7 @@ public partial class RuntimeAssetImporter : Node3D
 					}
 						
 
-					texturePath=token[tokenIndex..].Join();
+					texturePath=token[tokenIndex..].Join(" ");
 
 					if (texturePath.IsRelativePath()) {
 						texturePath = path.GetBaseDir().PathJoin(texturePath);
@@ -383,7 +443,7 @@ public partial class RuntimeAssetImporter : Node3D
 					}
 
 
-					texturePath=token[tokenIndex..].Join();
+					texturePath=token[tokenIndex..].Join(" ");
 
 					if (texturePath.IsRelativePath()) {
 						texturePath = path.GetBaseDir().PathJoin(texturePath);
@@ -422,7 +482,7 @@ public partial class RuntimeAssetImporter : Node3D
 						internalMaterialDict[currentMaterial].NormalScale = float.Parse(token[tokenIndex - 1]);
 					}
 
-					texturePath=token[tokenIndex..].Join();
+					texturePath=token[tokenIndex..].Join(" ");
 
 
 					if (texturePath.IsRelativePath()) {
@@ -438,10 +498,18 @@ public partial class RuntimeAssetImporter : Node3D
 			}
 		}	
 
-		// Copy
-		foreach (string materialName in internalMaterialDict.Keys) {
-			materials.Add(materialName, internalMaterialDict[materialName]);
+
+		if (internalMaterialDict.Count > 0) {
+			foreach (string materialName in internalMaterialDict.Keys) {
+				materials.Add(materialName, internalMaterialDict[materialName]);
+			}
+		} else {
+			// We have no materials
+
+			StandardMaterial3D defaultMaterial = new();
+			materials.Add(currentMaterial, defaultMaterial);
 		}
+
 		return Error.Ok;
 	}
 
@@ -449,7 +517,7 @@ public partial class RuntimeAssetImporter : Node3D
 		Image image = new();
 		Error err = image.Load(path);
 
-			if (err != Error.Ok) {
+		if (err != Error.Ok) {
 			GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::IMAGE_LOADER::NONEXISTENT_OR_CORRUPT_IMAGE");
 			return ImageTexture.CreateFromImage(image);
 		} else {
@@ -468,8 +536,8 @@ public partial class RuntimeAssetImporter : Node3D
 
 	// FIXME: Doesn't load mip-maps, there are 3 possible course of actions:
 	// Leave-as-is and ask for help in the Godot discord server;
-	// Leave-as-is and reccoment using OBJ for now
-	// Write custom iplementation
+	// Leave-as-is and reccomend using OBJ for now
+	// Write custom implementation
 	private static Error GLTFImporter(ref Node3D modelnode, ref string path) {
 		GltfDocument gltfDocumentLoad = new();
 		GltfState gltfStateLoad = new();
@@ -477,7 +545,8 @@ public partial class RuntimeAssetImporter : Node3D
 		if (error == Error.Ok) {
 			Node gltfSceneRootNode = gltfDocumentLoad.GenerateScene(gltfStateLoad);
 			
-			modelnode.AddChild(gltfSceneRootNode);
+			// TODO: Investigate if this can cause problems
+			modelnode = (Node3D)gltfSceneRootNode;
 		} else {
 			// TODO: Add better error reporting
 			GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::GLTF_IMPORTER::ERROR");
