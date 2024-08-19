@@ -109,11 +109,11 @@ public partial class RuntimeAssetImporter : Node3D
 
 		string currentMaterial = "DefaultMaterial";
 		string currentObject = "DefaultObject";
-		string currentMesh = currentObject + '_' + currentMaterial;
+		//string currentMesh = currentObject + '_' + currentMaterial;
 
 		Dictionary<string, StandardMaterial3D> materials = new();
 
-		Dictionary<string, List<List<int[]>>> surfDict = new();
+		//Dictionary<string, List<List<int[]>>> surfDict = new();
 		//Dictionary<string, Dictionary<string, List<List<int[]>>>> surfaces = new();
 
 		Dictionary<string, Dictionary<string, List<List<int[]>>>> objects = new();
@@ -226,13 +226,12 @@ public partial class RuntimeAssetImporter : Node3D
 		GD.Print("\n");
 		
 		foreach(string objectDef in objects.Keys) {
-			GD.Print($"Object:\n\n\t{objectDef}\n\nSurfaces:\n");
+			//GD.Print($"Object:\n\n\t{objectDef}\n\nSurfaces:\n");
 
 			ArrayMesh arrayMesh = new();
 			
-
 			MeshInstance3D meshObject = new();
-
+			
 			foreach(string surfaceDef in objects[objectDef].Keys) {
 				surfIdx++;
 				Godot.Collections.Array arrayMeshData = new();
@@ -241,15 +240,18 @@ public partial class RuntimeAssetImporter : Node3D
 				arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrayMeshData);
 				arrayMesh.SurfaceSetName(surfIdx, surfaceDef);
 				arrayMesh.SurfaceSetMaterial(surfIdx, materials[surfaceDef]);
-				GD.Print($"\t{surfaceDef}\n\t{objects[objectDef][surfaceDef].Count}\n");
+				//GD.Print($"\t{surfaceDef}\n\t{objects[objectDef][surfaceDef].Count}\n");
 			}
 
 			meshObject.Mesh = arrayMesh;
 			meshObject.Name = objectDef;
+
+			meshObject.CreateTrimeshCollision();
+
 			modelNode.AddChild(meshObject);
 			
 			surfIdx = -1;
-			GD.Print("\n");
+			//GD.Print("\n");
 		}
 
 
@@ -541,6 +543,7 @@ public partial class RuntimeAssetImporter : Node3D
 	private static Error GLTFImporter(ref Node3D modelnode, ref string path) {
 		GltfDocument gltfDocumentLoad = new();
 		GltfState gltfStateLoad = new();
+		
 		Error error = gltfDocumentLoad.AppendFromFile(path, gltfStateLoad);
 		if (error == Error.Ok) {
 			Node gltfSceneRootNode = gltfDocumentLoad.GenerateScene(gltfStateLoad);
