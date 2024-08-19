@@ -18,7 +18,7 @@ func _ready() -> void:
 	call_deferred("compile_mesh")
 
 func compile_mesh() -> void:	
-	mesh_compiler.Compile_mesh("/home/felipe/Downloads/wooden_picnic_table_4k.blend/wooden_picnic_table_4k.obj")
+	mesh_compiler.Compile_mesh("/home/felipe/Downloads/Scene.glb")
 
 	
 		
