@@ -2,10 +2,9 @@ extends Node3D
 
 @export var local_transform: bool = false
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass
+	pass # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -17,10 +16,10 @@ func _process(_delta: float) -> void:
 
 	var scale_amount: float = camera.position.distance_to(self.position)
 
-	scale_amount = clampf(scale_amount, 0.1, 99999999.0)
+	
 
 	scale_amount /= 4.0
 
-	#DebugDraw2D.set_text("Scale amount: ", scale_amount)
+	DebugDraw2D.set_text("Scale amount: ", scale_amount)
 
 	self.scale = Vector3(scale_amount, scale_amount, scale_amount)

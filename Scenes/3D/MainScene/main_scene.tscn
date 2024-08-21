@@ -10,6 +10,7 @@ sky_material = SubResource("ProceduralSkyMaterial_wyyue")
 
 [sub_resource type="Environment" id="Environment_beru5"]
 background_mode = 2
+background_energy_multiplier = 2.0
 sky = SubResource("Sky_f7how")
 
 [node name="MainScene" type="Node3D"]
@@ -22,3 +23,8 @@ sky = SubResource("Sky_f7how")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_beru5")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.509514, 0.688627, -0.515933, -0.5975, 0.14832, 0.788032, 0.619184, 0.709784, 0.335884, 0, 3.60278, 0)
+light_energy = 2.0
+shadow_enabled = true

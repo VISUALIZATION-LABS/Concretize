@@ -1,11 +1,12 @@
 extends Node3D
 
 # TODO: Cleanup
+# TODO: Make work with multiple gizmos
 
 @export_group("REQUIRED DATA")
 @export var camera: Camera3D
 
-@onready var gizmo_instance: Node3D = preload("res://Scenes/3D/SelectionModule/LiveGizmo.tscn").instantiate()
+@onready var gizmo_move: Node3D = preload("res://Scenes/3D/SelectionModule/LiveGizmo.tscn").instantiate()
 
 const RAY_LENGHT: float = 9999.0
 const MESH_COLLISION_MASK: int = 0b0000_0001
@@ -19,19 +20,30 @@ var selections: Array = []
 var gizmo_selected: bool = false
 var previous_mouse_coordinates: Vector3 = Vector3(0,0,0)
 
+enum TRANSFORM_CLASS {
+	MOVE,
+	ROTATE,
+	SCALE,
+	UNDEFINED
+}
+
 enum TRANSFORM_TYPE{
 	X,
 	Y,
 	Z,
+	ALL,
 	UNDEFINED
 }
 
 var current_transform: TRANSFORM_TYPE = TRANSFORM_TYPE.UNDEFINED
+var current_type: TRANSFORM_CLASS = TRANSFORM_CLASS.MOVE 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	get_tree().current_scene.add_child.call_deferred(gizmo_instance)
-	gizmo_instance.visible = false
+	get_tree().current_scene.add_child.call_deferred(gizmo_move)
+	gizmo_move.visible = false
+
+	SignalBus.gizmo_type_change.connect(_gizmo_type_change)
 
 # Maybe change the Gizmo to not be created under a selectee, but rather make it globally "there"
 # and just hide it when not in use
@@ -59,8 +71,8 @@ func _process(_delta: float) -> void:
 		
 		
 
-		DebugDraw2D.set_text("Raycast result (MESHES): ", raycast_result_meshes, 0, Color("GREEN"), 10)
-		DebugDraw2D.set_text("Raycast result (GIZMO): ", raycast_result_gizmo, 0, Color("RED"), 10)
+		#DebugDraw2D.set_text("Raycast result (MESHES): ", raycast_result_meshes, 0, Color("GREEN"), 10)
+		#DebugDraw2D.set_text("Raycast result (GIZMO): ", raycast_result_gizmo, 0, Color("RED"), 10)
 
 		if not raycast_result_gizmo and not gizmo_selected:
 			if raycast_result_meshes:
@@ -78,25 +90,23 @@ func _process(_delta: float) -> void:
 					#gizmo_instance.get_parent().remove_child(gizmo_instance)
 				
 				
-				
-				
-				gizmo_instance.visible = true
+				gizmo_move.visible = true
 				
 
 				#raycast_node.add_child(gizmo_instance)
-				DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("GREEN"), 10)
-				DebugDraw2D.set_text("Selections: ", selections, 1, Color("GREEN"), 10)
-				DebugDraw3D.draw_square(raycast_position, 0.03, Color("ORANGE"), 10)
+				#DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("GREEN"), 10)
+				#DebugDraw2D.set_text("Selections: ", selections, 1, Color("GREEN"), 10)
+				#DebugDraw3D.draw_square(raycast_position, 0.03, Color("ORANGE"), 10)
 			else:		
 				selections.clear()
 				
-				if gizmo_instance.visible:
-					gizmo_instance.visible = false
+				if gizmo_move.visible:
+					gizmo_move.visible = false
 
 				#if gizmo_instance.get_parent():
 				#	gizmo_instance.get_parent().remove_child(gizmo_instance)
 
-				DebugDraw2D.set_text("Selections: ", selections, 1, Color("WHITE"), 0)
+				#DebugDraw2D.set_text("Selections: ", selections, 1, Color("WHITE"), 0)
 		else:
 			# Do gizmo movement logic
 			var collision_mask: int = XZ_PLANE_COLLISION_MASK
@@ -104,7 +114,7 @@ func _process(_delta: float) -> void:
 			var raycast_node: Node3D = null
 			var delta_mouse_position: Vector3 = Vector3(0,0,0)
 			#var raycast_position: Vector3 = raycast_result_gizmo.position
-			if raycast_result_gizmo:
+			if raycast_result_gizmo and not gizmo_selected:
 				raycast_node = raycast_result_gizmo.collider.get_parent_node_3d()
 
 				
@@ -115,6 +125,14 @@ func _process(_delta: float) -> void:
 						current_transform = TRANSFORM_TYPE.Y
 					"Z_Axis":
 						current_transform = TRANSFORM_TYPE.Z
+					"Global_Move":
+						ErrorManager.raise_warning("Not functional")
+						current_transform = TRANSFORM_TYPE.ALL
+
+
+			# TODO: Implement a way to discern which type of col mask to use based on camera facingness
+			# Experiment with doing 2 raycasts (one that collides with the floors and one that collides with the walls), then do
+			# stuff with the data
 
 			match current_transform:
 				TRANSFORM_TYPE.X:
@@ -128,35 +146,48 @@ func _process(_delta: float) -> void:
 				TRANSFORM_TYPE.Z:
 					collision_mask = XZ_PLANE_COLLISION_MASK
 					mouse_transform_mask = Vector3(0,0,1)
+				
+				# FIXME: Doesn't work properly
+				TRANSFORM_TYPE.ALL:
+					collision_mask = XZ_PLANE_COLLISION_MASK
+					mouse_transform_mask = Vector3(1,1,1)
 
 			
-			# FIXME: Crashes when choosing infinitely far away point and/or missing world boundary
+			
 			var mouse_raycast_position_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(raycast_origin, raycast_transform_end, collision_mask)
 
 			var mouse_raycast_position_result: Dictionary = space_state.intersect_ray(mouse_raycast_position_query)
 
-			var mouse_projected_position: Vector3 = mouse_raycast_position_result.position
+			if mouse_raycast_position_result:
 
+				var mouse_projected_position: Vector3 = mouse_raycast_position_result.position
 
-			delta_mouse_position = mouse_projected_position - previous_mouse_coordinates
+				delta_mouse_position = mouse_projected_position - previous_mouse_coordinates
 
-			previous_mouse_coordinates = mouse_projected_position
+				previous_mouse_coordinates = mouse_projected_position
 
-			DebugDraw2D.set_text("Delta mouse:", delta_mouse_position)
+				#DebugDraw2D.set_text("Delta mouse:", delta_mouse_position)
 
-			if not gizmo_selected:
-				delta_mouse_position = Vector3(0,0,0)
+				if not gizmo_selected:
+					delta_mouse_position = Vector3(0,0,0)
 
-			gizmo_selected = true
+				gizmo_selected = true
 
-			for selection: Node3D in selections:
-				gizmo_instance.position += delta_mouse_position * mouse_transform_mask
-				selection.position += delta_mouse_position * mouse_transform_mask
+				match current_type:
+					TRANSFORM_CLASS.MOVE:
+						for selection: Node3D in selections:
+							selection.position += delta_mouse_position * mouse_transform_mask
 
-			
-			DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("RED"), 10)
-			#DebugDraw3D.draw_square(raycast_position, 0.03, Color("RED"), 10)
-			DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
+					TRANSFORM_CLASS.SCALE:
+						for selection: Node3D in selections:
+							selection.scale += delta_mouse_position * mouse_transform_mask
+
+				
+				gizmo_move.position += delta_mouse_position * mouse_transform_mask
+
+				#DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("RED"), 10)
+				#DebugDraw3D.draw_square(raycast_position, 0.03, Color("RED"), 10)
+				#DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
 	else:
 		gizmo_selected = false
 	
@@ -169,4 +200,15 @@ func _process(_delta: float) -> void:
 
 		average_position /= selections.size()
 
-	gizmo_instance.position = average_position
+	gizmo_move.position = average_position
+
+func _gizmo_type_change(type: String) -> void:
+	match type:
+		"Transform":
+			print("Setting type to MOVE")
+			current_type = TRANSFORM_CLASS.MOVE
+		"Rotate":
+			push_warning("Rotation not implemented yet")
+		"Scale":
+			print("Setting type to SCALE")
+			current_type = TRANSFORM_CLASS.SCALE

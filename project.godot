@@ -19,6 +19,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 SceneManager="*res://Global/SceneManager/scene_manager.gd"
+SignalBus="*res://Global/SignalBus/SignalBus.gd"
+ErrorManager="*res://Global/ErrorManager/ErrorManager.tscn"
 
 [debug]
 
@@ -57,6 +59,10 @@ folder_colors={
 [filesystem]
 
 import/blender/enabled=false
+
+[global_group]
+
+SelectionManagers=""
 
 [input]
 

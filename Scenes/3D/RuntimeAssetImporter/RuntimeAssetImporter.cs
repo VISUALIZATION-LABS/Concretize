@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Buffers;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -80,9 +81,6 @@ public partial class RuntimeAssetImporter : Node3D
 
 
 		//modelNode.AddChild(m);
-
-		
-
 
 		GetParent().AddChild(modelNode);
 		//VoxelGI vgi = (VoxelGI)modelNode.GetNode("VOXELGI-AREA");
@@ -521,6 +519,7 @@ public partial class RuntimeAssetImporter : Node3D
 
 		if (err != Error.Ok) {
 			GD.PushError("ERROR::RUNTIME_ASSET_IMPORTER::IMAGE_LOADER::NONEXISTENT_OR_CORRUPT_IMAGE");
+			
 			return ImageTexture.CreateFromImage(image);
 		} else {
 			if (isNormal) {
