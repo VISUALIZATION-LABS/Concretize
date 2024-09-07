@@ -1,0 +1,54 @@
+[gd_scene load_steps=2 format=3 uid="uid://olm42616arjd"]
+
+[ext_resource type="Script" path="res://Scenes/2D/UI/Titlebar/Scripts/titlebar.gd" id="1_xroyf"]
+
+[node name="Titlebar" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_xroyf")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 32.0
+grow_horizontal = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+offset_right = 1147.0
+offset_bottom = 32.0
+theme_override_constants/separation = 20
+
+[node name="File" type="MenuButton" parent="HBoxContainer"]
+layout_mode = 2
+text = " File"
+switch_on_hover = true
+
+[node name="Edit" type="MenuButton" parent="HBoxContainer"]
+layout_mode = 2
+text = "Edit"
+switch_on_hover = true
+
+[node name="Selection" type="MenuButton" parent="HBoxContainer"]
+layout_mode = 2
+text = "Selection"
+switch_on_hover = true
+
+[node name="View" type="MenuButton" parent="HBoxContainer"]
+layout_mode = 2
+text = "View"
+switch_on_hover = true
+
+[node name="Run" type="MenuButton" parent="HBoxContainer"]
+layout_mode = 2
+text = "Run"
+switch_on_hover = true
+
+[node name="Help" type="MenuButton" parent="HBoxContainer"]
+layout_mode = 2
+text = "Help"
+switch_on_hover = true

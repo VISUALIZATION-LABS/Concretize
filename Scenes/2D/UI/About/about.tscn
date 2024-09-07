@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://dprtnethpmywn"]
+
+[ext_resource type="Script" path="res://Scenes/2D/UI/About/Scripts/about.gd" id="1_lsgta"]
+
+[node name="About" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lsgta")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -332.5
+offset_top = -157.5
+offset_right = 332.5
+offset_bottom = 157.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Control" type="Control" parent="Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Panel/MarginContainer/Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 78.0
+offset_right = -78.0
+offset_bottom = 277.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "[center][b][font_size=24]CONCRETIZE[/font_size][/b]
+Felipe Sena
+Daniel Filipe
+Markus Paulo
+Giovanni Marques
+Danilo Cruz
+
+Version: 0.0.0
+Build Date: 0/0/0
+Build ID: 000000
+TODO: Make this look like the native Godot about panel
+[/center]"
