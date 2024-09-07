@@ -53,6 +53,7 @@ public partial class RuntimeAssetImporter : Node3D
 
 		if (!FileAccess.FileExists(path)) {
 			GD.PrintErr("ERROR::RUNTIME_ASSET_IMPORTER::NON_EXISTENT_FILE");
+			QueueFree();
 			return Error.FileNotFound;
 		}
 
