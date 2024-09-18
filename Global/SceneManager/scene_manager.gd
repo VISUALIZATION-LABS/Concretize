@@ -31,8 +31,8 @@ func change_current_scene_to_file(path: String) -> void:
 func change_current_scene_to_packed(packed_scene: PackedScene) -> void:
 	current_scene_tree.change_scene_to_packed(packed_scene)
 
-func import_mesh(path: PackedStringArray, 	) -> void:
-	if path.size() == 0:
+func import_mesh(path: String) -> void:
+	if path.length() == 0:
 		ErrorManager.raise_error("Cannot import mesh (no file)")
 		return
 	
@@ -41,4 +41,4 @@ func import_mesh(path: PackedStringArray, 	) -> void:
 
 	current_scene_tree.current_scene.add_child(mesh_importer)	
 
-	mesh_importer.Compile_mesh("some_place")
+	mesh_importer.Compile_mesh(path)

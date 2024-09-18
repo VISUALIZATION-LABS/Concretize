@@ -8,6 +8,7 @@ script = ExtResource("1_d2cqp")
 sensitivity = 4.8
 
 [node name="Camera3D" type="Camera3D" parent="."]
+current = true
 
 [node name="SelectionHandler" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_v7chi")]
 camera = NodePath("../Camera3D")

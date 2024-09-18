@@ -1,0 +1,94 @@
+[gd_scene format=3 uid="uid://dxqgesrrbpgxe"]
+
+[node name="Toast" type="Control"]
+clip_contents = true
+custom_minimum_size = Vector2(512, 160)
+layout_mode = 3
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -512.0
+offset_top = -160.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Panel" type="Panel" parent="."]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorIndicator" type="Control" parent="Panel"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 512.0
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Panel/ColorIndicator"]
+layout_mode = 2
+anchor_bottom = 1.0
+offset_right = 3.0
+
+[node name="Title" type="Control" parent="Panel"]
+layout_mode = 2
+anchors_preset = 0
+offset_right = 256.0
+offset_bottom = 128.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="RichTextLabel" parent="Panel/Title"]
+layout_mode = 1
+offset_left = 8.0
+offset_top = 4.0
+offset_right = 508.0
+offset_bottom = 22.0
+theme_override_font_sizes/bold_italics_font_size = 13
+theme_override_font_sizes/italics_font_size = 13
+theme_override_font_sizes/mono_font_size = 13
+theme_override_font_sizes/normal_font_size = 13
+theme_override_font_sizes/bold_font_size = 13
+bbcode_enabled = true
+text = "Short description (title)"
+fit_content = true
+scroll_active = false
+
+[node name="HSeparator" type="HSeparator" parent="Panel/Title"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 2.0
+anchor_bottom = 1.563
+offset_left = 4.0
+offset_top = 23.0
+offset_bottom = -173.064
+
+[node name="Body" type="Control" parent="Panel"]
+layout_mode = 2
+anchors_preset = 0
+offset_right = 256.0
+offset_bottom = 128.0
+
+[node name="TitleLabel" type="RichTextLabel" parent="Panel/Body"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.997
+anchor_bottom = 1.595
+offset_left = 8.0
+offset_top = 32.0
+offset_right = -4.23203
+offset_bottom = -8.16
+focus_mode = 2
+theme_override_font_sizes/bold_italics_font_size = 13
+theme_override_font_sizes/italics_font_size = 13
+theme_override_font_sizes/mono_font_size = 13
+theme_override_font_sizes/normal_font_size = 13
+theme_override_font_sizes/bold_font_size = 13
+bbcode_enabled = true
+text = "Longer error description"
+selection_enabled = true

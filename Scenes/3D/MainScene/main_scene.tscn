@@ -20,6 +20,7 @@ sky = SubResource("Sky_f7how")
 [node name="MainMenuUI" parent="UI" instance=ExtResource("1_deost")]
 
 [node name="Freecam" parent="." instance=ExtResource("1_pi0xa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0719689, 0.0573227, -0.00435489)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_beru5")

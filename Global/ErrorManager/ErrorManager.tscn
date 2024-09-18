@@ -1,8 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://b32ljb2js27df"]
+[gd_scene load_steps=2 format=3 uid="uid://b32ljb2js27df"]
 
 [ext_resource type="Script" path="res://Global/ErrorManager/error_manager.gd" id="1_5tkcr"]
-[ext_resource type="Texture2D" uid="uid://mu1j3deqsgo1" path="res://Global/ErrorManager/Golden_error.png" id="1_hiyfg"]
-[ext_resource type="Script" path="res://Global/ErrorManager/toast_prefab.gd" id="2_y1gbm"]
 
 [node name="ErrorManager" type="Control"]
 layout_mode = 3
@@ -12,43 +10,3 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_5tkcr")
-
-[node name="Toast_Prefab" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 3.0
-offset_top = -49.0
-offset_right = 643.0
-grow_horizontal = 0
-grow_vertical = 0
-script = ExtResource("2_y1gbm")
-
-[node name="PanelContainer" type="PanelContainer" parent="Toast_Prefab"]
-layout_mode = 0
-offset_right = 640.0
-offset_bottom = 48.0
-metadata/_edit_lock_ = true
-
-[node name="GoldenError" type="Sprite2D" parent="Toast_Prefab/PanelContainer"]
-position = Vector2(27, 24)
-scale = Vector2(0.5625, 0.5)
-texture = ExtResource("1_hiyfg")
-metadata/_edit_lock_ = true
-
-[node name="Control" type="Control" parent="Toast_Prefab/PanelContainer"]
-layout_mode = 2
-metadata/_edit_lock_ = true
-
-[node name="RichTextLabel" type="RichTextLabel" parent="Toast_Prefab/PanelContainer/Control"]
-layout_mode = 2
-offset_left = 63.0
-offset_top = 12.0
-offset_right = 640.0
-offset_bottom = 36.0
-text = "ERROR TEXT HERE"
-scroll_active = false
-metadata/_edit_lock_ = true

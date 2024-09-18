@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://b6tfiqhsut3qt"]
+
+[ext_resource type="Shader" path="res://Resources/Shaders/3D/SelectionHighlight.gdshader" id="1_tnlfx"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_tnlfx")
+shader_parameter/backgroundColor = Color(0.542755, 0.181791, 0.0643208, 1)
+shader_parameter/foregroundColor = Color(0.774913, 0.399496, 0.176787, 1)

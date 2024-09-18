@@ -7,6 +7,7 @@ extends Node3D
 @export var camera: Camera3D
 
 @onready var gizmo_move: Node3D = preload("res://Scenes/3D/SelectionModule/LiveGizmo.tscn").instantiate()
+@onready var selected_material: Resource = preload("res://Resources/Shaders/3D/SelectionHighlight.tres")
 
 const RAY_LENGHT: float = 9999.0
 const MESH_COLLISION_MASK: int = 0b0000_0001
@@ -76,15 +77,26 @@ func _process(_delta: float) -> void:
 
 		if not raycast_result_gizmo and not gizmo_selected:
 			if raycast_result_meshes:
-				var raycast_position: Vector3 = raycast_result_meshes.position
+				# var raycast_position: Vector3 = raycast_result_meshes.position
 				var raycast_node: Node3D = raycast_result_meshes.collider.get_parent_node_3d()
 
-
+				# FIXME: Bit of repetition, shouldn't be too bad but maybe take a look
 				if not Input.is_action_pressed("modifier_0"):
+
+					for selection: MeshInstance3D in selections:
+						for i in selection.mesh.get_surface_count():
+							selection.get_active_material(i).next_pass = null	
+
 					selections.clear()
 
 				if not selections.has(raycast_node):
 					selections.append(raycast_node)	
+					
+					# Apply selected material
+					for i: int in raycast_node.mesh.get_surface_count():
+						raycast_node.get_active_material(i).next_pass = selected_material
+
+					
 				
 				#if gizmo_instance.get_parent():
 					#gizmo_instance.get_parent().remove_child(gizmo_instance)
@@ -97,7 +109,12 @@ func _process(_delta: float) -> void:
 				#DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("GREEN"), 10)
 				#DebugDraw2D.set_text("Selections: ", selections, 1, Color("GREEN"), 10)
 				#DebugDraw3D.draw_square(raycast_position, 0.03, Color("ORANGE"), 10)
-			else:		
+			else:
+				# Remove selected material
+				for selection: MeshInstance3D in selections:
+					for i in selection.mesh.get_surface_count():
+						selection.get_active_material(i).next_pass = null	
+				
 				selections.clear()
 				
 				if gizmo_move.visible:

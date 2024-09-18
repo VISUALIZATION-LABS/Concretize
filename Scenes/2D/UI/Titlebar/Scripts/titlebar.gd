@@ -101,7 +101,15 @@ func _ready() -> void:
 func _on_titlebar_menu_button_pressed(id: int) -> void:
 	match id:
 		BUTTONS.IMPORT:
-			SceneManager.import_mesh(["place"])
+			var file_dialog: FileDialog = FileDialog.new()
+			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+			file_dialog.use_native_dialog = true
+			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+			file_dialog.visible = true
+
+			file_dialog.file_selected.connect(func(path: String) -> void:
+				SceneManager.import_mesh(path)
+				)
 			pass
 		
 		BUTTONS.QUIT:
@@ -112,7 +120,6 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 
 		BUTTONS.ABOUT:
 			var about_panel: Control = load("Scenes/2D/UI/About/about.tscn").instantiate()
-
 			about_panel.visible = false
 
 			self.add_child(about_panel)
