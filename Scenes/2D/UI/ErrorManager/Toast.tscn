@@ -1,7 +1,10 @@
-[gd_scene format=3 uid="uid://dxqgesrrbpgxe"]
+[gd_scene load_steps=4 format=3 uid="uid://dxqgesrrbpgxe"]
+
+[ext_resource type="Material" uid="uid://m8ji8txoye3d" path="res://Resources/Shaders/GUI/acrylic/acrylic.tres" id="1_7fy31"]
+[ext_resource type="Script" path="res://Scenes/2D/UI/ErrorManager/toast.gd" id="1_41f3r"]
+[ext_resource type="Texture2D" uid="uid://iux074372mcw" path="res://Art/Debug/3D/Walter_White_S5B.png" id="2_ycd7c"]
 
 [node name="Toast" type="Control"]
-clip_contents = true
 custom_minimum_size = Vector2(512, 160)
 layout_mode = 3
 anchors_preset = 3
@@ -13,8 +16,16 @@ offset_left = -512.0
 offset_top = -160.0
 grow_horizontal = 0
 grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("1_41f3r")
+
+[node name="WalterWhiteS5b" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(333, 12)
+texture = ExtResource("2_ycd7c")
 
 [node name="Panel" type="Panel" parent="."]
+material = ExtResource("1_7fy31")
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -33,7 +44,7 @@ grow_vertical = 2
 [node name="ColorRect" type="ColorRect" parent="Panel/ColorIndicator"]
 layout_mode = 2
 anchor_bottom = 1.0
-offset_right = 3.0
+offset_right = 5.0
 
 [node name="Title" type="Control" parent="Panel"]
 layout_mode = 2
@@ -45,15 +56,15 @@ grow_vertical = 2
 
 [node name="TitleLabel" type="RichTextLabel" parent="Panel/Title"]
 layout_mode = 1
-offset_left = 8.0
-offset_top = 4.0
-offset_right = 508.0
-offset_bottom = 22.0
-theme_override_font_sizes/bold_italics_font_size = 13
-theme_override_font_sizes/italics_font_size = 13
-theme_override_font_sizes/mono_font_size = 13
-theme_override_font_sizes/normal_font_size = 13
-theme_override_font_sizes/bold_font_size = 13
+offset_left = 9.0
+offset_top = 3.0
+offset_right = 509.0
+offset_bottom = 25.0
+theme_override_font_sizes/bold_italics_font_size = 15
+theme_override_font_sizes/italics_font_size = 15
+theme_override_font_sizes/mono_font_size = 15
+theme_override_font_sizes/normal_font_size = 15
+theme_override_font_sizes/bold_font_size = 15
 bbcode_enabled = true
 text = "Short description (title)"
 fit_content = true
@@ -64,9 +75,9 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 2.0
 anchor_bottom = 1.563
-offset_left = 4.0
-offset_top = 23.0
-offset_bottom = -173.064
+offset_left = 6.0
+offset_top = 27.0
+offset_bottom = -169.064
 
 [node name="Body" type="Control" parent="Panel"]
 layout_mode = 2
@@ -74,14 +85,14 @@ anchors_preset = 0
 offset_right = 256.0
 offset_bottom = 128.0
 
-[node name="TitleLabel" type="RichTextLabel" parent="Panel/Body"]
+[node name="BodyLabel" type="RichTextLabel" parent="Panel/Body"]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.997
 anchor_bottom = 1.595
-offset_left = 8.0
+offset_left = 9.0
 offset_top = 32.0
-offset_right = -4.23203
+offset_right = -3.23203
 offset_bottom = -8.16
 focus_mode = 2
 theme_override_font_sizes/bold_italics_font_size = 13
@@ -92,3 +103,13 @@ theme_override_font_sizes/bold_font_size = 13
 bbcode_enabled = true
 text = "Longer error description"
 selection_enabled = true
+
+[node name="CloseButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 442.0
+offset_right = 511.0
+offset_bottom = 31.0
+text = "Xasdajh"
+
+[connection signal="button_up" from="CloseButton" to="." method="_disappear"]

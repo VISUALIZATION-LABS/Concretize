@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://olm42616arjd"]
+[gd_scene load_steps=3 format=3 uid="uid://olm42616arjd"]
 
 [ext_resource type="Script" path="res://Scenes/2D/UI/Titlebar/Scripts/titlebar.gd" id="1_xroyf"]
+[ext_resource type="Material" uid="uid://m8ji8txoye3d" path="res://Resources/Shaders/GUI/acrylic/acrylic.tres" id="2_evsi5"]
 
 [node name="Titlebar" type="Control"]
 layout_mode = 3
@@ -9,9 +10,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_xroyf")
 
 [node name="Panel" type="Panel" parent="."]
+material = ExtResource("2_evsi5")
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0

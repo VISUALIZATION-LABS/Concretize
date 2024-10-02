@@ -127,5 +127,5 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			pass
 
 		_:
-			ErrorManager.raise_error("Not implemented")
+			ErrorManager.raise_error("This function has not been implemented yet", "Yeah, for real")
 		

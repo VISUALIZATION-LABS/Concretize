@@ -1,3 +1,7 @@
+// Grupo Madaga - 2024
+// VisualizationLabs - 2024
+// Selection highlighting shader done on a secondary pass
+
 shader_type spatial;
 render_mode unshaded;
 

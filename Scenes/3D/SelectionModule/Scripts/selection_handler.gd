@@ -143,7 +143,7 @@ func _process(_delta: float) -> void:
 					"Z_Axis":
 						current_transform = TRANSFORM_TYPE.Z
 					"Global_Move":
-						ErrorManager.raise_warning("Not functional")
+						ErrorManager.raise_warning("Global movement is not fully implemented", "Due to mouse projection issues, this transformation type will not work properly.")
 						current_transform = TRANSFORM_TYPE.ALL
 
 

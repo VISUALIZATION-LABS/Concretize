@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dprtnethpmywn"]
+[gd_scene load_steps=3 format=3 uid="uid://dprtnethpmywn"]
 
 [ext_resource type="Script" path="res://Scenes/2D/UI/About/Scripts/about.gd" id="1_lsgta"]
+[ext_resource type="Material" uid="uid://m8ji8txoye3d" path="res://Resources/Shaders/GUI/acrylic/acrylic.tres" id="2_4aqrh"]
 
 [node name="About" type="Control"]
 layout_mode = 3
@@ -12,6 +13,7 @@ grow_vertical = 2
 script = ExtResource("1_lsgta")
 
 [node name="Panel" type="Panel" parent="."]
+material = ExtResource("2_4aqrh")
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
