@@ -1,5 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://bln1i361dl82r"]
+[gd_scene load_steps=3 format=3 uid="uid://bln1i361dl82r"]
 
+[ext_resource type="Script" path="res://Scenes/2D/UI/MainUI/scripts/main_ui.gd" id="1_4q833"]
 [ext_resource type="PackedScene" uid="uid://olm42616arjd" path="res://Scenes/2D/UI/Titlebar/titlebar.tscn" id="1_8476f"]
 
 [node name="MainUI" type="Control"]
@@ -10,6 +11,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
+script = ExtResource("1_4q833")
 
 [node name="Titlebar" parent="." instance=ExtResource("1_8476f")]
 layout_mode = 1
+
+[node name="PopupMenu" type="PopupMenu" parent="Titlebar"]

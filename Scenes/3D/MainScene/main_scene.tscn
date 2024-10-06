@@ -18,6 +18,7 @@ sky = SubResource("Sky_f7how")
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="MainMenuUI" parent="UI" instance=ExtResource("1_deost")]
+unique_name_in_owner = true
 
 [node name="Freecam" parent="." instance=ExtResource("1_pi0xa")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0719689, 0.0573227, -0.00435489)

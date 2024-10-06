@@ -8,3 +8,7 @@ extends Node
 # GIZMO
 signal gizmo_type_change(type: String)
 
+# GUI
+signal hide_section(section: String)
+signal show_section(section: String)
+signal unhide_all

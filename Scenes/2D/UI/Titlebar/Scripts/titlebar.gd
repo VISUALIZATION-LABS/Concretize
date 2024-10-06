@@ -128,4 +128,5 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 
 		_:
 			ErrorManager.raise_error("This function has not been implemented yet", "Yeah, for real")
+			SignalBus.hide_section.emit("Titlebar")
 		

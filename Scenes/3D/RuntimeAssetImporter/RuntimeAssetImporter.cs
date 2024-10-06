@@ -5,6 +5,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 // FIXME: This code has some ugly hacks, but perfect code doesnt ship...
 // Consider fixing in the distant future
@@ -51,24 +52,24 @@ public partial class RuntimeAssetImporter : Node3D
 	}
 
 	
-    Error Compile_mesh(string path) {
+    async void Compile_mesh(string path) {
         Node3D modelNode = new() {Name = "modelNode"};
 		// First check if the path is valid
 
 		if (!FileAccess.FileExists(path)) {
 			GD.PrintErr("ERROR::RUNTIME_ASSET_IMPORTER::NON_EXISTENT_FILE");
 			QueueFree();
-			return Error.FileNotFound;
+			//return Error.FileNotFound;
 		}
 
 		modelNode.Name = path.GetFile().Split(".", false)[0];
 
 		switch (path.GetFile().Split(".", false)[1]) {
 			
-			case FileType.obj:	
+			case FileType.obj:				
 				GD.Print("Compiling for obj");
 				
-                RaiOBJ.ObjMeshAssembler(ref modelNode, ref path);
+                await Task.Run(() => {RaiOBJ.ObjMeshAssembler(ref modelNode, ref path);});
 				break;
 			case FileType.glb:	
 				GD.Print("Compiling for glb");
@@ -95,7 +96,7 @@ public partial class RuntimeAssetImporter : Node3D
 		//ReflectionProbe rfl = (ReflectionProbe)modelNode.GetNode("REFLECTION-AREA");
 		//rfl.Position = new Vector3(rfl.Position.X, rfl.Position.Y + 0.0001f, rfl.Position.Z);
 		QueueFree();
-		return Error.Ok;	
+		//return Error.Ok;	
     }
 
 
