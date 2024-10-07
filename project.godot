@@ -18,8 +18,10 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Conc="*res://Global/Helpers/GlobalEnum/Conc.gd"
 SceneManager="*res://Global/SceneManager/scene_manager.gd"
+SceneDiagnostics="*res://Global/SceneManager/scene_diagnostics.gd"
+SceneReporter="*res://Global/SceneManager/scene_reporter.gd"
+Conc="*res://Global/Helpers/GlobalEnum/Conc.gd"
 SignalBus="*res://Global/SignalBus/SignalBus.gd"
 ErrorManager="*res://Global/ErrorManager/ErrorManager.tscn"
 
