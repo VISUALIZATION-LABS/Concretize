@@ -101,14 +101,24 @@ func _ready() -> void:
 func _on_titlebar_menu_button_pressed(id: int) -> void:
 	match id:
 		BUTTONS.IMPORT:
+			print("FOO")
 			var file_dialog: FileDialog = FileDialog.new()
 			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+			file_dialog.add_filter("*.obj, *.gltf, *.glb", "3D models")
 			file_dialog.use_native_dialog = true
-			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES
 			file_dialog.visible = true
 
+			file_dialog.files_selected.connect(func(paths: PackedStringArray) -> void:
+				print("Selected paths: ")
+				SceneManager.import_mesh(paths)
+				print(paths)
+				)
+
 			file_dialog.file_selected.connect(func(path: String) -> void:
-				SceneManager.import_mesh(path)
+				var path_array: PackedStringArray = [path]
+				SceneManager.import_mesh(path_array)	
+				print(path)
 				)
 			pass
 		
