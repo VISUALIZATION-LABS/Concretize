@@ -1,69 +1,87 @@
 extends Node
 
-var current_scene_tree: SceneTree
-var verbose: bool = false
+# Manages scene related things, such as:
+	# Switching
+	# Reloading
+	# ...
 
-var autoload = ["SceneManager"]
+var scene_tree: SceneTree
+var program_config: ConfigFile = ConfigFile.new()
 
-# Console reporting
+# Manage loading everything
 func _enter_tree() -> void:
-	current_scene_tree = get_tree()
-	current_scene_tree.node_added.connect(Callable(self, "_on_scene_node_added"))
-	current_scene_tree.node_removed.connect(Callable(self, "_on_scene_node_removed"))
+	scene_tree = get_tree()
 
-func _on_scene_node_added(node: Node) -> void:
-	var path: String = node.name
-	if verbose:
-		if path in autoload:
-			print_rich("Loaded [b][i][color=yellow]%s[/color][/i][/b]." % path)
-		elif node.get_class() ==  "Control":
-			print_rich("Loaded [b][i][color=green]%s[/color][/i][/b]." % path)
-		elif node.get_class() == "Node3D":
-			print_rich("Loaded [b][i][color=purple]%s[/color][/i][/b]." % path)
-		else:
-			print_rich("Loaded [b][i][color=white]%s[/color][/i][/b]." % path)
+	var err: Error = program_config.load("res://Internal_config/internal_config.cfg")
 
-func _on_scene_node_removed(node: Node) -> void:
-	if verbose:
-		var path: String = node.name
-		print_rich("[color=cyan]Unloaded [b][i]%s[/i][/b][/color]." % path)
+	if err != OK:
+		OS.alert("Internal configuration file is either missing or corrupted, reconstruction will be attempted...")
+		return
 
-# Scene stuff
-func change_current_scene_to_file(path: String) -> void:
-	current_scene_tree.change_scene_to_file(path)
+	# Set error reporting
+	print("Verifying settings path...")
+	if program_config.get_value("program_info", "settings_dir").length() == 0 || !program_config.get_value("program_info", "settings_dir").dir_exists:
+		print("User settings directory doesn't exist, using built-in settings")
+	else:
+		print("Loading user settings...")
+		# program_config.load("path")
+		pass
 
-func change_current_scene_to_packed(packed_scene: PackedScene) -> void:
-	current_scene_tree.change_scene_to_packed(packed_scene)
+	SceneDiagnostics.reporting_level = program_config.get_value("program_defaults", "debug_level")
 
-func create_mouse_context_menu(type: Conc.ContextMenu) -> void:
-	var context_menu: PopupMenu = PopupMenu.new()
-	var gui: Control = get_tree().root.find_child("MainMenuUI", true, false)
-	
-	match type:
-		Conc.ContextMenu.GENERIC:
-			context_menu.add_item("Unhide UI", Conc.ContextMenu.GENERIC_UI_UNHIDE)
-			context_menu.add_item("Hide UI", Conc.ContextMenu.GENERIC_UI_HIDE)
+	# Setup graphics settings
+	# Renderer change still needs to be implemented
+	# Set default world env settings
+	# Set renderer quality
 
-	
-	context_menu.initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
-	context_menu.position = get_viewport().get_mouse_position()
-	context_menu.visible = true
-	gui.add_child(context_menu)
+
+	if SceneDiagnostics.reporting_level > SceneDiagnostics.ReportingLevel.NONE:
+		pass
+		
+		
+
+	print("\nThis is: %s %s" % [program_config.get_value("program_info", "title"), program_config.get_value("program_info", "version")])
+	print("Build %s %s\n" % [program_config.get_value("program_info", "build_info"), program_config.get_value("program_info", "branch")])
+
+
+	# Load settings
+
 
 # Mesh importer
-func import_mesh(path: String) -> void:
-	if path.length() == 0:
+func import_mesh(paths: PackedStringArray) -> void:
+
+	if paths.size() == 0:
 		ErrorManager.raise_error("Cannot import mesh", "Cannot import the desired mesh because there isn't a path to it.")
 		return
+
+	var popup: Control = SceneReporter.create_popup("Importing mesh", "", SceneReporter.PopupType.LOADING)
+	
+	var importer_finished_callback: Callable = func(file_name: StringName) -> void:
+		popup.description = popup.description.replace(file_name, "[color=green]%s[/color]" % file_name)
+
+	scene_tree.current_scene.get_node("UI").add_child(popup)
+	
+	for path in paths:
+		var description_path: String = path.get_file()
+		popup.description = popup.description + description_path + "\n"
+		
+		var mesh_importer: Node3D = load("res://Scenes/3D/RuntimeAssetImporter/runtime_asset_importer.tscn").instantiate()
+		# Scene could be null but no user will import a mesh before the program is loaded... hopefully
+		scene_tree.current_scene.add_child(mesh_importer)
+		mesh_importer.Compile_mesh(path)
+		mesh_importer.connect("ImporterFinished", importer_finished_callback)
+
+
+	
+
+
+func get_loaded_node_amount() -> Dictionary:
+	var loaded_node_amount: Dictionary = {
+		"total_nodes": scene_tree.root.get_child_count(),
+		"nodes_in_scene": scene_tree.current_scene.get_child_count()
+	}
+
+	return loaded_node_amount
+
 	
 	
-	var mesh_importer: Node3D = load("res://Scenes/3D/RuntimeAssetImporter/runtime_asset_importer.tscn").instantiate()
-
-	current_scene_tree.current_scene.add_child(mesh_importer)	
-
-	mesh_importer.Compile_mesh(path)
-
-# Input Handler
-func _input(event: InputEvent) -> void:
-	if Input.is_action_just_pressed("context_menu"):
-		create_mouse_context_menu(Conc.ContextMenu.GENERIC)
