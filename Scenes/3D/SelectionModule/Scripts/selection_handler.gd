@@ -1,6 +1,6 @@
 extends Node3D
 
-# TODO: Cleanup
+# TODO: Cleanup - Separate file
 # TODO: Make work with multiple gizmos
 
 @export_group("REQUIRED DATA")
@@ -78,14 +78,15 @@ func _process(_delta: float) -> void:
 		if not raycast_result_gizmo and not gizmo_selected:
 			if raycast_result_meshes:
 				# var raycast_position: Vector3 = raycast_result_meshes.position
-				var raycast_node: Node3D = raycast_result_meshes.collider.get_parent_node_3d()
+				var raycast_node: MeshInstance3D = raycast_result_meshes.collider.get_parent_node_3d()
 
 				# FIXME: Bit of repetition, shouldn't be too bad but maybe take a look
 				if not Input.is_action_pressed("modifier_0"):
 
+					# Remove selected materials
 					for selection: MeshInstance3D in selections:
 						for i in selection.mesh.get_surface_count():
-							selection.get_active_material(i).next_pass = null	
+							selection.set_surface_override_material(i, null)
 
 					selections.clear()
 
@@ -94,8 +95,15 @@ func _process(_delta: float) -> void:
 					
 					# Apply selected material
 					for i: int in raycast_node.mesh.get_surface_count():
-						raycast_node.get_active_material(i).next_pass = selected_material
+						var current_material: Material = raycast_node.get_active_material(i).duplicate()
 
+						#raycast_node.get_active_material(i).next_pass = selected_material
+
+						raycast_node.set_surface_override_material(i, current_material)
+						raycast_node.get_surface_override_material(i).next_pass = selected_material
+						
+						
+						
 					
 				
 				#if gizmo_instance.get_parent():
@@ -113,7 +121,7 @@ func _process(_delta: float) -> void:
 				# Remove selected material
 				for selection: MeshInstance3D in selections:
 					for i in selection.mesh.get_surface_count():
-						selection.get_active_material(i).next_pass = null	
+						selection.set_surface_override_material(i, null)
 				
 				selections.clear()
 				
