@@ -23,7 +23,7 @@ namespace RAIManager {
 		{
 			// Needed so numbers use dots instead of
 			// commas in decimals
-			AddUserSignal("ImporterFinished", new Godot.Collections.Array(){new StringName()});
+			AddUserSignal("ImporterFinished", new Godot.Collections.Array(){new StringName(), new Node3D()});
 
 			Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
@@ -54,7 +54,9 @@ namespace RAIManager {
 			public const string gltf = "gltf";
 		}
 
-		
+		static float Get_importer_percentage() {
+			return RaiOBJ.GetPercentage();
+		}
 		async void Compile_mesh(string path) {
 			Node3D modelNode = new() {Name = "modelNode"};
 			// First check if the path is valid
@@ -69,9 +71,9 @@ namespace RAIManager {
 
 			switch (path.GetFile().Split(".", false)[1]) {
 				
-				case FileType.obj:				
+				case FileType.obj:
 					GD.Print("Compiling for obj");
-					await Task.Run(() => {RaiOBJ.ObjMeshAssembler(ref modelNode, ref path);});
+                    await Task.Run(() => { RaiOBJ.ObjMeshAssembler(ref modelNode, ref path); });
 					break;
 				case FileType.glb:	
 					GD.Print("Compiling for glb");
@@ -82,6 +84,7 @@ namespace RAIManager {
 					break;
 			}
 
+
 			//modelNode.AddChild(m);
 
 			GetParent().AddChild(modelNode);	
@@ -89,7 +92,9 @@ namespace RAIManager {
 			//vgi.Bake();
 
 
-			EmitSignal("ImporterFinished", path.GetFile());
+			EmitSignal("ImporterFinished", path.GetFile(), this);
+
+			
 			//ReflectionProbe rfl = (ReflectionProbe)modelNode.GetNode("REFLECTION-AREA");
 			//rfl.Position = new Vector3(rfl.Position.X, rfl.Position.Y + 0.0001f, rfl.Position.Z);
 			QueueFree();

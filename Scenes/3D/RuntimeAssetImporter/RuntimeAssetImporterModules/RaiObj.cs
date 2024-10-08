@@ -1,19 +1,43 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
-using Godot;
+using Godot;		
 using RAI.RAIImage;
+using RAIManager;
 using RAI.RAISurfAssemble;
+using System.Security.AccessControl;
 
 namespace RAI {
 	namespace RaiOBJ {
 		public partial class RaiOBJ : Node
 		{
+
+			private static float percentageFileRead = 0;
+			private static float totalLines = 1;
+			private static int linesRead = 0;
+
+			private static float percentageObject = 0;
+			private static float totalObjects = 1;
+			private static float objectsAssembled = 0;
+			
+			private static float finalPercentage = 0;
+				
+
+			public static float GetPercentage() {
+				percentageFileRead = linesRead / totalLines * 100.0f;
+				percentageObject = objectsAssembled / totalObjects * 100f;
+				finalPercentage = (percentageFileRead + percentageObject) / 2.0f;
+				return finalPercentage;
+			}
+
+
+			private static string[] dataLine;
 			public static Error ObjMeshAssembler(ref Node3D modelNode, ref string path){
 				path = path.Replace('\\','/');
 
-				string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
+				dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
 
 				// Mesh data
 				List<Vector3> vertexPositions = new();
@@ -35,6 +59,7 @@ namespace RAI {
 				//Dictionary<string, List<List<int[]>>> surfaces = new();
 
 
+				totalLines = dataLine.Length;
 
 				foreach (string line in dataLine) {
 					string[] token = line.Split(' ', StringSplitOptions.None);
@@ -134,12 +159,16 @@ namespace RAI {
 							//surfDict[currentMesh].Add(facedef);
 							break;
 					} // Switch ends here
-				} // Foreach ends here		
+					//percentage = (totalLines - dataLine.Length) / totalLines * 100;
+					linesRead += 1;
+					//dataLine = dataLine.Skip(1).ToArray();
+				} // Foreach ends here			
 
 				int surfIdx = -1;
 
 				GD.Print("\n");
 				
+				totalObjects = objects.Count;
 				foreach(string objectDef in objects.Keys) {
 					//GD.Print($"Object:\n\n\t{objectDef}\n\nSurfaces:\n");
 
@@ -163,11 +192,13 @@ namespace RAI {
 					meshObject.Mesh = arrayMesh;
 					meshObject.Name = objectDef;
 
+					
 					meshObject.CreateTrimeshCollision();
 
 					modelNode.AddChild(meshObject);
 					
 					surfIdx = -1;
+					objectsAssembled += 1;
 					//GD.Print("\n");
 				}
 

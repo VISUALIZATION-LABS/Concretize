@@ -49,6 +49,10 @@ func _enter_tree() -> void:
 
 # Mesh importer
 func import_mesh(paths: PackedStringArray) -> void:
+	var importers: Array[Node3D] = []
+
+	# Hack so i can thange this ref value in a lambda
+	var importer_count: Dictionary = {"count": 0}
 
 	if paths.size() == 0:
 		ErrorManager.raise_error("Cannot import mesh", "Cannot import the desired mesh because there isn't a path to it.")
@@ -56,20 +60,50 @@ func import_mesh(paths: PackedStringArray) -> void:
 
 	var popup: Control = SceneReporter.create_popup("Importing mesh", "", SceneReporter.PopupType.LOADING)
 	
-	var importer_finished_callback: Callable = func(file_name: StringName) -> void:
-		popup.description = popup.description.replace(file_name, "[color=green]%s[/color]" % file_name)
+	
+
+	var importer_finished_callback: Callable = func(file_name: StringName, importer: Node3D) -> void:
+		popup.description = popup.description.replace(file_name, "[color=green]%s[/color]" % file_name)	
+		importers.remove_at(importers.find(importer))
+		importer_count.count -= 1
 
 	scene_tree.current_scene.get_node("UI").add_child(popup)
+	#scene_tree.current_scene.get_node("UI").move_child(popup, 0)
 	
-	for path in paths:
+	for path in paths:		
 		var description_path: String = path.get_file()
 		popup.description = popup.description + description_path + "\n"
 		
 		var mesh_importer: Node3D = load("res://Scenes/3D/RuntimeAssetImporter/runtime_asset_importer.tscn").instantiate()
+
 		# Scene could be null but no user will import a mesh before the program is loaded... hopefully
 		scene_tree.current_scene.add_child(mesh_importer)
 		mesh_importer.Compile_mesh(path)
 		mesh_importer.connect("ImporterFinished", importer_finished_callback)
+		importers.append(mesh_importer)
+
+	var importer_amount: int = importers.size()
+
+	var timer: Timer = Timer.new()
+	timer.one_shot = false
+	timer.wait_time = 0.2
+	scene_tree.current_scene.add_child(timer)
+	timer.start()
+	timer.timeout.connect(func() -> void:
+		var importer_sum: float = 0.0
+		if not importers.is_empty():
+			
+			importer_sum = importers[0].Get_importer_percentage() / importer_amount
+			
+			popup.progress_bar.value = importer_sum
+		else:
+			popup.progress_bar.value = 100		
+			timer.queue_free()	
+
+			scene_tree.create_timer(0.3).timeout.connect(func() -> void: popup.queue_free())
+	)
+	
+
 
 
 	
