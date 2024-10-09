@@ -8,6 +8,7 @@ extends Node
 
 var camera_lock: bool = true
 var previous_mouse_coordinates: Vector2 = Vector2(0,0)
+var current_movement: Vector3 = Vector3(0,0,0)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -39,12 +40,12 @@ func _process(_delta: float) -> void:
 	# MOVEMENT SECTION ----
 	
 	var input_vector: Vector2 = Input.get_vector("move_forward", "move_back", "move_left", "move_right")
-	
-	# TODO: Implement lerping
+
 	var desired_movement: Vector3 = (camera.basis.z * input_vector.x) + (camera.basis.x * input_vector.y)
-	
+	current_movement = lerp(current_movement, desired_movement, 0.2)
+
 	# Then transform the camera based on it's basis (global rot matrix in practice)
-	camera.global_translate(desired_movement * camera_speed / 10)
+	camera.global_translate(current_movement * camera_speed / 10)
 	
 	# END OF MOVEMENT SECTION ----
 	
