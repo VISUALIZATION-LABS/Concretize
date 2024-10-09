@@ -1,6 +1,6 @@
 extends Control
 
-enum BUTTONS {
+enum Buttons {
 	# File
 	NEW_SCENE,
 	OPEN_SCENE,
@@ -52,39 +52,39 @@ func _ready() -> void:
 
 	var file_button_export_sub_menu: PopupMenu = PopupMenu.new()
 
-	file_button.add_item("New Scene", BUTTONS.NEW_SCENE)
-	file_button.add_item("Open Scene", BUTTONS.OPEN_SCENE)
-	file_button.add_item("Save Scene", BUTTONS.SAVE_SCENE)
-	file_button.add_item("Save Scene As...", BUTTONS.SAVE_SCENE_AS)
-	file_button.add_item("Import", BUTTONS.IMPORT)
+	file_button.add_item("New Scene", Buttons.NEW_SCENE)
+	file_button.add_item("Open Scene", Buttons.OPEN_SCENE)
+	file_button.add_item("Save Scene", Buttons.SAVE_SCENE)
+	file_button.add_item("Save Scene As...", Buttons.SAVE_SCENE_AS)
+	file_button.add_item("Import", Buttons.IMPORT)
 
-	file_button_export_sub_menu.add_item("Export Scene", BUTTONS.EXPORT_SCENE)
-	file_button_export_sub_menu.add_item("Export Selection", BUTTONS.EXPORT_SELECTION)
+	file_button_export_sub_menu.add_item("Export Scene", Buttons.EXPORT_SCENE)
+	file_button_export_sub_menu.add_item("Export Selection", Buttons.EXPORT_SELECTION)
 
-	file_button.add_item("Quit", BUTTONS.QUIT)
+	file_button.add_item("Quit", Buttons.QUIT)
 
 	file_button.add_submenu_node_item("Export", file_button_export_sub_menu)
 
-	edit_button.add_item("Cut", BUTTONS.CUT)
-	edit_button.add_item("Copy", BUTTONS.COPY)
-	edit_button.add_item("Paste", BUTTONS.PASTE)
-	edit_button.add_item("Preferences", BUTTONS.PREFERENCES)
+	edit_button.add_item("Cut", Buttons.CUT)
+	edit_button.add_item("Copy", Buttons.COPY)
+	edit_button.add_item("Paste", Buttons.PASTE)
+	edit_button.add_item("Preferences", Buttons.PREFERENCES)
 		
-	selection_button.add_item("Select All", BUTTONS.SELECT_ALL)
-	selection_button.add_item("Deselect All", BUTTONS.DESELECT_ALL)
-	selection_button.add_item("Invert Selection", BUTTONS.INVERT_SELECTION)
+	selection_button.add_item("Select All", Buttons.SELECT_ALL)
+	selection_button.add_item("Deselect All", Buttons.DESELECT_ALL)
+	selection_button.add_item("Invert Selection", Buttons.INVERT_SELECTION)
 
-	view_button.add_item("Unlit", BUTTONS.UNLIT)
-	view_button.add_item("Ambient", BUTTONS.AMBIENT)
-	view_button.add_item("Wireframe", BUTTONS.WIREFRAME)
+	view_button.add_item("Unlit", Buttons.UNLIT)
+	view_button.add_item("Ambient", Buttons.AMBIENT)
+	view_button.add_item("Wireframe", Buttons.WIREFRAME)
 
-	run_button.add_item("Run Project", BUTTONS.RUN_PROJECT)
-	run_button.add_item("Run Scene", BUTTONS.RUN_SCENE)
-	run_button.add_item("Run Here", BUTTONS.RUN_HERE)
+	run_button.add_item("Run Project", Buttons.RUN_PROJECT)
+	run_button.add_item("Run Scene", Buttons.RUN_SCENE)
+	run_button.add_item("Run Here", Buttons.RUN_HERE)
 
-	help_button.add_item("About", BUTTONS.ABOUT)
-	help_button.add_item("Website", BUTTONS.WEBSITE)
-	help_button.add_item("Documentation", BUTTONS.DOCUMENTATION)
+	help_button.add_item("About", Buttons.ABOUT)
+	help_button.add_item("Website", Buttons.WEBSITE)
+	help_button.add_item("Documentation", Buttons.DOCUMENTATION)
 
 	# Connect all buttons
 
@@ -100,7 +100,7 @@ func _ready() -> void:
 
 func _on_titlebar_menu_button_pressed(id: int) -> void:
 	match id:
-		BUTTONS.IMPORT:
+		Buttons.IMPORT:
 			print("FOO")
 			var file_dialog: FileDialog = FileDialog.new()
 			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
@@ -122,13 +122,13 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 				)
 			pass
 		
-		BUTTONS.QUIT:
+		Buttons.QUIT:
 			get_tree().quit()
 		
-		BUTTONS.WEBSITE:
+		Buttons.WEBSITE:
 			OS.shell_open("https://visualization-labs.github.io/pocketvizwebsite/")
 
-		BUTTONS.ABOUT:
+		Buttons.ABOUT:
 			var about_panel: Control = load("Scenes/2D/UI/About/about.tscn").instantiate()
 			about_panel.visible = false
 
@@ -137,6 +137,8 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			pass
 
 		_:
+			#var modelBuilder: Node3D = load("res://Scenes/3D/ModelBuilder/model_builder.tscn").instantiate()
+			#SceneManager.scene_tree.current_scene.add_child(modelBuilder)
 			ErrorManager.raise_error("This function has not been implemented yet", "Yeah, for real")
-			SignalBus.hide_section.emit("Titlebar")
+			#SignalBus.hide_section.emit("Titlebar")
 		
