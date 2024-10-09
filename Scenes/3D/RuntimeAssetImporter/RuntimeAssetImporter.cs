@@ -13,8 +13,6 @@ namespace RAIManager {
 	public partial class RuntimeAssetImporter : Node3D
 	{
 
-		
-
 		Resource objImportModule = null;
 		Resource gltfImportModule = null;
 		Resource imgImportModule = null;
@@ -29,7 +27,6 @@ namespace RAIManager {
 
 		}
 
-		// TODO: Investigate if class is the best choise, may eat a lot of memory with a lot of materials
 		// https://stackoverflow.com/questions/414981/directly-modifying-listt-elements
 		private class Material {
 			// General stuff for finding the material
