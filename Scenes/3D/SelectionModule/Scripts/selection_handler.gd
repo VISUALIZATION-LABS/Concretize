@@ -1,6 +1,6 @@
 extends Node3D
 
-# TODO: Cleanup - Separate file
+# TODO: Cleanup - Separate file	
 # TODO: Make work with multiple gizmos
 
 @export_group("REQUIRED DATA")
@@ -86,7 +86,8 @@ func _process(_delta: float) -> void:
 					# Remove selected materials
 					for selection: MeshInstance3D in selections:
 						for i in selection.mesh.get_surface_count():
-							selection.set_surface_override_material(i, null)
+							if selection.get_active_material(i):
+								selection.set_surface_override_material(i, null)
 
 					selections.clear()
 
@@ -95,12 +96,12 @@ func _process(_delta: float) -> void:
 					
 					# Apply selected material
 					for i: int in raycast_node.mesh.get_surface_count():
-						var current_material: Material = raycast_node.get_active_material(i).duplicate()
-
+						if raycast_node.get_active_material(i):
+							var current_material: Material = raycast_node.get_active_material(i).duplicate()
 						#raycast_node.get_active_material(i).next_pass = selected_material
 
-						raycast_node.set_surface_override_material(i, current_material)
-						raycast_node.get_surface_override_material(i).next_pass = selected_material
+							raycast_node.set_surface_override_material(i, current_material)
+							raycast_node.get_surface_override_material(i).next_pass = selected_material
 						
 						
 						
@@ -121,7 +122,8 @@ func _process(_delta: float) -> void:
 				# Remove selected material
 				for selection: MeshInstance3D in selections:
 					for i in selection.mesh.get_surface_count():
-						selection.set_surface_override_material(i, null)
+						if selection.get_active_material(i):
+							selection.set_surface_override_material(i, null)
 				
 				selections.clear()
 				
