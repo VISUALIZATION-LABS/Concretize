@@ -70,7 +70,7 @@ namespace RAIManager {
 				
 				case FileType.obj:
 					GD.Print("Compiling for obj");
-                    await Task.Run(() => { RaiOBJ.ObjMeshAssembler(ref modelNode, ref path); });
+					await Task.Run(() => { RaiOBJ.ObjMeshAssembler(ref modelNode, ref path); });
 					break;
 				case FileType.glb:	
 					GD.Print("Compiling for glb");
@@ -123,4 +123,3 @@ namespace RAIManager {
 		}
 	}
 }
-
