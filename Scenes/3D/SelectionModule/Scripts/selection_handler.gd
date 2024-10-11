@@ -17,6 +17,8 @@ const XZ_PLANE_COLLISION_MASK: int = 0b0000_0100
 const XY_PLANE_COLLISION_MASK: int = 0b0000_1000
 const YZ_PLANE_COLLISION_MASK: int = 0b0001_0000
 
+
+
 var selections: Array = []
 var gizmo_selected: bool = false
 var previous_mouse_coordinates: Vector3 = Vector3(0,0,0)
@@ -79,6 +81,7 @@ func _process(_delta: float) -> void:
 			if raycast_result_meshes:
 				# var raycast_position: Vector3 = raycast_result_meshes.position
 				var raycast_node: MeshInstance3D = raycast_result_meshes.collider.get_parent_node_3d()
+				
 
 				# FIXME: Bit of repetition, shouldn't be too bad but maybe take a look
 				if not Input.is_action_pressed("modifier_0"):
@@ -203,7 +206,7 @@ func _process(_delta: float) -> void:
 				match current_type:
 					TRANSFORM_CLASS.MOVE:
 						for selection: Node3D in selections:
-							selection.position += delta_mouse_position * mouse_transform_mask
+							selection.get_parent_node_3d().position += delta_mouse_position * mouse_transform_mask
 
 					TRANSFORM_CLASS.SCALE:
 						for selection: Node3D in selections:
