@@ -1,10 +1,17 @@
 extends Control
 
+@onready var viewport: SubViewport = $HSplitContainer/SubViewportContainer/SubViewport
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	SignalBus.hide_section.connect(_hide_section)
 	SignalBus.show_section.connect(_show_section)
+
+
+func _process(delta: float) -> void:
+	pass
+	#var screen_resolution: Vector2 = DisplayServer.screen_get_size(DisplayServer.get_screen_from_rect(get_viewport_rect()))
+	#viewport.size = screen_resolution
 
 func _hide_section(type: String) -> void:
 	var ui_node: Control = get_node(type)
