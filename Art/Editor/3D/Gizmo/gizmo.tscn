@@ -251,10 +251,8 @@ shadow_mesh = SubResource("ArrayMesh_17fdc")
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_umoa4"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_f4rkf"]
-plane = Plane(0, 0, 1, 0)
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_gxclr"]
-plane = Plane(1, 0, 0, 0)
 
 [node name="Gizmo" type="Node3D"]
 
@@ -328,32 +326,38 @@ collision_layer = 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 43.1458, 0)
 shape = SubResource("BoxShape3D_a0rew")
 
-[node name="XZ_plane" type="StaticBody3D" parent="."]
+[node name="Z_TRANSFORM_PLANE" type="StaticBody3D" parent="."]
+unique_name_in_owner = true
 collision_layer = 4
 
-[node name="Front" type="CollisionShape3D" parent="XZ_plane"]
+[node name="Front" type="CollisionShape3D" parent="Z_TRANSFORM_PLANE"]
 shape = SubResource("WorldBoundaryShape3D_umoa4")
 
-[node name="Back" type="CollisionShape3D" parent="XZ_plane"]
+[node name="Back" type="CollisionShape3D" parent="Z_TRANSFORM_PLANE"]
 transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0)
+visible = false
 shape = SubResource("WorldBoundaryShape3D_umoa4")
 
-[node name="XY_plane" type="StaticBody3D" parent="."]
+[node name="X_TRANSFORM_PLANE" type="StaticBody3D" parent="."]
+unique_name_in_owner = true
 collision_layer = 8
 
-[node name="Front" type="CollisionShape3D" parent="XY_plane"]
+[node name="Front" type="CollisionShape3D" parent="X_TRANSFORM_PLANE"]
 shape = SubResource("WorldBoundaryShape3D_f4rkf")
 
-[node name="Back" type="CollisionShape3D" parent="XY_plane"]
+[node name="Back" type="CollisionShape3D" parent="X_TRANSFORM_PLANE"]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+visible = false
 shape = SubResource("WorldBoundaryShape3D_f4rkf")
 
-[node name="YZ_plane" type="StaticBody3D" parent="."]
+[node name="Y_TRANSFORM_PLANE" type="StaticBody3D" parent="."]
+unique_name_in_owner = true
 collision_layer = 16
 
-[node name="Front" type="CollisionShape3D" parent="YZ_plane"]
+[node name="Front" type="CollisionShape3D" parent="Y_TRANSFORM_PLANE"]
 shape = SubResource("WorldBoundaryShape3D_gxclr")
 
-[node name="Back" type="CollisionShape3D" parent="YZ_plane"]
+[node name="Back" type="CollisionShape3D" parent="Y_TRANSFORM_PLANE"]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
+visible = false
 shape = SubResource("WorldBoundaryShape3D_gxclr")
