@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://dc845ju7r8wmi"]
 
 [ext_resource type="PackedScene" uid="uid://bln1i361dl82r" path="res://Scenes/2D/UI/MainUI/main_ui.tscn" id="1_deost"]
-[ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="1_pi0xa"]
+[ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="2_vb34x"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wyyue"]
 
@@ -20,13 +20,15 @@ sky = SubResource("Sky_f7how")
 [node name="MainMenuUI" parent="UI" instance=ExtResource("1_deost")]
 unique_name_in_owner = true
 
-[node name="Freecam" parent="." instance=ExtResource("1_pi0xa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0719689, 0.0573227, -0.00435489)
-
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_beru5")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.509514, 0.688627, -0.515933, -0.5975, 0.14832, 0.788032, 0.619184, 0.709784, 0.335884, 0, 3.60278, 0)
+visible = false
 light_energy = 2.0
 shadow_enabled = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+
+[node name="Freecam" parent="." instance=ExtResource("2_vb34x")]
