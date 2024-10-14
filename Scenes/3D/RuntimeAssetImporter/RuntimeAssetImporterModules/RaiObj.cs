@@ -195,7 +195,7 @@ namespace RAI {
 					
 					meshObject.CreateTrimeshCollision();
 
-					modelNode.AddChild(meshObject);
+					modelNode.AddChild(meshObject, true);
 					
 					surfIdx = -1;
 					objectsAssembled += 1;
