@@ -1,23 +1,24 @@
 extends Node3D
 
-# TODO: Cleanup - Separate file	
+# TODO: Cleanup
 # TODO: Make work with multiple gizmos
 
 @export_group("REQUIRED DATA")
 @export var camera: Camera3D
 
-@onready var gizmo_move: Node3D = preload("res://Scenes/3D/SelectionModule/LiveGizmo.tscn").instantiate()
+@onready var gizmo_move: Node3D = preload("res://Scenes/3D/Controls/Gizmo/LiveGizmo.tscn").instantiate()
 @onready var selected_material: Resource = preload("res://Resources/Shaders/3D/SelectionHighlight.tres")
 
-const RAY_LENGHT: float = 9999.0
+const RAY_LENGHT: float = 99999.0
+
+# COLLISION MASKS
+
 const MESH_COLLISION_MASK: int = 0b0000_0001
 const GIZMO_COLLISION_MASK: int = 0b0000_0010
 
-const XZ_PLANE_COLLISION_MASK: int = 0b0000_0100
-const XY_PLANE_COLLISION_MASK: int = 0b0000_1000
-const YZ_PLANE_COLLISION_MASK: int = 0b0001_0000
-
-
+const Z_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0000_0100
+const X_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0000_1000
+const Y_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0001_0000
 
 var selections: Array = []
 var gizmo_selected: bool = false
@@ -60,32 +61,39 @@ func _process(_delta: float) -> void:
 		
 		var mouse_position: Vector2 = get_viewport().get_mouse_position()
 
+		# Raycast setup
+
 		var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
 		var raycast_origin: Vector3 = camera.project_ray_origin(mouse_position)
 		var raycast_end: Vector3 = raycast_origin + camera.project_ray_normal(mouse_position) * RAY_LENGHT
 		var raycast_transform_end: Vector3 = raycast_origin + camera.project_ray_normal(mouse_position) * (RAY_LENGHT / 10)
 
+		# Raycast emit
+		
 		var raycast_query_meshes: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(raycast_origin, raycast_end, MESH_COLLISION_MASK)
 		var raycast_query_gizmo: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(raycast_origin, raycast_end, GIZMO_COLLISION_MASK)
 
-
+		# Raycast results
+		
 		var raycast_result_gizmo: Dictionary = space_state.intersect_ray(raycast_query_gizmo)
 		var raycast_result_meshes: Dictionary = space_state.intersect_ray(raycast_query_meshes)
-		
-		
 
 		#DebugDraw2D.set_text("Raycast result (MESHES): ", raycast_result_meshes, 0, Color("GREEN"), 10)
 		#DebugDraw2D.set_text("Raycast result (GIZMO): ", raycast_result_gizmo, 0, Color("RED"), 10)
 
 		if not raycast_result_gizmo and not gizmo_selected:
 			if raycast_result_meshes:
-				# var raycast_position: Vector3 = raycast_result_meshes.position
-				var raycast_node: MeshInstance3D = raycast_result_meshes.collider.get_parent_node_3d()
+				var raycast_position: Vector3 = raycast_result_meshes.position
 				
+				# Check if we can go farther toplevel
+				
+				var raycast_node: Node3D = raycast_result_meshes.collider.get_parent_node_3d()
+				
+				while raycast_node != null:
+					raycast_node = raycast_node.get_parent_node_3d()
 
 				# FIXME: Bit of repetition, shouldn't be too bad but maybe take a look
 				if not Input.is_action_pressed("modifier_0"):
-
 					# Remove selected materials
 					for selection: MeshInstance3D in selections:
 						for i in selection.mesh.get_surface_count():
@@ -105,17 +113,11 @@ func _process(_delta: float) -> void:
 
 							raycast_node.set_surface_override_material(i, current_material)
 							raycast_node.get_surface_override_material(i).next_pass = selected_material
-						
-						
-						
-					
-				
+
 				#if gizmo_instance.get_parent():
 					#gizmo_instance.get_parent().remove_child(gizmo_instance)
-				
-				
+
 				gizmo_move.visible = true
-				
 
 				#raycast_node.add_child(gizmo_instance)
 				#DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("GREEN"), 10)
@@ -139,7 +141,7 @@ func _process(_delta: float) -> void:
 				#DebugDraw2D.set_text("Selections: ", selections, 1, Color("WHITE"), 0)
 		else:
 			# Do gizmo movement logic
-			var collision_mask: int = XZ_PLANE_COLLISION_MASK
+			var collision_mask: int = Z_TRANSFORM_PLANE_COLLISION_MASK
 			var mouse_transform_mask: Vector3 = Vector3(1,1,1)
 			var raycast_node: Node3D = null
 			var delta_mouse_position: Vector3 = Vector3(0,0,0)
@@ -166,20 +168,20 @@ func _process(_delta: float) -> void:
 
 			match current_transform:
 				TRANSFORM_TYPE.X:
-					collision_mask = XZ_PLANE_COLLISION_MASK
+					collision_mask = X_TRANSFORM_PLANE_COLLISION_MASK
 					mouse_transform_mask = Vector3(1,0,0)
 				
 				TRANSFORM_TYPE.Y:
-					collision_mask = YZ_PLANE_COLLISION_MASK | XY_PLANE_COLLISION_MASK
+					collision_mask = Y_TRANSFORM_PLANE_COLLISION_MASK
 					mouse_transform_mask = Vector3(0,1,0)
 
 				TRANSFORM_TYPE.Z:
-					collision_mask = XZ_PLANE_COLLISION_MASK
+					collision_mask = Z_TRANSFORM_PLANE_COLLISION_MASK
 					mouse_transform_mask = Vector3(0,0,1)
 				
 				# FIXME: Doesn't work properly
 				TRANSFORM_TYPE.ALL:
-					collision_mask = XZ_PLANE_COLLISION_MASK
+					collision_mask = Z_TRANSFORM_PLANE_COLLISION_MASK
 					mouse_transform_mask = Vector3(1,1,1)
 
 			
@@ -206,7 +208,7 @@ func _process(_delta: float) -> void:
 				match current_type:
 					TRANSFORM_CLASS.MOVE:
 						for selection: Node3D in selections:
-							selection.get_parent_node_3d().position += delta_mouse_position * mouse_transform_mask
+							selection.position += delta_mouse_position * mouse_transform_mask
 
 					TRANSFORM_CLASS.SCALE:
 						for selection: Node3D in selections:
@@ -215,9 +217,9 @@ func _process(_delta: float) -> void:
 				
 				gizmo_move.position += delta_mouse_position * mouse_transform_mask
 
-				#DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("RED"), 10)
+				DebugDraw2D.set_text("Collider: ", raycast_node, 1, Color("RED"), 10)
 				#DebugDraw3D.draw_square(raycast_position, 0.03, Color("RED"), 10)
-				#DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
+				DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
 	else:
 		gizmo_selected = false
 	
