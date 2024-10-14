@@ -202,48 +202,6 @@ namespace RAI {
 					//GD.Print("\n");
 				}
 
-
-
-				// FIXME: Improper surface definitions
-				// We're creating more than one surfdef because of materials
-				// this shouldn't happen, like, ever...
-				// maybe return to this later idk man
-				/*
-
-				foreach(string surfDef in surfDict.Keys) {
-					surfIdx++;
-
-					GD.Print(surfDef + "\n");
-
-					
-					string surfaceName = string.Join("_", surfDef.Split('_')[..^1]);
-					string materialName = surfDef.Split('_')[^1];
-
-					GD.Print($"SurfaceName = {surfaceName}\n");
-					GD.Print($"MaterialName = {materialName}\n");
-					GD.Print($"SurfCount = {surfDict[surfDef].Count}\n----");
-
-					Godot.Collections.Array surfaceArrayData = new();
-					AssembleSurfaceMeshData(surfDict[surfDef], ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref surfaceArrayData);
-					arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArrayData);
-					arrayMesh.SurfaceSetName(surfIdx, materialName);
-					arrayMesh.SurfaceSetMaterial(surfIdx, materials[materialName]);
-
-					MeshInstance3D meshObject = new() {
-						Name = surfaceName,
-						Mesh = arrayMesh
-					};
-
-					modelNode.AddChild(meshObject);
-					
-					if (surfIdx >= 999) {
-						break;
-					}
-					
-					
-				}
-				*/
-
 				return Error.Ok;
 			}
 			
@@ -258,12 +216,10 @@ namespace RAI {
 				// Could work by storing the currentMaterial name and the texture paths it holds, so any subsequent
 				// materials can just "steal" from the original without loading from disk
 
-				// FIXME: Looks ugly and botched, fix later for organization and readability
-
 				string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
 				string currentMaterial = "DefaultMaterial";
-				string texturePath = "";
-				ushort tokenIndex = 1;
+				string texturePath;
+				ushort tokenIndex;
 
 				foreach (string line in dataLine) {
 					string[] token = line.Split(' ', StringSplitOptions.None);
@@ -308,10 +264,10 @@ namespace RAI {
 							);
 							break;
 						case "Ks":
+							// FIXME: Gets called even when we have pbr materials
 							float specExp = internalMaterialDict[currentMaterial].Roughness;
 							float specCoeff = float.Parse(token[1]);
 
-							// FIXME: This approximation is not good enough
 							float approxRough = (float)Mathf.Clamp(specExp/(1000*specCoeff), 0.0, 1.0);
 							internalMaterialDict[currentMaterial].Roughness = approxRough;
 
