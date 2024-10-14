@@ -3,6 +3,6 @@
 [ext_resource type="Shader" path="res://Resources/Shaders/3D/SelectionHighlight.gdshader" id="1_tnlfx"]
 
 [resource]
-render_priority = 0
+render_priority = -128
 shader = ExtResource("1_tnlfx")
 shader_parameter/overlayColor = Color(240, 120, 0, 1)
