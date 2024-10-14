@@ -25,7 +25,6 @@ environment = SubResource("Environment_beru5")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.509514, 0.688627, -0.515933, -0.5975, 0.14832, 0.788032, 0.619184, 0.709784, 0.335884, 0, 3.60278, 0)
-visible = false
 light_energy = 2.0
 shadow_enabled = true
 
