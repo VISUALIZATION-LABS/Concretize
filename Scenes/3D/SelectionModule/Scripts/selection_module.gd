@@ -4,6 +4,7 @@ extends Node3D
 
 # TODO: Work on making nodes that have names that start with "_" unselecable
 # FIXME: Transform position doesn't update for children, add the top_level node's position to the transform to fix this
+# FIXME: Properly document and plan out the selection algorithm (few bugs)
 
 # -- Data section --
 
@@ -35,7 +36,11 @@ const VIEW_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0010_000
 # hack
 var select_action_pressed: bool = false
 
-var selections: Array[Node3D] = []
+class Selection:
+	var selected_node: Node3D = null
+	var child_meshes: Array[MeshInstance3D]
+
+var selections: Array[Selection] = []
 var selection_group_start: Node3D = null
 var selection_group_end: Node3D = null
 var last_selected_object: Node3D = null
@@ -125,10 +130,12 @@ func _process(_delta: float) -> void:
 			if not select_action_pressed:
 				select_action_pressed = true
 				if not raycast_query_results_scene_objects:
+					for selection: Selection in selections:
+						_unhighlight_meshes(selection.child_meshes)
+					
 					selections.clear()
-
-					_unhighlight_meshes(selected_meshes)
-					selected_meshes.clear()
+					#_unhighlight_meshes(selected_meshes)
+					#selected_meshes.clear()
 
 					selection_group_start = null
 					selection_group_end = null
@@ -138,9 +145,12 @@ func _process(_delta: float) -> void:
 					return
 
 				if not Input.is_action_pressed("modifier_0"):
+					for selection: Selection in selections:
+						_unhighlight_meshes(selection.child_meshes)
+						
 					selections.clear()
-					_unhighlight_meshes(selected_meshes)
-					selected_meshes.clear()
+					#_unhighlight_meshes(selected_meshes)
+					#selected_meshes.clear()
 
 				selection_group_end = raycast_query_results_scene_objects.collider.get_parent_node_3d()
 				
@@ -152,17 +162,9 @@ func _process(_delta: float) -> void:
 				selection_group_start = selection_data.selection_group_start
 				last_selected_object = selection_data.last_selection
 
-				selections.append(selection_data.selected_object)
+				selections.append(selection_data.selection_object)
 
 				gizmo_move.show()
-
-				#print("\n---------")
-				#print("Selection data:")
-				#print("\tSelection group start: " + selection_group_start.name)
-				#print("\tSelection group end: " + selection_group_end.name)
-				#print("\tLast selection: " + last_selected_object.name)
-				#print("\tSelections: " + str(selections))
-				#print("---------")
 		else:
 			# -- Gizmo control --
 
@@ -227,45 +229,73 @@ func _process(_delta: float) -> void:
 
 				match current_type:
 					TransformClass.MOVE:
-						for selection: Node3D in selections:
-							selection.position += delta_mouse_position * mouse_transform_mask
+						for selection: Selection in selections:
+							selection.selected_node.position += delta_mouse_position * mouse_transform_mask
 							
 
 					TransformClass.SCALE:
-						for selection: Node3D in selections:
-							selection.scale += delta_mouse_position * mouse_transform_mask	
+						for selection: Selection in selections:
+							selection.selected_node.scale += delta_mouse_position * mouse_transform_mask	
 				
 				gizmo_move.position += delta_mouse_position * mouse_transform_mask
 				#DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
 	else:
-		# -- if Input.is_action_just_pressed("selection_make"): --
+		# -- if Input.is_action_pressed("selection_make"): --
 		gizmo_selected = false
 		select_action_pressed = false
+	
+	if not selections.is_empty() && Input.is_action_just_pressed("delete"):
+		var selections_to_be_removed: Array[Selection] = [] 
+		for selection: Selection in selections:
+			# First clean all mesh children and unhighlight them
+			_unhighlight_meshes(selection.child_meshes)
+			selection.child_meshes.clear()
+			
+			# Then kill the selected node
+			selection.selected_node.queue_free()
+			selections_to_be_removed.append(selection)
+		
+		for selection: Selection in selections_to_be_removed:
+			selections.erase(selection)
+		
+		last_selected_object = null
+		
+		# If we have no more selections, hide the active gizmo
+		
+		if selections.is_empty():
+			gizmo_selected = false
+			gizmo_move.hide()
+	
+	if not selections.is_empty() && Input.is_action_just_pressed("duplicate"):
+		print("Duplicate!")
+	
 	
 	# Position gizmo to middle of all selections
 
 	var average_position: Vector3 = Vector3(0,0,0)
 
-	if selections.size() > 0:
-		for selection: Node3D in selections:
-			average_position += selection.position
+	if not selections.is_empty():
+		for selection: Selection in selections:
+			if selection != null:
+				average_position += selection.selected_node.position
 		
 		average_position /= selections.size()
 
-	
 	gizmo_move.position = average_position
 				
 func _make_selection(sel_group_start: Node3D = null, sel_group_end: Node3D = null, last_sel: Node3D = null) -> Dictionary:	
-
 	var selection_data: Dictionary = {
 		"selection_group_start": null,
 		"last_selection": null,
-		"selected_object": null
+		"selected_object": null,
+		"selection_object": null
 	}
 
 	if sel_group_end == null:
 		push_error("ERROR::SELECTION_MODULE::NO_AVAILABLE_SELECTION_DATA")
 		return selection_data
+
+	var selection_object: Selection = Selection.new()
 
 	# Go up the scene tree
 	if sel_group_start == null || last_sel == null:
@@ -283,26 +313,31 @@ func _make_selection(sel_group_start: Node3D = null, sel_group_end: Node3D = nul
 		# We go up from the selection end node because branching is a possibility
 		var selected_object: Node3D = sel_group_end
 
-		while selected_object.get_parent_node_3d() != last_sel && selected_object.get_parent_node_3d() != sel_group_start:
+		while selected_object.get_parent_node_3d() != last_sel && selected_object.get_parent_node_3d() != sel_group_start && selected_object.get_parent_node_3d() != null:
 			selected_object = selected_object.get_parent_node_3d()
 			
 		selection_data.selection_group_start = sel_group_start
 		selection_data.last_selection = selected_object
 		selection_data.selected_object = selected_object
-
+	
+	selection_object.selected_node = selection_data.selected_object
+	selection_data.selection_object = selection_object
 	# Highlight any meshinstance 3D nodes under selected_object
 
-	var mesh_instances: Array[Node] = selection_data.selected_object.find_children("*", "MeshInstance3D", true, false)
+	_find_mesh_children(selection_object)
 
-	for mesh_instance in mesh_instances:
-		selected_meshes.append(mesh_instance)
-
-	if selection_data.selected_object.get_class() == "MeshInstance3D":
-		selected_meshes.append(selection_data.selected_object)
-
-	_highlight_meshes(selected_meshes)
+	_highlight_meshes(selection_object.child_meshes)
 
 	return selection_data
+
+func _find_mesh_children(selection: Selection) -> void:
+	var mesh_instances: Array[Node] = selection.selected_node.find_children("*", "MeshInstance3D", true, false)
+
+	for mesh_instance in mesh_instances:
+		selection.child_meshes.append(mesh_instance)
+
+	if selection.selected_node.get_class() == "MeshInstance3D":
+		selection.child_meshes.append(selection.selected_node)
 
 func _highlight_meshes(meshes: Array[MeshInstance3D]) -> void:
 	for mesh_instance: MeshInstance3D in meshes:
