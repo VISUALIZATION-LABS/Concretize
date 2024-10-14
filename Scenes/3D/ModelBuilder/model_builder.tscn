@@ -6,3 +6,7 @@
 script = ExtResource("1_dqan7")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Mesh"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Mesh/StaticBody3D"]
