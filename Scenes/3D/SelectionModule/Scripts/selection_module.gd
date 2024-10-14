@@ -2,6 +2,9 @@ extends Node3D
 
 # This file is responsible for handling object picking, selection handling and gizmo moving
 
+# TODO: Work on making nodes that have names that start with "_" unselecable
+# FIXME: Transform position doesn't update for children, add the top_level node's position to the transform to fix this
+
 # -- Data section --
 
 # Since this is a component, the camera will not be gotten from the viewport
@@ -12,7 +15,7 @@ extends Node3D
 
 # -- Raycast parameters --
 
-const RAY_LENGHT: float = 99_999.0
+const RAY_LENGHT: float = 9_999.0
 
 # -- Collision masks --
 
@@ -29,27 +32,29 @@ const VIEW_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0010_000
 
 # -- Selection handler --
 
-var selections: Array[Selection] = []
+# hack
+var select_action_pressed: bool = false
+
+var selections: Array[Node3D] = []
+var selection_group_start: Node3D = null
+var selection_group_end: Node3D = null
+var last_selected_object: Node3D = null
 var selected_meshes: Array[MeshInstance3D] = []
 var gizmo_selected: bool = false
 
-class Selection:
-	var top_level: Node3D
-	var last_level_selected: Node3D
-	var lowest_level: Node3D
-	var selection: Node3D
+
 
 # This is used for calculating a delta_mouse parameter for transformations
 var previous_mouse_coordinates: Vector3 = Vector3(0,0,0)
 
-enum TRANSFORM_CLASS {
+enum TransformClass {
 	MOVE,
 	ROTATE,
 	SCALE,
 	UNDEFINED
 }
 
-enum TRANSFORM_TYPE{
+enum TransformType {
 	X,
 	Y,
 	Z,
@@ -57,8 +62,8 @@ enum TRANSFORM_TYPE{
 	UNDEFINED
 }
 
-var current_transform: TRANSFORM_TYPE = TRANSFORM_TYPE.UNDEFINED
-var current_type: TRANSFORM_CLASS = TRANSFORM_CLASS.MOVE 
+var current_transform: TransformType = TransformType.UNDEFINED
+var current_type: TransformClass = TransformClass.MOVE 
 
 func _ready() -> void:
 	# Add all gizmos at 0,0,0
@@ -76,7 +81,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if Input.is_action_just_pressed("selection_make"):
+	if Input.is_action_pressed("selection_make"):
 		if camera == null:
 			push_error("ERROR::SELECTION_MODULE::CAMERA_NULL")
 			return
@@ -117,140 +122,205 @@ func _process(_delta: float) -> void:
 		# Handle scene object selection
 
 		if not raycast_query_results_gizmo and not gizmo_selected:
-			if not raycast_query_results_scene_objects:
-				print("remove")
-				selections.clear()
-				_remove_highlighted_meshes()
+			if not select_action_pressed:
+				select_action_pressed = true
+				if not raycast_query_results_scene_objects:
+					selections.clear()
 
-				return
+					_unhighlight_meshes(selected_meshes)
+					selected_meshes.clear()
+
+					selection_group_start = null
+					selection_group_end = null
+					last_selected_object = null
+
+					gizmo_move.hide()
+					return
+
+				if not Input.is_action_pressed("modifier_0"):
+					selections.clear()
+					_unhighlight_meshes(selected_meshes)
+					selected_meshes.clear()
+
+				selection_group_end = raycast_query_results_scene_objects.collider.get_parent_node_3d()
+				
+				if not Input.is_action_pressed("modifier_1"):
+					selection_group_start = null
+
+				var selection_data: Dictionary = _make_selection(selection_group_start, selection_group_end, last_selected_object)
+
+				selection_group_start = selection_data.selection_group_start
+				last_selected_object = selection_data.last_selection
+
+				selections.append(selection_data.selected_object)
+
+				gizmo_move.show()
+
+				#print("\n---------")
+				#print("Selection data:")
+				#print("\tSelection group start: " + selection_group_start.name)
+				#print("\tSelection group end: " + selection_group_end.name)
+				#print("\tLast selection: " + last_selected_object.name)
+				#print("\tSelections: " + str(selections))
+				#print("---------")
+		else:
+			# -- Gizmo control --
+
+			var collision_mask: int = 0
+			var mouse_transform_mask: Vector3 = Vector3(1,1,1)
+			var raycast_gizmo_object: Node3D = null
+			var delta_mouse_position: Vector3 = Vector3(0,0,0)
+
+			# Get selected gizmo axis
+			if raycast_query_results_gizmo and not gizmo_selected:
+				raycast_gizmo_object = raycast_query_results_gizmo.collider.get_parent_node_3d()
+
+				match raycast_gizmo_object.name:
+					"X_Axis":
+						current_transform = TransformType.X
+
+					"Y_Axis":
+						current_transform = TransformType.Y
+
+					"Z_Axis":
+						current_transform = TransformType.Z
+
+					"Global_Move":
+						current_transform = TransformType.ALL
+
 			
-			# Used for debug
-			var selection_position: Vector3 = raycast_query_results_scene_objects.position
-			var raycast_result_object: Node3D = raycast_query_results_scene_objects.collider.get_parent_node_3d()
+			match current_transform:
+				TransformType.X:
+					collision_mask = X_TRANSFORM_PLANE_COLLISION_MASK
+					mouse_transform_mask = Vector3(1,0,0)
+				TransformType.Y:
+					collision_mask = Y_TRANSFORM_PLANE_COLLISION_MASK
+					mouse_transform_mask = Vector3(0,1,0)
+				TransformType.Z:
+					collision_mask = Z_TRANSFORM_PLANE_COLLISION_MASK
+					mouse_transform_mask = Vector3(0,0,1)
+				TransformType.ALL:
+					collision_mask = VIEW_TRANSFORM_PLANE_COLLISION_MASK
+					mouse_transform_mask = Vector3(1,1,1)
 
-			#print(raycast_result_object.name)
-			
-			
+			# Project mouse to move gizmo in 3D
+			var mouse_raycast_position_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+				raycast_origin,
+				raycast_end,
+				collision_mask
+			)
 
-			if selections.is_empty():
-				# Select the top node
-				var selection: Selection = _make_selection_in_tree(raycast_result_object)
-				#print(selection.top_level.name)
-				#print(selection.selection.name)
-				#print(selection.lowest_level.name)
-				selections.append(selection)
-			
-			else:
-				# Move down the selection tree if the root selection is still the same
-				for selection_index: int in selections.size():
-					if selections[selection_index].lowest_level == raycast_result_object:
-						# Move down on the selection tree
-						var new_selection: Selection = _make_selection_in_tree(
-							raycast_result_object,
-							selections[selection_index].top_level,
-							selections[selection_index].last_level_selected
-							)
-						
+			var mouse_raycast_position_query_result: Dictionary = space_state.intersect_ray(mouse_raycast_position_query)
 
-						selections[selection_index] = new_selection
-					
-					else:
-						
-						selections.clear()
-						selections.append(_make_selection_in_tree(raycast_result_object))
+			if mouse_raycast_position_query_result:
+				var mouse_projected_position: Vector3 = mouse_raycast_position_query_result.position
 
-			for selection: Selection in selections:
-				print("\n--------------")
-				print("Top level: " + selection.top_level.name)
-				print("Lowest level: " + selection.lowest_level.name)
-				print("Last level selected: " + selection.last_level_selected.name)
-				print("Selection: " + selection.selection.name)
-				print("--------------")
-			# Check if we've already made this specific selection
-			# If we haven't pressed shift, if we already have a top_level that's equal to ours, select deeper into the tree
-			# If we have pressed shift, check if we have a selection that's equal to ours
-			# last_level_selected will only be used to define which node we can select further down
+				delta_mouse_position = mouse_projected_position - previous_mouse_coordinates
+				previous_mouse_coordinates = mouse_projected_position
 
+				if not gizmo_selected:
+					delta_mouse_position = Vector3(0,0,0)
 
-			
-			#print(selections)
+				gizmo_selected = true
 
+				DebugDraw2D.set_text("Delta mouse:", delta_mouse_position)
 
-			#print(selection_object.name)
-			#DebugDraw2D.set_text(raycast_query_results_scene_objects.collider.get_parent_node_3d().name)
+				match current_type:
+					TransformClass.MOVE:
+						for selection: Node3D in selections:
+							selection.position += delta_mouse_position * mouse_transform_mask
+							
 
-
-# Still has a few issues but it's shippable, kinda...
-func _make_selection_in_tree(selected_node: Node3D = null, top_level_node: Node3D = null, last_level_selected: Node3D = null) -> Selection:
-	if selected_node == null:
-		return null
-	
-	_remove_highlighted_meshes()
-	var selection: Selection = Selection.new()
-	if top_level_node == null:
-		# Just find the top level and return that
-		selection.top_level = selected_node
-		selection.lowest_level = selected_node
-		while selection.top_level.get_parent_node_3d() != null\
-		&& selection.top_level.get_parent_node_3d() != SceneManager.scene_tree.current_scene:
-			selection.top_level = selection.top_level.get_parent_node_3d()
-			selection.last_level_selected = selection.top_level
-			selection.selection = selection.top_level
+					TransformClass.SCALE:
+						for selection: Node3D in selections:
+							selection.scale += delta_mouse_position * mouse_transform_mask	
+				
+				gizmo_move.position += delta_mouse_position * mouse_transform_mask
+				#DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
 	else:
-		selection.top_level = top_level_node
-		selection.last_level_selected = last_level_selected
-		selection.lowest_level = selected_node
-		selection.selection = selected_node
+		# -- if Input.is_action_just_pressed("selection_make"): --
+		gizmo_selected = false
+		select_action_pressed = false
+	
+	# Position gizmo to middle of all selections
 
-		while selection.selection.get_parent_node_3d() != null\
-		&& selection.selection.get_parent_node_3d() != selection.last_level_selected\
-		&& selection.selection.get_parent_node_3d() != SceneManager.scene_tree.current_scene:
-			selection.selection = selection.selection.get_parent_node_3d()
+	var average_position: Vector3 = Vector3(0,0,0)
+
+	if selections.size() > 0:
+		for selection: Node3D in selections:
+			average_position += selection.position
 		
-		selection.last_level_selected = selection.selection
+		average_position /= selections.size()
+
 	
-	# Highlight selected Meshinstance nodes with materials
+	gizmo_move.position = average_position
+				
+func _make_selection(sel_group_start: Node3D = null, sel_group_end: Node3D = null, last_sel: Node3D = null) -> Dictionary:	
 
-	var selection_children: Array[Node] = selection.selection.find_children("*", "MeshInstance3D", true, false)
-	#print(selection_children)
+	var selection_data: Dictionary = {
+		"selection_group_start": null,
+		"last_selection": null,
+		"selected_object": null
+	}
 
-	# This is fucking stupid
-	if selection.selection.get_class() == "MeshInstance3D":
-		for i: int in selection.selection.mesh.get_surface_count():
-			if selection.selection.get_active_material(i):
-				var current_material: Material = selection.selection.get_active_material(i).duplicate()
+	if sel_group_end == null:
+		push_error("ERROR::SELECTION_MODULE::NO_AVAILABLE_SELECTION_DATA")
+		return selection_data
 
-				selection.selection.set_surface_override_material(i, current_material)
-				selection.selection.get_surface_override_material(i).next_pass = selected_material
+	# Go up the scene tree
+	if sel_group_start == null || last_sel == null:
+		# Go up until scene node
+		sel_group_start = sel_group_end
 
-				selected_meshes.append(selection.selection)
-			else:
-				print("Mesh has no material")
+		while sel_group_start.get_parent_node_3d() != SceneManager.scene_tree.current_scene && sel_group_start.get_parent_node_3d() != null:
+			sel_group_start = sel_group_start.get_parent_node_3d()
+
+		selection_data.selection_group_start = sel_group_start
+		selection_data.last_selection = sel_group_start
+		selection_data.selected_object = sel_group_start
 	else:
-		for meshes: MeshInstance3D in selection_children:
-			for i: int in meshes.mesh.get_surface_count():
-				if meshes.get_active_material(i):
-					var current_material: Material = meshes.get_active_material(i).duplicate()
+		# Go up until the child of last selection
+		# We go up from the selection end node because branching is a possibility
+		var selected_object: Node3D = sel_group_end
 
-					meshes.set_surface_override_material(i, current_material)
-					meshes.get_surface_override_material(i).next_pass = selected_material
+		while selected_object.get_parent_node_3d() != last_sel && selected_object.get_parent_node_3d() != sel_group_start:
+			selected_object = selected_object.get_parent_node_3d()
+			
+		selection_data.selection_group_start = sel_group_start
+		selection_data.last_selection = selected_object
+		selection_data.selected_object = selected_object
 
-					selected_meshes.append(meshes)
-				else:
-					print("Mesh has no material")
+	# Highlight any meshinstance 3D nodes under selected_object
 
-	return selection
+	var mesh_instances: Array[Node] = selection_data.selected_object.find_children("*", "MeshInstance3D", true, false)
 
+	for mesh_instance in mesh_instances:
+		selected_meshes.append(mesh_instance)
 
+	if selection_data.selected_object.get_class() == "MeshInstance3D":
+		selected_meshes.append(selection_data.selected_object)
 
-func _remove_highlighted_meshes() -> void:
-	for mesh_instance in selected_meshes:
+	_highlight_meshes(selected_meshes)
+
+	return selection_data
+
+func _highlight_meshes(meshes: Array[MeshInstance3D]) -> void:
+	for mesh_instance: MeshInstance3D in meshes:
+		for surface: int in mesh_instance.mesh.get_surface_count():
+			if mesh_instance.get_active_material(surface):
+					var current_material: Material = mesh_instance.get_active_material(surface).duplicate()
+
+					mesh_instance.set_surface_override_material(surface, current_material)
+					mesh_instance.get_surface_override_material(surface).next_pass = selected_material
+
+func _unhighlight_meshes(meshes: Array[MeshInstance3D]) -> void:
+	for mesh_instance: MeshInstance3D in meshes:
 		for surface: int in mesh_instance.mesh.get_surface_count():
 			if mesh_instance.get_active_material(surface):
 				mesh_instance.set_surface_override_material(surface, null)
-	
-	selected_meshes.clear()
-				
 
 func _change_gizmo_type(_type: String) -> void:
 	pass
+
+			
+			
