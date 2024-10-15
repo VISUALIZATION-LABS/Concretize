@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Scenes/3D/Freecam/Scripts/camera_controller.gd" id="1_d2cqp"]
 [ext_resource type="PackedScene" uid="uid://c8svsyhp5p4r6" path="res://Scenes/3D/SelectionModule/SelectionHandler.tscn" id="2_v7chi"]
 
-[node name="Freecam" type="Node3D"]
+[node name="_Freecam" type="Node3D"]
 script = ExtResource("1_d2cqp")
 sensitivity = 4.8
 
