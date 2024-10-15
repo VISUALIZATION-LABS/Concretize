@@ -1,7 +1,10 @@
 extends Control
 
+
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	SceneManager.current_ui = self
 	SignalBus.hide_section.connect(_hide_section)
 	SignalBus.show_section.connect(_show_section)
 	#SceneManager.scene_tree.node_added.connect(SceneManager.update_gui_tree)
@@ -31,3 +34,10 @@ func _show_section(type: String) -> void:
 		return
 
 	ui_node.show()
+
+# Hack
+func debug_preview_asset_texture(texture: ImageTexture) -> void:
+	$TextureRect.texture = texture
+
+func add_asset_to_dock(asset_container: Control) -> void:
+	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer/MarginContainer/ModelPickerDock".add_asset(asset_container)

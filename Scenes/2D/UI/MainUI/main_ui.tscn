@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bln1i361dl82r"]
+[gd_scene load_steps=6 format=3 uid="uid://bln1i361dl82r"]
 
 [ext_resource type="Script" path="res://Scenes/2D/UI/MainUI/scripts/main_ui.gd" id="1_4q833"]
 [ext_resource type="PackedScene" uid="uid://olm42616arjd" path="res://Scenes/2D/UI/Titlebar/titlebar.tscn" id="1_8476f"]
 [ext_resource type="Script" path="res://Scenes/2D/UI/SceneTree/Scripts/project_scene_tree.gd" id="2_4sj7s"]
 [ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="2_ex2ey"]
+[ext_resource type="PackedScene" uid="uid://dy6xc3t8jdxdo" path="res://Scenes/2D/UI/ModelPickerDock/ModelPickerDock.tscn" id="5_lctou"]
 
 [node name="_MainUI" type="Control"]
 layout_mode = 3
@@ -22,7 +23,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.96921, 0.966402, 0.987728, 1)
+color = Color(0, 0, 0, 1)
 
 [node name="Split_NodeTree-All" type="HSplitContainer" parent="."]
 layout_mode = 1
@@ -31,6 +32,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 split_offset = 280
 
 [node name="NodeTreePanel" type="PanelContainer" parent="Split_NodeTree-All"]
@@ -48,16 +50,28 @@ visible = false
 layout_mode = 2
 border_width = 5.0
 
-[node name="ProjectSceneTree" type="Tree" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer"]
 layout_mode = 2
+
+[node name="ProjectSceneTreeSearchBar" type="TextEdit" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+placeholder_text = "Search"
+scroll_smooth = true
+
+[node name="ProjectSceneTree" type="Tree" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
 script = ExtResource("2_4sj7s")
 
 [node name="Split_Properties-Viewport_Assets" type="HSplitContainer" parent="Split_NodeTree-All"]
 layout_mode = 2
+theme_override_constants/separation = 0
 split_offset = 575
 
 [node name="Split_Viewport-Assets" type="VSplitContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets"]
 layout_mode = 2
+theme_override_constants/separation = 0
 split_offset = 450
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets"]
@@ -69,7 +83,7 @@ stretch = true
 handle_input_locally = false
 msaa_3d = 2
 positional_shadow_atlas_size = 4096
-size = Vector2i(575, 450)
+size = Vector2i(320, 240)
 render_target_update_mode = 4
 
 [node name="Freecam" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/SubViewportContainer/SubViewport" instance=ExtResource("2_ex2ey")]
@@ -84,10 +98,8 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="ReferenceRect" type="ReferenceRect" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer/MarginContainer"]
-visible = false
+[node name="ModelPickerDock" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer/MarginContainer" instance=ExtResource("5_lctou")]
 layout_mode = 2
-border_width = 5.0
 
 [node name="PropertiesPanel" type="PanelContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets"]
 layout_mode = 2
@@ -108,3 +120,10 @@ border_width = 5.0
 layout_mode = 1
 
 [node name="PopupMenu" type="PopupMenu" parent="Titlebar"]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 790.0
+offset_top = 60.0
+offset_right = 1079.0
+offset_bottom = 368.0

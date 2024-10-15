@@ -20,10 +20,14 @@ namespace RAIManager {
 
 		public override void _Ready()
 		{
+			// Returns some data about the importer when it finished importing a mesh
+			// Filename
+			// The importer node instance
+			// The imported object
+			AddUserSignal("ImporterFinished", new Godot.Collections.Array(){new StringName(), new Node3D(), new Node3D()});
+
 			// Needed so numbers use dots instead of
 			// commas in decimals
-			AddUserSignal("ImporterFinished", new Godot.Collections.Array(){new StringName(), new Node3D()});
-
 			Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
 		}
@@ -55,7 +59,7 @@ namespace RAIManager {
 		static float Get_importer_percentage() {
 			return RaiOBJ.GetPercentage();
 		}
-		async void Compile_mesh(string path) {
+		async void Compile_mesh(string path, bool addToTree = true) {
 			Node3D modelNode = new() {Name = "modelNode"};
 			// First check if the path is valid
 
@@ -85,13 +89,14 @@ namespace RAIManager {
 
 			//modelNode.AddChild(m);
 
-			GetParent().AddChild(modelNode, true);
+			if (addToTree)
+				GetParent().AddChild(modelNode, true);
 
 			//VoxelGI vgi = (VoxelGI)modelNode.GetNode("VOXELGI-AREA");	
 			//vgi.Bake();
 
 
-			EmitSignal("ImporterFinished", path.GetFile(), this);
+			EmitSignal("ImporterFinished", path.GetFile(), this, modelNode);
 
 			
 			//ReflectionProbe rfl = (ReflectionProbe)modelNode.GetNode("REFLECTION-AREA");

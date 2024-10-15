@@ -4,10 +4,12 @@ extends Tree
 var tree_items: Array[TreeItem] = []
 var selections: Array[SelectionModule.Selection] = []
 
+
+
 func _ready() -> void:
 	SceneManager.project_scene_tree = self
 	update_tree()
-
+	
 func update_tree() -> void:
 	if SceneManager.scene_tree.current_scene != null:
 		tree_items.clear()
@@ -19,13 +21,17 @@ func update_tree() -> void:
 
 		nodes_to_search = SceneManager.scene_tree.current_scene.get_children()
 		_build_tree(root, nodes_to_search)
-		
 
 func set_selections(selections: Array[SelectionModule.Selection]):
 	for selection: SelectionModule.Selection in selections:
 		for tree_item: TreeItem in tree_items:
 			if selection.selected_node.name == tree_item.get_text(0):
 				set_selected(tree_item, 0)
+				
+				# I honestly don't know why the tree doesn't update unless i do this
+				self.size.x -= 1
+				self.size.x += 1
+
 
 func _build_tree(parent: TreeItem, nodes: Array[Node]) -> void:
 	for node: Node in nodes:

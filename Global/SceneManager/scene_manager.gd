@@ -6,6 +6,7 @@ extends Node
 	# ...
 
 var scene_tree: SceneTree = null
+var current_ui: Control = null
 var project_scene_tree: ProjectSceneTree = null
 var current_camera: Camera3D = null
 var current_viewport: SubViewport = null
@@ -58,10 +59,27 @@ func import_mesh(paths: PackedStringArray) -> void:
 
 	var popup: Control = SceneReporter.create_popup("Importing mesh", "", SceneReporter.PopupType.LOADING)
 
-	var importer_finished_callback: Callable = func(file_name: StringName, importer: Node3D) -> void:
+	var importer_finished_callback: Callable = func(file_name: StringName, importer: Node3D, imported_object: Node3D) -> void:
 		popup.description = popup.description.replace(file_name, "[color=green]%s[/color]" % file_name)	
 		importers.remove_at(importers.find(importer))
 		importer_count.count -= 1
+		
+		
+		scene_tree.current_scene.add_child(imported_object, true)
+		
+		# Render out the asset so we can store it in the gui
+		var asset_container: Control = load("res://Scenes/2D/UI/Prefabs/Asset/Asset.tscn").instantiate()
+		var asset_renderer: Node3D = load("res://Scenes/3D/AssetThumbRender/asset_thumb_render.tscn").instantiate()
+		print(asset_container.get_children())
+		
+		current_ui.add_asset_to_dock(asset_container)
+		scene_tree.current_scene.add_child(asset_renderer)
+		asset_renderer.add_asset(imported_object.duplicate())
+		asset_container.set_preview_texture(asset_renderer.render())
+		current_ui.debug_preview_asset_texture(asset_renderer.render())
+		asset_renderer.queue_free()
+		
+		
 
 	scene_tree.current_scene.get_node("_UI").add_child(popup)
 	#scene_tree.current_scene.get_node("UI").move_child(popup, 0)
@@ -74,7 +92,7 @@ func import_mesh(paths: PackedStringArray) -> void:
 
 		# Scene could be null but no user will import a mesh before the program is loaded... hopefully
 		scene_tree.current_scene.add_child(mesh_importer)
-		mesh_importer.Compile_mesh(path)
+		mesh_importer.Compile_mesh(path, false)
 		mesh_importer.connect("ImporterFinished", importer_finished_callback)
 		importers.append(mesh_importer)
 

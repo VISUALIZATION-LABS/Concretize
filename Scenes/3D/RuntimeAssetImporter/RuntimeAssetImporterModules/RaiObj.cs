@@ -195,6 +195,10 @@ namespace RAI {
 					
 					meshObject.CreateTrimeshCollision();
 
+					// Hide the collision object node
+					if (meshObject.GetChild(0) != null)
+						meshObject.GetChild(0).Name = $"_{meshObject.GetChild(0).Name}";
+
 					modelNode.AddChild(meshObject, true);
 					
 					surfIdx = -1;
