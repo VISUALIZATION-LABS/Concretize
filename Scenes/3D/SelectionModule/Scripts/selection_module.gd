@@ -93,7 +93,8 @@ func _process(_delta: float) -> void:
 		
 		# -- Selection handling --
 
-		var mouse_position: Vector2 = get_viewport().get_mouse_position()
+		var mouse_position: Vector2 = SceneManager.current_viewport.get_mouse_position()
+		#print(mouse_position)
 
 		# Raycasting
 
