@@ -4,9 +4,9 @@ extends Control
 func _ready() -> void:
 	SignalBus.hide_section.connect(_hide_section)
 	SignalBus.show_section.connect(_show_section)
-	SceneManager.scene_tree.node_added.connect(SceneManager.update_gui_tree)
-	SceneManager.scene_tree.node_removed.connect(SceneManager.update_gui_tree)
-	SceneManager.scene_tree.node_renamed.connect(SceneManager.update_gui_tree)
+	#SceneManager.scene_tree.node_added.connect(SceneManager.update_gui_tree)
+	#SceneManager.scene_tree.node_removed.connect(SceneManager.update_gui_tree)
+	#SceneManager.scene_tree.node_renamed.connect(SceneManager.update_gui_tree)
 
 
 func _process(delta: float) -> void:

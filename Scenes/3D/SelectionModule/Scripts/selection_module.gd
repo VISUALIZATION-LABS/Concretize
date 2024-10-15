@@ -1,5 +1,5 @@
+class_name SelectionModule
 extends Node3D
-
 # This file is responsible for handling object picking, selection handling and gizmo moving
 
 # TODO: Work on making nodes that have names that start with "_" unselecable
@@ -37,7 +37,7 @@ const VIEW_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0010_000
 var select_action_pressed: bool = false
 
 class Selection:
-	var selected_node: Node3D = null
+	var selected_node: Node = null
 	var child_meshes: Array[MeshInstance3D]
 
 var selections: Array[Selection] = []
@@ -86,6 +86,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	SceneManager.project_scene_tree.selections = selections
 	if Input.is_action_pressed("selection_make"):
 		if camera == null:
 			push_error("ERROR::SELECTION_MODULE::CAMERA_NULL")
@@ -94,7 +95,9 @@ func _process(_delta: float) -> void:
 		# -- Selection handling --
 
 		var mouse_position: Vector2 = SceneManager.current_viewport.get_mouse_position()
-		#print(mouse_position)
+		
+		if mouse_position.x < 0 || mouse_position.y < 0 || mouse_position.x > SceneManager.current_viewport.size.x || mouse_position.y > SceneManager.current_viewport.size.y:
+			return
 
 		# Raycasting
 
@@ -159,16 +162,19 @@ func _process(_delta: float) -> void:
 					selection_group_start = null
 
 				var selection_data: Dictionary = _make_selection(selection_group_start, selection_group_end, last_selected_object)
-
+				
 				selection_group_start = selection_data.selection_group_start
 				last_selected_object = selection_data.last_selection
 
 				selections.append(selection_data.selection_object)
-
+				
+				#SceneManager.set_selected_items(selections)
+				
+				SceneManager.project_scene_tree.set_selections(selections)
+				
 				gizmo_move.show()
 		else:
 			# -- Gizmo control --
-
 			var collision_mask: int = 0
 			var mouse_transform_mask: Vector3 = Vector3(1,1,1)
 			var raycast_gizmo_object: Node3D = null
@@ -253,7 +259,7 @@ func _process(_delta: float) -> void:
 			selection.child_meshes.clear()
 			
 			# Then kill the selected node
-			selection.selected_node.queue_free()
+			selection.selected_node.free()
 			selections_to_be_removed.append(selection)
 		
 		for selection: Selection in selections_to_be_removed:
@@ -261,8 +267,9 @@ func _process(_delta: float) -> void:
 		
 		last_selected_object = null
 		
-		# If we have no more selections, hide the active gizmo
+		SceneManager.project_scene_tree.update_tree()
 		
+		# If we have no more selections, hide the active gizmo
 		if selections.is_empty():
 			gizmo_selected = false
 			gizmo_move.hide()
@@ -357,6 +364,3 @@ func _unhighlight_meshes(meshes: Array[MeshInstance3D]) -> void:
 
 func _change_gizmo_type(_type: String) -> void:
 	pass
-
-			
-			

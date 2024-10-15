@@ -17,6 +17,7 @@ namespace RAIManager {
 		Resource gltfImportModule = null;
 		Resource imgImportModule = null;
 
+
 		public override void _Ready()
 		{
 			// Needed so numbers use dots instead of
@@ -84,7 +85,8 @@ namespace RAIManager {
 
 			//modelNode.AddChild(m);
 
-			GetParent().AddChild(modelNode);	
+			GetParent().AddChild(modelNode, true);
+
 			//VoxelGI vgi = (VoxelGI)modelNode.GetNode("VOXELGI-AREA");	
 			//vgi.Bake();
 

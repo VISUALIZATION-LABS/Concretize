@@ -6,7 +6,7 @@ extends Node
 	# ...
 
 var scene_tree: SceneTree = null
-var gui_tree: Tree = null
+var project_scene_tree: ProjectSceneTree = null
 var current_camera: Camera3D = null
 var current_viewport: SubViewport = null
 var program_config: ConfigFile = ConfigFile.new()
@@ -57,8 +57,6 @@ func import_mesh(paths: PackedStringArray) -> void:
 		return
 
 	var popup: Control = SceneReporter.create_popup("Importing mesh", "", SceneReporter.PopupType.LOADING)
-	
-	
 
 	var importer_finished_callback: Callable = func(file_name: StringName, importer: Node3D) -> void:
 		popup.description = popup.description.replace(file_name, "[color=green]%s[/color]" % file_name)	
@@ -97,45 +95,20 @@ func import_mesh(paths: PackedStringArray) -> void:
 		else:
 			popup.progress_bar.value = 100	
 			timer.queue_free()
-
-			scene_tree.create_timer(0.3).timeout.connect(func() -> void: popup.queue_free())
-	)
-
-# TODO: Make the gui panels their own scenes so this stuff can be moved somewhere else
-# Maybe move this to it's own separate file
-func update_gui_tree(_node: Node = null) -> void:
-	#print("UPDATE")
-	if SceneManager.scene_tree.current_scene != null:
-		await SceneManager.scene_tree.create_timer(0.2).timeout
-		var nodes_to_search: Array[Node] = []
-		var current_node: TreeItem = null
-		
-		# Rebuild the entire tree!
-		gui_tree.clear()
-		
-		var root: TreeItem = gui_tree.create_item()
-		root.set_text(0, scene_tree.current_scene.name)
-		nodes_to_search = scene_tree.current_scene.get_children()
-		_build_tree(root, nodes_to_search)
-		print("FINISEHD")
-
-func _build_tree(parent: TreeItem, nodes: Array[Node]) -> void:
-	for node: Node in nodes:
-		if not node.name.begins_with("_") || node.name.begins_with("@"):
-			#print(node.name)
-			var child: TreeItem = gui_tree.create_item(parent)
-			child.set_text(0, node.name)
 			
-			if node.get_children() && not node.name.begins_with("_") || node.name.begins_with("@"):
-				_build_tree(child, node.get_children())
+			scene_tree.create_timer(0.3).timeout.connect(func() -> void: 
+				popup.queue_free()
+				
+				project_scene_tree.update_tree()
+			)
+	)
+	
+	
+
 
 func get_loaded_node_amount() -> Dictionary:
 	var loaded_node_amount: Dictionary = {
 		"total_nodes": scene_tree.root.get_child_count(),
 		"nodes_in_scene": scene_tree.current_scene.get_child_count()
 	}
-
 	return loaded_node_amount
-
-	
-	

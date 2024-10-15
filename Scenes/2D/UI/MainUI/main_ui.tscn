@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://Scenes/2D/UI/MainUI/scripts/main_ui.gd" id="1_4q833"]
 [ext_resource type="PackedScene" uid="uid://olm42616arjd" path="res://Scenes/2D/UI/Titlebar/titlebar.tscn" id="1_8476f"]
-[ext_resource type="Script" path="res://Scenes/2D/UI/MainUI/scene_tree.gd" id="2_1nudu"]
+[ext_resource type="Script" path="res://Scenes/2D/UI/SceneTree/Scripts/project_scene_tree.gd" id="2_4sj7s"]
 [ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="2_ex2ey"]
 
 [node name="_MainUI" type="Control"]
@@ -22,7 +22,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.067384, 0.0503868, 0.125464, 1)
+color = Color(0.96921, 0.966402, 0.987728, 1)
 
 [node name="Split_NodeTree-All" type="HSplitContainer" parent="."]
 layout_mode = 1
@@ -48,18 +48,9 @@ visible = false
 layout_mode = 2
 border_width = 5.0
 
-[node name="SceneTree" type="Control" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer"]
+[node name="ProjectSceneTree" type="Tree" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer"]
 layout_mode = 2
-script = ExtResource("2_1nudu")
-
-[node name="Tree" type="Tree" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer/SceneTree"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-select_mode = 2
+script = ExtResource("2_4sj7s")
 
 [node name="Split_Properties-Viewport_Assets" type="HSplitContainer" parent="Split_NodeTree-All"]
 layout_mode = 2

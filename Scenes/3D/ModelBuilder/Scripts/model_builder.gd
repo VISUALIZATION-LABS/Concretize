@@ -21,7 +21,8 @@ func _ready() -> void:
 		vtx_control.position = vtx_pos
 		vertex_controls.append(vtx_control)
 		add_child(vtx_control, true)
-
+		
+	SceneManager.project_scene_tree.update_tree()
 	
 func _process(_delta: float) -> void:
 	for vtx_idx in vertex_controls.size():
