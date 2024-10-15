@@ -1,7 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://dc845ju7r8wmi"]
+[gd_scene load_steps=5 format=3 uid="uid://dc845ju7r8wmi"]
 
 [ext_resource type="PackedScene" uid="uid://bln1i361dl82r" path="res://Scenes/2D/UI/MainUI/main_ui.tscn" id="1_deost"]
-[ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="2_vb34x"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wyyue"]
 
@@ -12,22 +11,19 @@ sky_material = SubResource("ProceduralSkyMaterial_wyyue")
 background_mode = 2
 background_energy_multiplier = 2.0
 sky = SubResource("Sky_f7how")
+glow_enabled = true
 
 [node name="MainScene" type="Node3D"]
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="_UI" type="CanvasLayer" parent="."]
 
-[node name="MainMenuUI" parent="UI" instance=ExtResource("1_deost")]
+[node name="_MainMenuUI" parent="_UI" instance=ExtResource("1_deost")]
 unique_name_in_owner = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_beru5")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.509514, 0.688627, -0.515933, -0.5975, 0.14832, 0.788032, 0.619184, 0.709784, 0.335884, 0, 3.60278, 0)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
+transform = Transform3D(-0.509514, 0.688628, -0.515934, -0.5975, 0.14832, 0.788032, 0.619184, 0.709784, 0.335884, 0, 3.60278, 0)
 light_energy = 2.0
 shadow_enabled = true
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-
-[node name="Freecam" parent="." instance=ExtResource("2_vb34x")]
