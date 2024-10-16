@@ -82,6 +82,8 @@ func import_mesh(paths: PackedStringArray) -> void:
 		asset_renderer.add_asset(imported_object.duplicate())
 		await asset_container.set_preview_texture(await asset_renderer.render())
 		asset_container.node = imported_object.duplicate()
+		asset_container.set_title(file_name.trim_suffix(".obj"))
+		asset_container.set_description("A simple 3D model")
 		asset_renderer.queue_free()
 		
 		
