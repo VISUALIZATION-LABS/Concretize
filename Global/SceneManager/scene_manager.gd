@@ -64,19 +64,24 @@ func import_mesh(paths: PackedStringArray) -> void:
 		importers.remove_at(importers.find(importer))
 		importer_count.count -= 1
 		
-		
-		scene_tree.current_scene.add_child(imported_object, true)
+		#scene_tree.current_scene.add_child(imported_object, true)
 		
 		# Render out the asset so we can store it in the gui
 		var asset_container: Control = load("res://Scenes/2D/UI/Prefabs/Asset/Asset.tscn").instantiate()
-		var asset_renderer: Node3D = load("res://Scenes/3D/AssetThumbRender/asset_thumb_render.tscn").instantiate()
-		print(asset_container.get_children())
+		var asset_renderer: SubViewport = load("res://Scenes/3D/AssetThumbRender/asset_thumb_render.tscn").instantiate()
+		#var asset_container: AssetContainer = AssetContainer.new()
+		#var asset_renderer: AssetThumbnailRenderer = AssetThumbnailRenderer.new()
 		
-		current_ui.add_asset_to_dock(asset_container)
 		scene_tree.current_scene.add_child(asset_renderer)
+		current_ui.add_asset_to_dock(asset_container)
+		
+		#print(asset_container.get_children())
+		
+		#current_ui.add_asset_to_dock(asset_container)
+		#scene_tree.current_scene.add_child(asset_renderer)
 		asset_renderer.add_asset(imported_object.duplicate())
-		asset_container.set_preview_texture(asset_renderer.render())
-		current_ui.debug_preview_asset_texture(asset_renderer.render())
+		await asset_container.set_preview_texture(await asset_renderer.render())
+		asset_container.node = imported_object.duplicate()
 		asset_renderer.queue_free()
 		
 		
@@ -106,7 +111,6 @@ func import_mesh(paths: PackedStringArray) -> void:
 	timer.timeout.connect(func() -> void:
 		var importer_sum: float = 0.0
 		if not importers.is_empty():
-			
 			importer_sum = importers[0].Get_importer_percentage() / importer_amount
 			
 			popup.progress_bar.value = importer_sum

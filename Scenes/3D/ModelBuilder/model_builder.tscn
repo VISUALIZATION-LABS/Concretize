@@ -1,12 +1,25 @@
-[gd_scene load_steps=2 format=3 uid="uid://c6fohb4ng4bau"]
+[gd_scene load_steps=3 format=3 uid="uid://c6fohb4ng4bau"]
 
 [ext_resource type="Script" path="res://Scenes/3D/ModelBuilder/Scripts/model_builder.gd" id="1_dqan7"]
+[ext_resource type="PackedScene" uid="uid://cr6ebosg0l6jm" path="res://Scenes/3D/Controls/MeshBuilder/VertexControl.tscn" id="2_xpptn"]
 
 [node name="ModelBuilder" type="Node3D"]
 script = ExtResource("1_dqan7")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Mesh"]
+[node name="_StaticBody3D" type="StaticBody3D" parent="Mesh"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Mesh/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Mesh/_StaticBody3D"]
+
+[node name="_VertexControl" parent="." instance=ExtResource("2_xpptn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1)
+
+[node name="_VertexControl2" parent="." instance=ExtResource("2_xpptn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 1)
+
+[node name="_VertexControl3" parent="." instance=ExtResource("2_xpptn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -1)
+
+[node name="_VertexControl4" parent="." instance=ExtResource("2_xpptn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -1)

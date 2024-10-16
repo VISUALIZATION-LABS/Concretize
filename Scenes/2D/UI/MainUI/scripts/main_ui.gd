@@ -7,10 +7,17 @@ func _ready() -> void:
 	SceneManager.current_ui = self
 	SignalBus.hide_section.connect(_hide_section)
 	SignalBus.show_section.connect(_show_section)
+	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/Control/HBoxContainer/BTN_MOVE".pressed.connect(_btn_move_pressed)
+	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/Control/HBoxContainer/BTN_ROTATE".pressed.connect(_btn_rotate_pressed)
 	#SceneManager.scene_tree.node_added.connect(SceneManager.update_gui_tree)
 	#SceneManager.scene_tree.node_removed.connect(SceneManager.update_gui_tree)
 	#SceneManager.scene_tree.node_renamed.connect(SceneManager.update_gui_tree)
-
+	
+func _btn_move_pressed() -> void:
+	SignalBus.gizmo_type_change.emit("Translate")
+	
+func _btn_rotate_pressed() -> void:
+	SignalBus.gizmo_type_change.emit("Rotate")
 
 func _process(delta: float) -> void:
 	pass
@@ -36,8 +43,5 @@ func _show_section(type: String) -> void:
 	ui_node.show()
 
 # Hack
-func debug_preview_asset_texture(texture: ImageTexture) -> void:
-	$TextureRect.texture = texture
-
 func add_asset_to_dock(asset_container: Control) -> void:
 	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer/MarginContainer/ModelPickerDock".add_asset(asset_container)

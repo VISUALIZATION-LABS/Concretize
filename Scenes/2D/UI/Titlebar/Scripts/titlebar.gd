@@ -137,8 +137,8 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			pass
 
 		_:
-			var modelBuilder: Node3D = load("res://Scenes/3D/ModelBuilder/model_builder.tscn").instantiate()
-			SceneManager.scene_tree.current_scene.add_child(modelBuilder, true)
+			#var modelBuilder: Node3D = load("res://Scenes/3D/ModelBuilder/model_builder.tscn").instantiate()
+			#SceneManager.scene_tree.current_scene.add_child(modelBuilder, true)
 			ErrorManager.raise_error("This function has not been implemented yet", "Yeah, for real")
 			#SignalBus.hide_section.emit("Titlebar")
 		

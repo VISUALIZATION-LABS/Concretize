@@ -96,8 +96,11 @@ func _process(_delta: float) -> void:
 
 		var mouse_position: Vector2 = SceneManager.current_viewport.get_mouse_position()
 		
-		if mouse_position.x < 0 || mouse_position.y < 0 || mouse_position.x > SceneManager.current_viewport.size.x || mouse_position.y > SceneManager.current_viewport.size.y:
-			return
+		# Block mouse inputs outside of current viewport
+		if mouse_position.x < 0 || mouse_position.y < 0 || mouse_position.x > SceneManager.current_viewport.size.x || mouse_position.y > SceneManager.current_viewport.size.y - 32:
+			if not gizmo_selected:
+				print("I MUST RENTUTTUTU")
+				return
 
 		# Raycasting
 
@@ -238,12 +241,15 @@ func _process(_delta: float) -> void:
 					TransformClass.MOVE:
 						for selection: Selection in selections:
 							selection.selected_node.position += delta_mouse_position * mouse_transform_mask
-							
 
 					TransformClass.SCALE:
 						for selection: Selection in selections:
 							selection.selected_node.scale += delta_mouse_position * mouse_transform_mask	
-				
+					
+					TransformClass.ROTATE:
+						for selection: Selection in selections:
+							selection.selected_node.rotation += delta_mouse_position * mouse_transform_mask
+							
 				gizmo_move.position += delta_mouse_position * mouse_transform_mask
 				#DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
 	else:
@@ -275,7 +281,10 @@ func _process(_delta: float) -> void:
 			gizmo_move.hide()
 	
 	if not selections.is_empty() && Input.is_action_just_pressed("duplicate"):
-		print("Duplicate!")
+		for selection: Selection in selections:
+			selection.selected_node.add_sibling(selection.selected_node.duplicate(), true)
+		
+		SceneManager.project_scene_tree.update_tree()
 	
 	
 	# Position gizmo to middle of all selections
@@ -362,5 +371,9 @@ func _unhighlight_meshes(meshes: Array[MeshInstance3D]) -> void:
 			if mesh_instance.get_active_material(surface):
 				mesh_instance.set_surface_override_material(surface, null)
 
-func _change_gizmo_type(_type: String) -> void:
-	pass
+func _change_gizmo_type(type: String) -> void:
+	match type:
+		"Translate":
+			current_type = TransformClass.MOVE
+		"Rotate":
+			current_type = TransformClass.ROTATE

@@ -138,14 +138,13 @@ namespace RAI {
 							break;
 
 						case "f":
-							// Conversion is needed to "reverse" mesh data without mirroring the mesh
-
 							token = token[1..].ToArray();
 							List<int[]> facedef = new();
 
+							// FIXME: Doesn't work with incomplete data, such as normals
 							foreach (string idxGroup in token) {
 								string[] idx = idxGroup.Split('/', StringSplitOptions.None);
-
+								//GD.Print(idxGroup);
 								int[] idxArray = {int.Parse(idx[0]) - 1, int.Parse(idx[1]) - 1, int.Parse(idx[2]) - 1};
 								facedef.Add(idxArray);
 							}
