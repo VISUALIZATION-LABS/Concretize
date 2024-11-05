@@ -2,6 +2,9 @@ class_name SelectionModule
 extends Node3D
 # This file is responsible for handling object picking, selection handling and gizmo moving
 
+signal object_selected(object: Node3D)
+signal object_deselected(object: Node3D)
+
 # TODO: Work on making nodes that have names that start with "_" unselecable
 # FIXME: Transform position doesn't update for children, add the top_level node's position to the transform to fix this
 # FIXME: Properly document and plan out the selection algorithm (few bugs)
@@ -99,7 +102,6 @@ func _process(_delta: float) -> void:
 		# Block mouse inputs outside of current viewport
 		if mouse_position.x < 0 || mouse_position.y < 0 || mouse_position.x > SceneManager.current_viewport.size.x || mouse_position.y > SceneManager.current_viewport.size.y - 32:
 			if not gizmo_selected:
-				print("I MUST RENTUTTUTU")
 				return
 
 		# Raycasting
@@ -140,6 +142,9 @@ func _process(_delta: float) -> void:
 					for selection: Selection in selections:
 						_unhighlight_meshes(selection.child_meshes)
 					
+					if selection_group_start != null && selection_group_start.has_method("deselected"):
+						selection_group_start.deselected()
+					
 					selections.clear()
 					#_unhighlight_meshes(selected_meshes)
 					#selected_meshes.clear()
@@ -154,7 +159,10 @@ func _process(_delta: float) -> void:
 				if not Input.is_action_pressed("modifier_0"):
 					for selection: Selection in selections:
 						_unhighlight_meshes(selection.child_meshes)
-						
+					
+					if selection_group_start != null && selection_group_start.has_method("deselected"):
+						selection_group_start.deselected()
+					
 					selections.clear()
 					#_unhighlight_meshes(selected_meshes)
 					#selected_meshes.clear()
@@ -168,7 +176,10 @@ func _process(_delta: float) -> void:
 				
 				selection_group_start = selection_data.selection_group_start
 				last_selected_object = selection_data.last_selection
-
+				
+				if selection_group_start != null && selection_group_start.has_method("deselected"):
+					selection_group_start.selected()
+				
 				selections.append(selection_data.selection_object)
 				
 				#SceneManager.set_selected_items(selections)
@@ -235,7 +246,7 @@ func _process(_delta: float) -> void:
 
 				gizmo_selected = true
 
-				DebugDraw2D.set_text("Delta mouse:", delta_mouse_position)
+				#DebugDraw2D.set_text("Delta mouse:", delta_mouse_position)
 
 				match current_type:
 					TransformClass.MOVE:
@@ -251,7 +262,7 @@ func _process(_delta: float) -> void:
 							selection.selected_node.rotation += delta_mouse_position * mouse_transform_mask
 							
 				gizmo_move.position += delta_mouse_position * mouse_transform_mask
-				#DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
+				DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
 	else:
 		# -- if Input.is_action_pressed("selection_make"): --
 		gizmo_selected = false
@@ -328,14 +339,22 @@ func _make_selection(sel_group_start: Node3D = null, sel_group_end: Node3D = nul
 	else:
 		# Go up until the child of last selection
 		# We go up from the selection end node because branching is a possibility
-		var selected_object: Node3D = sel_group_end
-
-		while selected_object.get_parent_node_3d() != last_sel && selected_object.get_parent_node_3d() != sel_group_start && selected_object.get_parent_node_3d() != null:
-			selected_object = selected_object.get_parent_node_3d()
+		
+		# Never select children of nodes with selectable children disabled
+		if selection_group_start.has_meta("selectable_children"):
+			if selection_group_start.get_meta("selectable_children") == 0:
+				selection_data.selection_group_start = sel_group_start
+				selection_data.last_selection = sel_group_start
+				selection_data.selected_object = sel_group_start
+		else:
+			var selected_object: Node3D = sel_group_end
 			
-		selection_data.selection_group_start = sel_group_start
-		selection_data.last_selection = selected_object
-		selection_data.selected_object = selected_object
+			while selected_object.get_parent_node_3d() != last_sel && selected_object.get_parent_node_3d() != sel_group_start && selected_object.get_parent_node_3d() != null:
+				selected_object = selected_object.get_parent_node_3d()
+				
+			selection_data.selection_group_start = sel_group_start
+			selection_data.last_selection = selected_object
+			selection_data.selected_object = selected_object
 	
 	selection_object.selected_node = selection_data.selected_object
 	selection_data.selection_object = selection_object
@@ -358,6 +377,9 @@ func _find_mesh_children(selection: Selection) -> void:
 
 func _highlight_meshes(meshes: Array[MeshInstance3D]) -> void:
 	for mesh_instance: MeshInstance3D in meshes:
+		if mesh_instance.get_meta("highlightable", 1) == 0:
+			break
+		
 		for surface: int in mesh_instance.mesh.get_surface_count():
 			if mesh_instance.get_active_material(surface):
 					var current_material: Material = mesh_instance.get_active_material(surface).duplicate()
