@@ -61,9 +61,9 @@ func _ready() -> void:
 	file_button_export_sub_menu.add_item("Export Scene", Buttons.EXPORT_SCENE)
 	file_button_export_sub_menu.add_item("Export Selection", Buttons.EXPORT_SELECTION)
 
-	file_button.add_item("Quit", Buttons.QUIT)
-
 	file_button.add_submenu_node_item("Export", file_button_export_sub_menu)
+	
+	file_button.add_item("Quit", Buttons.QUIT)
 
 	edit_button.add_item("Cut", Buttons.CUT)
 	edit_button.add_item("Copy", Buttons.COPY)
@@ -105,7 +105,13 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			var file_dialog: FileDialog = FileDialog.new()
 			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 			file_dialog.add_filter("*.obj, *.gltf, *.glb", "3D models")
-			file_dialog.use_native_dialog = true
+			
+			# HACK: Gets around issue [#3]
+			if OS.get_name() == "Windows":
+				file_dialog.use_native_dialog = false
+			else:
+				file_dialog.use_native_dialog = true
+			
 			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES
 			file_dialog.visible = true
 
