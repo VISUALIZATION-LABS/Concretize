@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://b1x1r45gfrlk1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w3pbw"]
+
+[node name="OmniLight" type="Node3D"]
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_w3pbw")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_energy = 3.0
+shadow_enabled = true
