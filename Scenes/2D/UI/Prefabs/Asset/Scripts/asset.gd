@@ -13,6 +13,7 @@ func _ready() -> void:
 func _add_node_to_tree() -> void:
 	if node != null:
 		SceneManager.scene_tree.current_scene.add_child(node.duplicate(), true)
+		SceneManager.project_scene_tree.update_tree()
 
 func set_preview_texture(texture: ImageTexture) -> void:
 	preview.texture = texture
