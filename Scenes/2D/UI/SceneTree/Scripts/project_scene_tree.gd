@@ -4,8 +4,6 @@ extends Tree
 var tree_items: Array[TreeItem] = []
 var selections: Array[SelectionModule.Selection] = []
 
-
-
 func _ready() -> void:
 	SceneManager.project_scene_tree = self
 	update_tree()
