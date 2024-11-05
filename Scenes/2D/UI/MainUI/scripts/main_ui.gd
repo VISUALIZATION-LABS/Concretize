@@ -1,6 +1,17 @@
 extends Control
 
+@onready var popup: PopupMenu = $Titlebar/PopupMenu
 
+enum ContextMenuItems{
+	ADD_ITEM,
+		ADD_ITEM_LIGHT_SPOT,
+		ADD_ITEM_LIGHT_OMNI,
+		ADD_ITEM_LIGHT_DIRECTIONAL,
+	DELETE_ITEM,
+	COPY_ITEM,
+	PASTE_ITEM,
+	RESET_TRANSFORMS
+}
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -19,10 +30,43 @@ func _btn_move_pressed() -> void:
 func _btn_rotate_pressed() -> void:
 	SignalBus.gizmo_type_change.emit("Rotate")
 
+# HACK
 func _process(delta: float) -> void:
-	pass
-	#var screen_resolution: Vector2 = DisplayServer.screen_get_size(DisplayServer.get_screen_from_rect(get_viewport_rect()))
-	#viewport.size = screen_resolution
+	if Input.is_action_just_pressed("context_menu"):
+		var context_menu: ContextMenu = ContextMenu.new()
+		
+		add_child(context_menu)
+		
+		#var context_menu_submenu_add_item: ContextMenu = ContextMenu.new()
+		
+		context_menu.add_item("Add item", ContextMenuItems.ADD_ITEM)
+		context_menu.add_item("Add spot light", ContextMenuItems.ADD_ITEM_LIGHT_SPOT)
+		context_menu.add_item("Add omnidirectional light", ContextMenuItems.ADD_ITEM_LIGHT_OMNI)
+		context_menu.add_item("Add directional light", ContextMenuItems.ADD_ITEM_LIGHT_DIRECTIONAL)
+		
+		#context_menu_submenu_add_item.add_item("Add spot light", ContextMenuItems.ADD_ITEM_LIGHT_SPOT)
+		#context_menu_submenu_add_item.add_item("Add omnidirectional light", ContextMenuItems.ADD_ITEM_LIGHT_OMNI)
+		#context_menu_submenu_add_item.add_item("Add directional light", ContextMenuItems.ADD_ITEM_LIGHT_DIRECTIONAL)
+		
+		context_menu.add_item("Delete", ContextMenuItems.DELETE_ITEM)
+		context_menu.add_item("Copy", ContextMenuItems.COPY_ITEM)
+		context_menu.add_item("Paste", ContextMenuItems.PASTE_ITEM)
+		
+		context_menu.show()
+		context_menu.position = get_viewport().get_mouse_position()
+		context_menu.id_pressed.connect(_context_menu_id_pressed)
+		
+
+func _context_menu_id_pressed(id: int) -> void:
+	match id:
+		ContextMenuItems.ADD_ITEM:
+			ErrorManager.raise_error("Não implementado", "Esse botão agirá como um submenu, e não realizará nenhuma functionalidade.")
+		
+		ContextMenuItems.ADD_ITEM_LIGHT_SPOT:
+			var spot_light: SpotLight = SpotLight.new()
+			spot_light.show_spot = false
+			SceneManager.scene_tree.current_scene.add_child(spot_light,true)
+
 
 func _hide_section(type: String) -> void:
 	var ui_node: Control = get_node(type)
