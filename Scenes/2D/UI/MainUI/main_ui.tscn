@@ -88,7 +88,6 @@ grow_vertical = 2
 stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/SubViewportContainer"]
-handle_input_locally = false
 msaa_3d = 2
 positional_shadow_atlas_size = 4096
 size = Vector2i(575, 450)
