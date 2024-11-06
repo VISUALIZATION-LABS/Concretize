@@ -184,6 +184,39 @@ func _process(_delta: float) -> void:
 				
 				#SceneManager.set_selected_items(selections)
 				
+				for selection: Selection in selections:
+					# Selection is always a node3D so we'll always have name, position and other stuff
+					var selection_info: Dictionary
+					
+					selection_info["Name"] = selection.selected_node.name
+					
+					selection_info["Transform"] = {
+						"Position": selection.selected_node.position,
+						"Rotation": selection.selected_node.rotation,
+						"Scale": selection.selected_node.scale
+						}
+					
+					if selection.selected_node.is_class("Light3D"):
+						if selection.selected_node.get_class() == "SpotLight3D":
+							selection_info["Spot"] = {
+								"Range": selection.selected_node.spot_range,
+								"Attenuation": selection.selected_node.spot_attenuation,
+								"Angle": selection.selected_node.spot_angle
+							}
+						
+						selection_info["Light"] = {
+							"Color": selection.selected_node.light_color,
+							"Energy": selection.selected_node.light_energy,
+							"Size": selection.selected_node.light_size,
+						}
+						
+						selection_info["Shadow"] = {
+							"Enabled": selection.selected_node.shadow_enabled,
+							"Blur": selection.selected_node.shadow_blur
+						}
+					
+					SceneManager.current_ui.set_context_menu_data(selection_info)
+					
 				SceneManager.project_scene_tree.set_selections(selections)
 				
 				gizmo_move.show()

@@ -67,7 +67,15 @@ func _context_menu_id_pressed(id: int) -> void:
 			spot_light.show_spot = false
 			SceneManager.scene_tree.current_scene.add_child(spot_light,true)
 
-
+func set_context_menu_data(selection_info: Dictionary) -> void:
+	var inspector_items: InspectorItem = InspectorItem.new()
+	inspector_items.setup_title(selection_info["Name"])
+	inspector_items.add_inspector_info(selection_info)
+	for children in $"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer".get_children():
+		children.queue_free()
+		
+	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer".add_child(inspector_items)
+	
 func _hide_section(type: String) -> void:
 	var ui_node: Control = get_node(type)
 

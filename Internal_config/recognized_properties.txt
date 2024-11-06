@@ -1,0 +1,17 @@
+// General
+position
+global_position
+rotation
+global_rotation
+scale
+visibility
+
+// Light general
+range
+energy
+attenuation
+
+// Light spot
+angle
+
+
