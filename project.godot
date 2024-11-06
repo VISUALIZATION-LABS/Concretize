@@ -16,7 +16,8 @@ run/main_scene="res://Scenes/3D/MainScene/main_scene.tscn"
 config/features=PackedStringArray("4.3", "C#", "Mobile")
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=false
-config/icon="res://icon.svg"
+config/icon="res://Art/Icons/Application/concretize-icon.png"
+config/windows_native_icon="res://Art/Icons/Application/icon.ico"
 
 [autoload]
 
