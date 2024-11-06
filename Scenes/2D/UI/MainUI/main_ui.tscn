@@ -88,6 +88,7 @@ grow_vertical = 2
 stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/SubViewportContainer"]
+handle_input_locally = false
 msaa_3d = 2
 positional_shadow_atlas_size = 4096
 size = Vector2i(575, 450)
@@ -140,10 +141,13 @@ theme_override_constants/margin_top = 42
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="ReferenceRect" type="ReferenceRect" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer"]
-visible = false
+[node name="ScrollContainer" type="ScrollContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer"]
 layout_mode = 2
-border_width = 5.0
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Titlebar" parent="." instance=ExtResource("1_8476f")]
 layout_mode = 1
