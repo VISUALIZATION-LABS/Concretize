@@ -3,7 +3,7 @@ extends VBoxContainer
 
 var node: Node
 
-func setup_title(string: String):
+func set_title(string: String):
 	var background: PanelContainer = PanelContainer.new()
 	var margin: MarginContainer = MarginContainer.new()
 	var center: CenterContainer = CenterContainer.new()
@@ -36,6 +36,7 @@ func add_inspector_info(selection_info: Dictionary) -> void:
 	background.add_child(margin)
 	margin.add_child(inspector_items)
 	self.add_child(background)
+
 
 func _build_inspector(selection_info: Dictionary) -> Control:
 	var background: PanelContainer = PanelContainer.new()

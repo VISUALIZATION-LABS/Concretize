@@ -1,7 +1,7 @@
 extends Control
 
 @onready var popup: PopupMenu = $Titlebar/PopupMenu
-
+@onready var inspector: VBoxContainer = $"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer"
 enum ContextMenuItems{
 	ADD_ITEM,
 		ADD_ITEM_LIGHT_SPOT,
@@ -67,13 +67,47 @@ func _context_menu_id_pressed(id: int) -> void:
 			spot_light.show_spot = false
 			SceneManager.scene_tree.current_scene.add_child(spot_light,true)
 
-func set_context_menu_data(selection_info: Dictionary) -> void:
-	var inspector_items: InspectorItem = InspectorItem.new()
-	inspector_items.setup_title(selection_info["Name"])
-	inspector_items.node = selection_info["Node"]
-	inspector_items.add_inspector_info(selection_info)
+func add_node_to_inspector(node: Node3D) -> void:
+	var inspector_item: InspectorItem = InspectorItem.new()
+	inspector_item.set_title(node.name)
 	
-	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer".add_child(inspector_items)
+	var data: Dictionary
+	
+	data["Transform"] = {
+		"Position": node.position,
+		"Rotation": node.rotation,
+		"Scale": node.scale
+		}
+	
+	if node.is_class("Light3D"):
+		if node.get_class() == "SpotLight3D":
+			data["Spot"] = {
+				"Range": node.spot_range,
+				"Attenuation": node.spot_attenuation,
+				"Angle": node.spot_angle
+			}
+		
+		data["Light"] = {
+			"Color": node.light_color,
+			"Energy": node.light_energy,
+			"Size": node.light_size,
+		}
+		
+		data["Shadow"] = {
+			"Enabled": node.shadow_enabled,
+			"Blur": node.shadow_blur
+		}
+	
+	inspector_item.node = node
+	inspector_item.add_inspector_info(data)
+	
+	
+	inspector.add_child(inspector_item)
+
+func remove_node_from_inspector(node: Node3D) -> void:
+	for children: Control in inspector.get_children():
+		if children.node == node:
+			children.queue_free()
 
 func remove_context_menu_data_by_node(node: Node) -> void:
 	print("Removal requested for node: " + str(node))

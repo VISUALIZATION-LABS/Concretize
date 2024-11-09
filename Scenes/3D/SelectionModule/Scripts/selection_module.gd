@@ -2,8 +2,8 @@ class_name SelectionModule
 extends Node3D
 # This file is responsible for handling object picking, selection handling and gizmo moving
 
-signal object_selected(object: Node3D)
-signal object_deselected(object: Node3D)
+#signal object_selected(object: Node3D)
+#signal object_deselected(object: Node3D)
 
 # TODO: Work on making nodes that have names that start with "_" unselecable
 # FIXME: Transform position doesn't update for children, add the top_level node's position to the transform to fix this
@@ -36,7 +36,7 @@ const VIEW_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0010_000
 
 # -- Selection handler --
 
-# hack
+# HACK
 var select_action_pressed: bool = false
 
 class Selection:
@@ -65,8 +65,6 @@ var selection_group_end: Node3D = null
 var last_selected_object: Node3D = null
 var selected_meshes: Array[MeshInstance3D] = []
 var gizmo_selected: bool = false
-
-
 
 # This is used for calculating a delta_mouse parameter for transformations
 var previous_mouse_coordinates: Vector3 = Vector3(0,0,0)
@@ -150,95 +148,28 @@ func _process(_delta: float) -> void:
 		var raycast_query_results_gizmo: Dictionary = space_state.intersect_ray(raycast_query_gizmo)
 
 		# Handle scene object selection
-
 		if not raycast_query_results_gizmo and not gizmo_selected:
 			if not select_action_pressed:
 				select_action_pressed = true
-				if not raycast_query_results_scene_objects:
-					for selection: Selection in selections:
-						SceneManager.current_ui.remove_context_menu_data_by_node(selection.selected_node)
-						_unhighlight_meshes(selection.child_meshes)
-					
-					if selection_group_start != null && selection_group_start.has_method("deselected"):
-						selection_group_start.deselected()
-					
-					
-					selections.clear()
-					#_unhighlight_meshes(selected_meshes)
-					#selected_meshes.clear()
-
-					selection_group_start = null
-					selection_group_end = null
-					last_selected_object = null
-
-					gizmo_move.hide()
-					return
-
-				if not Input.is_action_pressed("modifier_0"):
-					for selection: Selection in selections:
-						SceneManager.current_ui.remove_context_menu_data_by_node(selection.selected_node)
-						
-						_unhighlight_meshes(selection.child_meshes)
-					
-					if selection_group_start != null && selection_group_start.has_method("deselected"):
-						selection_group_start.deselected()
-					
-					selections.clear()
-					#_unhighlight_meshes(selected_meshes)
-					#selected_meshes.clear()
-
-				selection_group_end = raycast_query_results_scene_objects.collider.get_parent_node_3d()
 				
+				# If we select empty space we should remove all selections and early return
+				if not raycast_query_results_scene_objects:
+					_deselect(selections)
+					return
+				
+				# If we don't hold modifier_0 (which in this case would be "select multiple")
+				# deselect all meshes but this one
+				if not Input.is_action_pressed("modifier_0"):
+					print("ello")
+					_deselect(selections, true)
+				
+				# If we don't hold modifier_1 (which would be "select_deeper") we reset the selection
+				# group start (idk if we should call _deselect)
 				if not Input.is_action_pressed("modifier_1"):
 					selection_group_start = null
-
-				var selection_data: Dictionary = _make_selection(selection_group_start, selection_group_end, last_selected_object)
 				
-				selection_group_start = selection_data.selection_group_start
-				last_selected_object = selection_data.last_selection
-				
-				if selection_group_start != null && selection_group_start.has_method("deselected"):
-					selection_group_start.selected()
-				
-				selections.append(selection_data.selection_object)
-				
-				#SceneManager.set_selected_items(selections)
-				
-				for selection: Selection in selections:
-					# Selection is always a node3D so we'll always have name, position and other stuff
-					var selection_info: Dictionary
-					
-					selection_info["Name"] = selection.selected_node.name
-					selection_info["Node"] = selection.selected_node
-					
-					selection_info["Transform"] = {
-						"Position": selection.selected_node.position,
-						"Rotation": selection.selected_node.rotation,
-						"Scale": selection.selected_node.scale
-						}
-					
-					if selection.selected_node.is_class("Light3D"):
-						if selection.selected_node.get_class() == "SpotLight3D":
-							selection_info["Spot"] = {
-								"Range": selection.selected_node.spot_range,
-								"Attenuation": selection.selected_node.spot_attenuation,
-								"Angle": selection.selected_node.spot_angle
-							}
-						
-						selection_info["Light"] = {
-							"Color": selection.selected_node.light_color,
-							"Energy": selection.selected_node.light_energy,
-							"Size": selection.selected_node.light_size,
-						}
-						
-						selection_info["Shadow"] = {
-							"Enabled": selection.selected_node.shadow_enabled,
-							"Blur": selection.selected_node.shadow_blur
-						}
-					
-					SceneManager.current_ui.set_context_menu_data(selection_info)
-					
-				SceneManager.project_scene_tree.set_selections(selections)
+				selection_group_end = raycast_query_results_scene_objects.collider.get_parent_node_3d()
+				_make_selection()
 				
 				gizmo_move.show()
 		else:
@@ -305,7 +236,11 @@ func _process(_delta: float) -> void:
 				match current_type:
 					TransformClass.MOVE:
 						for selection: Selection in selections:
-							selection.selected_node.position += delta_mouse_position * mouse_transform_mask
+							var intended_position: Vector3 = selection.selected_node.position + delta_mouse_position * mouse_transform_mask
+							if Input.is_action_pressed("modifier_2"):
+								selection.selected_node.position = snapped(intended_position, Vector3(0.5,0.5,0.5))
+							else:
+								selection.selected_node.position = intended_position
 
 					TransformClass.SCALE:
 						for selection: Selection in selections:
@@ -352,14 +287,8 @@ func _process(_delta: float) -> void:
 		
 		# HACK: Fix after having a useable program (REWRITE ALL OF THIS!!!)
 		
-		if selection_group_start != null && selection_group_start.has_method("deselected"):
-				selection_group_start.deselected()
-		
 		var duplicated_selections: Array[Selection] = []
 		for selection: Selection in selections:
-
-			_unhighlight_meshes(selection.child_meshes)
-			
 			var duplicated_selection: Selection = selection.duplicate()
 			
 			if duplicated_selection.selected_node.has_method("selected"):
@@ -370,7 +299,7 @@ func _process(_delta: float) -> void:
 			duplicated_selections.append(duplicated_selection)
 			selection.selected_node.add_sibling(duplicated_selection.selected_node, true)
 		
-		#duplicated_selections.pop_front()
+		_deselect(selections, false, false)
 		
 		selections = duplicated_selections
 		
@@ -385,37 +314,51 @@ func _process(_delta: float) -> void:
 	if not selections.is_empty():
 		for selection: Selection in selections:
 			if selection != null:
-				average_position += selection.selected_node.position
+				average_position += selection.selected_node.global_position
 		
 		average_position /= selections.size()
 
 	gizmo_move.position = average_position
-				
-func _make_selection(sel_group_start: Node3D = null, sel_group_end: Node3D = null, last_sel: Node3D = null) -> Dictionary:	
-	var selection_data: Dictionary = {
-		"selection_group_start": null,
-		"last_selection": null,
-		"selected_object": null,
-		"selection_object": null
-	}
 
-	if sel_group_end == null:
+
+func _deselect(selections: Array[Selection], keep_last_selection_data: bool = false, hide_gizmo = true) -> void:
+	for selection: Selection in selections:
+		if selection.selected_node.has_method("deselected"):
+			selection.selected_node.deselected()
+		
+		print(selection.selected_node)
+		SceneManager.current_ui.remove_node_from_inspector(selection.selected_node)
+		
+		_unhighlight_meshes(selection.child_meshes)
+	
+	if not keep_last_selection_data:
+		selection_group_start = null
+		selection_group_end = null
+		last_selected_object = null
+	
+	if hide_gizmo:
+		gizmo_move.hide()
+	
+	selections.clear()
+
+func _make_selection() -> void:
+	if selection_group_end == null:
 		push_error("ERROR::SELECTION_MODULE::NO_AVAILABLE_SELECTION_DATA")
-		return selection_data
+		return
 
 	var selection_object: Selection = Selection.new()
 
 	# Go up the scene tree
-	if sel_group_start == null || last_sel == null:
+	if selection_group_start == null || last_selected_object == null:
 		# Go up until scene node
-		sel_group_start = sel_group_end
+		selection_group_start =selection_group_end 
 
-		while sel_group_start.get_parent_node_3d() != SceneManager.scene_tree.current_scene && sel_group_start.get_parent_node_3d() != null:
-			sel_group_start = sel_group_start.get_parent_node_3d()
+		while selection_group_start.get_parent_node_3d() != SceneManager.scene_tree.current_scene && selection_group_start.get_parent_node_3d() != null:
+			selection_group_start = selection_group_start.get_parent_node_3d()
 
-		selection_data.selection_group_start = sel_group_start
-		selection_data.last_selection = sel_group_start
-		selection_data.selected_object = sel_group_start
+		selection_group_start = selection_group_start
+		last_selected_object = selection_group_start
+		selection_object.selected_node = selection_group_start
 	else:
 		# Go up until the child of last selection
 		# We go up from the selection end node because branching is a possibility
@@ -423,28 +366,32 @@ func _make_selection(sel_group_start: Node3D = null, sel_group_end: Node3D = nul
 		# Never select children of nodes with selectable children disabled
 		if selection_group_start.has_meta("selectable_children"):
 			if selection_group_start.get_meta("selectable_children") == 0:
-				selection_data.selection_group_start = sel_group_start
-				selection_data.last_selection = sel_group_start
-				selection_data.selected_object = sel_group_start
+				selection_group_start = selection_group_start
+				last_selected_object = selection_group_start
+				selection_object.selected_node = selection_group_start
 		else:
-			var selected_object: Node3D = sel_group_end
+			var selected_object: Node3D = selection_group_end 
 			
-			while selected_object.get_parent_node_3d() != last_sel && selected_object.get_parent_node_3d() != sel_group_start && selected_object.get_parent_node_3d() != null:
+			while selected_object.get_parent_node_3d() != last_selected_object && selected_object.get_parent_node_3d() != selection_group_start && selected_object.get_parent_node_3d() != null:
 				selected_object = selected_object.get_parent_node_3d()
 				
-			selection_data.selection_group_start = sel_group_start
-			selection_data.last_selection = selected_object
-			selection_data.selected_object = selected_object
+			selection_group_start = selection_group_start
+			last_selected_object = selected_object
+			selection_object.selected_node = selected_object
 	
-	selection_object.selected_node = selection_data.selected_object
-	selection_data.selection_object = selection_object
+	SceneManager.current_ui.add_node_to_inspector(selection_object.selected_node)
+
 	# Highlight any meshinstance 3D nodes under selected_object
 
+	selections.append(selection_object)
+	
 	_find_mesh_children(selection_object)
 
 	_highlight_meshes(selection_object.child_meshes)
-
-	return selection_data
+	
+	if selection_object.selected_node.has_method("selected"):
+		selection_object.selected_node.selected()
+	
 
 func _find_mesh_children(selection: Selection) -> void:
 	var mesh_instances: Array[Node] = selection.selected_node.find_children("*", "MeshInstance3D", true, false)
