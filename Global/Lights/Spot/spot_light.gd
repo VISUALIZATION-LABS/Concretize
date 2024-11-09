@@ -17,7 +17,13 @@ var spot_helper_collision_shape: CollisionShape3D = CollisionShape3D.new()
 
 @export var show_spot: bool = false
 
-func _enter_tree() -> void:
+func _ready() -> void:
+	
+	# HACK
+	if self.get_child_count() > 0:
+		for child: Node3D in self.get_children():
+			child.queue_free()
+		
 	self.set_meta("selectable_children", 0)
 	spot_helper.set_meta("highlightable", 0)
 	icon_mesh.set_meta("highlightable", 0)
