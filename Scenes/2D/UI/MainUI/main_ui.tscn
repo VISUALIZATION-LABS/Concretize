@@ -33,9 +33,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
-split_offset = 280
+split_offset = 260
 
 [node name="NodeTreePanel" type="PanelContainer" parent="Split_NodeTree-All"]
+custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Split_NodeTree-All/NodeTreePanel"]
@@ -75,6 +76,7 @@ theme_override_constants/separation = 0
 split_offset = 450
 
 [node name="Control" type="Control" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets"]
+custom_minimum_size = Vector2(575, 450)
 layout_mode = 2
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control"]
@@ -119,6 +121,7 @@ layout_mode = 2
 text = "R"
 
 [node name="PanelContainer" type="PanelContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets"]
+custom_minimum_size = Vector2(575, 190)
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer"]
@@ -132,6 +135,7 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 
 [node name="PropertiesPanel" type="PanelContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets"]
+custom_minimum_size = Vector2(301, 648)
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel"]
