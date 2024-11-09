@@ -11,7 +11,7 @@ var icon: Texture2D = preload("res://Art/Icons/nimbus--lightbulb.svg")
 var icon_material: StandardMaterial3D = StandardMaterial3D.new()
 
 var spot_helper: MeshInstance3D = MeshInstance3D.new()
-var spot_helper_material: StandardMaterial3D = preload("res://Resources/Materials/light_helper_material.tres")
+var spot_helper_material: StandardMaterial3D = preload("res://Resources/Materials/light_helper_material.tres").duplicate()
 var spot_helper_collision_shape: CollisionShape3D = CollisionShape3D.new()
 #var spot_helper_static_body: StaticBody3D = StaticBody3D.new()
 
