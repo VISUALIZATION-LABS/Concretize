@@ -1,7 +1,9 @@
 class_name InspectorItem
 extends VBoxContainer
 
-var node: Node
+var node: Node3D
+var _transform_properties: Dictionary
+var _node_cache: Dictionary
 
 func set_title(string: String):
 	var background: PanelContainer = PanelContainer.new()
@@ -37,7 +39,6 @@ func add_inspector_info(selection_info: Dictionary) -> void:
 	margin.add_child(inspector_items)
 	self.add_child(background)
 
-
 func _build_inspector(selection_info: Dictionary) -> Control:
 	var background: PanelContainer = PanelContainer.new()
 	var margin: MarginContainer = MarginContainer.new()
@@ -71,8 +72,76 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 				this.add_child(title_label)
 				this.add_child(_build_inspector(selection_info[item]))
 			TYPE_VECTOR3:
-				pass
-				#print("%s: %s" % [item, str(selection_info[item])])
+				var divided_entry: HBoxContainer = HBoxContainer.new()
+				var vec3_container: HBoxContainer = HBoxContainer.new()
+				var title: Label = Label.new()
+				
+				var value_X: SpinSlider = SpinSlider.new("X", false)
+				var value_Y: SpinSlider = SpinSlider.new("Y", false)
+				var value_Z: SpinSlider = SpinSlider.new("Z", false)
+				
+				print(value_X)
+				
+				vec3_container.add_child(value_X)
+				vec3_container.add_child(value_Y)
+				vec3_container.add_child(value_Z)
+				
+				_transform_properties[item] = {
+					"x_input" = value_X,
+					"y_input" = value_Y,
+					"z_input" = value_Z
+				}
+				
+				title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				title.text = item
+				
+				#value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				#value.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				
+				#value.value = selection_info[item]
+				
+				#selection_info[item] += 10.0
+				
+				divided_entry.add_child(title)
+				divided_entry.add_child(vec3_container)
+				#divided_entry.add_child(value)
+				this.add_child(divided_entry)
+				
+				match item:
+					"Position":
+						value_X.value_changed.connect(func(value: float) -> void:
+							node.global_position.x = value
+						)
+						value_Y.value_changed.connect(func(value: float) -> void:
+							node.global_position.x = value
+						)
+						value_Z.value_changed.connect(func(value: float) -> void:
+							node.global_position.x = value
+						)
+					
+					"Rotation":
+						value_X.value_changed.connect(func(value: float) -> void:
+							node.global_rotation.x = value
+						)
+						value_Y.value_changed.connect(func(value: float) -> void:
+							node.global_rotation.x = value
+						)
+						value_Z.value_changed.connect(func(value: float) -> void:
+							node.global_rotation.x = value
+						)
+					
+					"Scale":
+						value_X.value_changed.connect(func(value: float) -> void:
+							node.scale.x = value
+						)
+						value_Y.value_changed.connect(func(value: float) -> void:
+							node.scale.x = value
+						)
+						value_Z.value_changed.connect(func(value: float) -> void:
+							node.scale.x = value
+						)
+				
+				
 			TYPE_COLOR:
 				var divided_entry: HBoxContainer = HBoxContainer.new()
 				var title: Label = Label.new()
@@ -129,7 +198,7 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 				
 				value.value = selection_info[item]
 				
-				selection_info[item] += 10.0
+				#selection_info[item] += 10.0
 				
 				divided_entry.add_child(title)
 				divided_entry.add_child(value)
@@ -175,3 +244,25 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 				#print("%s: %s" % [item, str(selection_info[item])])
 	
 	return background
+
+
+func _process(delta: float) -> void:
+	# HACK for checking transforms
+	if is_instance_valid(node):
+		for key in _transform_properties:
+			if is_instance_valid(_transform_properties[key].x_input) && is_instance_valid(_transform_properties[key].y_input) && is_instance_valid(_transform_properties[key].z_input):
+				match key:
+					"Position":
+							_transform_properties[key].x_input.value = node.global_position.x
+							_transform_properties[key].y_input.value = node.global_position.y
+							_transform_properties[key].z_input.value = node.global_position.z
+					
+					"Rotation":
+							_transform_properties[key].x_input.value = rad_to_deg(node.global_rotation.x)
+							_transform_properties[key].y_input.value = rad_to_deg(node.global_rotation.y)
+							_transform_properties[key].z_input.value = rad_to_deg(node.global_rotation.z)
+					
+					"Scale":
+							_transform_properties[key].x_input.value = node.scale.x
+							_transform_properties[key].y_input.value = node.scale.y
+							_transform_properties[key].z_input.value = node.scale.z
