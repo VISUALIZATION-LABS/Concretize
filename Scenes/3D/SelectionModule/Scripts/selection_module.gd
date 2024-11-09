@@ -42,6 +42,22 @@ var select_action_pressed: bool = false
 class Selection:
 	var selected_node: Node = null
 	var child_meshes: Array[MeshInstance3D]
+	
+	func duplicate() -> Selection:
+		var duplicated_selection: Selection = Selection.new()
+		
+		duplicated_selection.selected_node = self.selected_node.duplicate()
+		
+		# Duplicated code but oh well we're on a tight deadline...
+		
+		var mesh_instances: Array[Node] = duplicated_selection.selected_node.find_children("*", "MeshInstance3D", true, false)
+		for mesh_instance in mesh_instances:
+			duplicated_selection.child_meshes.append(mesh_instance)
+
+		if self.selected_node.get_class() == "MeshInstance3D":
+			duplicated_selection.child_meshes.append(duplicated_selection.selected_node)
+		
+		return duplicated_selection
 
 var selections: Array[Selection] = []
 var selection_group_start: Node3D = null
@@ -140,10 +156,12 @@ func _process(_delta: float) -> void:
 				select_action_pressed = true
 				if not raycast_query_results_scene_objects:
 					for selection: Selection in selections:
+						SceneManager.current_ui.remove_context_menu_data_by_node(selection.selected_node)
 						_unhighlight_meshes(selection.child_meshes)
 					
 					if selection_group_start != null && selection_group_start.has_method("deselected"):
 						selection_group_start.deselected()
+					
 					
 					selections.clear()
 					#_unhighlight_meshes(selected_meshes)
@@ -158,6 +176,8 @@ func _process(_delta: float) -> void:
 
 				if not Input.is_action_pressed("modifier_0"):
 					for selection: Selection in selections:
+						SceneManager.current_ui.remove_context_menu_data_by_node(selection.selected_node)
+						
 						_unhighlight_meshes(selection.child_meshes)
 					
 					if selection_group_start != null && selection_group_start.has_method("deselected"):
@@ -189,6 +209,7 @@ func _process(_delta: float) -> void:
 					var selection_info: Dictionary
 					
 					selection_info["Name"] = selection.selected_node.name
+					selection_info["Node"] = selection.selected_node
 					
 					selection_info["Transform"] = {
 						"Position": selection.selected_node.position,
@@ -309,6 +330,9 @@ func _process(_delta: float) -> void:
 			selection.child_meshes.clear()
 			
 			# Then kill the selected node
+			
+			SceneManager.current_ui.remove_context_menu_data_by_node(selection.selected_node)
+			
 			selection.selected_node.free()
 			selections_to_be_removed.append(selection)
 		
@@ -325,8 +349,31 @@ func _process(_delta: float) -> void:
 			gizmo_move.hide()
 	
 	if not selections.is_empty() && Input.is_action_just_pressed("duplicate"):
+		
+		# HACK: Fix after having a useable program (REWRITE ALL OF THIS!!!)
+		
+		if selection_group_start != null && selection_group_start.has_method("deselected"):
+				selection_group_start.deselected()
+		
+		var duplicated_selections: Array[Selection] = []
 		for selection: Selection in selections:
-			selection.selected_node.add_sibling(selection.selected_node.duplicate(), true)
+
+			_unhighlight_meshes(selection.child_meshes)
+			
+			var duplicated_selection: Selection = selection.duplicate()
+			
+			if duplicated_selection.selected_node.has_method("selected"):
+				duplicated_selection.selected_node.selected()
+			
+			_highlight_meshes(duplicated_selection.child_meshes)
+			
+			duplicated_selections.append(duplicated_selection)
+			selection.selected_node.add_sibling(duplicated_selection.selected_node, true)
+		
+		#duplicated_selections.pop_front()
+		
+		selections = duplicated_selections
+		
 		
 		SceneManager.project_scene_tree.update_tree()
 	
@@ -422,9 +469,10 @@ func _highlight_meshes(meshes: Array[MeshInstance3D]) -> void:
 
 func _unhighlight_meshes(meshes: Array[MeshInstance3D]) -> void:
 	for mesh_instance: MeshInstance3D in meshes:
-		for surface: int in mesh_instance.mesh.get_surface_count():
-			if mesh_instance.get_active_material(surface):
-				mesh_instance.set_surface_override_material(surface, null)
+		if mesh_instance != null:
+			for surface: int in mesh_instance.mesh.get_surface_count():
+				if mesh_instance.get_active_material(surface):
+					mesh_instance.set_surface_override_material(surface, null)
 
 func _change_gizmo_type(type: String) -> void:
 	match type:

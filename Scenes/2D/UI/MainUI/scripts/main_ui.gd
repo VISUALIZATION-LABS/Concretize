@@ -70,12 +70,18 @@ func _context_menu_id_pressed(id: int) -> void:
 func set_context_menu_data(selection_info: Dictionary) -> void:
 	var inspector_items: InspectorItem = InspectorItem.new()
 	inspector_items.setup_title(selection_info["Name"])
+	inspector_items.node = selection_info["Node"]
 	inspector_items.add_inspector_info(selection_info)
-	for children in $"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer".get_children():
-		children.queue_free()
-		
-	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer".add_child(inspector_items)
 	
+	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer".add_child(inspector_items)
+
+func remove_context_menu_data_by_node(node: Node) -> void:
+	print("Removal requested for node: " + str(node))
+	for children in $"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer".get_children():
+		if children.node == node:
+			print("Node found")
+			children.queue_free()
+
 func _hide_section(type: String) -> void:
 	var ui_node: Control = get_node(type)
 
