@@ -129,6 +129,9 @@ func import_mesh(paths: PackedStringArray) -> void:
 	
 	
 
+func change_scene(scene: PackedScene) -> void:
+	scene_tree.change_scene_to_packed.call_deferred(scene)
+
 
 func get_loaded_node_amount() -> Dictionary:
 	var loaded_node_amount: Dictionary = {
