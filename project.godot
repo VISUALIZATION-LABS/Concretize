@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Concretize"
 config/tags=PackedStringArray("tcc")
-run/main_scene="res://Scenes/3D/MainScene/main_scene.tscn"
+run/main_scene="res://Scenes/2D/Splash/splash.tscn"
 config/features=PackedStringArray("4.3", "C#", "Mobile")
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=false
@@ -36,7 +36,9 @@ gdscript/warnings/unsafe_call_argument=1
 
 [display]
 
+window/size/mode=3
 window/subwindows/embed_subwindows=false
+window/per_pixel_transparency/allowed=true
 
 [dotnet]
 
@@ -139,7 +141,6 @@ modifier_1={
 
 [rendering]
 
-renderer/rendering_method="mobile"
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 lights_and_shadows/directional_shadow/16_bits=false
 lights_and_shadows/positional_shadow/soft_shadow_filter_quality=3
