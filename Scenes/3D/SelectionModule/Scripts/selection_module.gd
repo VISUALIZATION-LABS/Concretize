@@ -29,6 +29,8 @@ const GIZMO_COLLISION_MASK: int = 0b0000_0010
 # Gizmo specific stuff
 # TODO: Change the collision masks in editor
 
+var intended_position: Vector3 
+
 const X_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0000_1000
 const Y_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0001_0000
 const Z_TRANSFORM_PLANE_COLLISION_MASK: int = 0b0000_0100
@@ -235,12 +237,17 @@ func _process(_delta: float) -> void:
 
 				match current_type:
 					TransformClass.MOVE:
+						
 						for selection: Selection in selections:
-							var intended_position: Vector3 = selection.selected_node.position + delta_mouse_position * mouse_transform_mask
+							intended_position += delta_mouse_position * mouse_transform_mask
+							#print(intended_position)
 							if Input.is_action_pressed("modifier_2"):
-								selection.selected_node.position = snapped(intended_position, Vector3(0.5,0.5,0.5))
+								
+								selection.selected_node.position = snapped(intended_position, Vector3(1,1,1))
+								#print(snapped(intended_position, Vector3(0.5,0.5s,0.5)))
 							else:
-								selection.selected_node.position = intended_position
+								selection.selected_node.position += delta_mouse_position * mouse_transform_mask
+							
 
 					TransformClass.SCALE:
 						for selection: Selection in selections:
@@ -248,7 +255,7 @@ func _process(_delta: float) -> void:
 					
 					TransformClass.ROTATE:
 						for selection: Selection in selections:
-							selection.selected_node.rotation += delta_mouse_position * mouse_transform_mask
+							selection.selected_node.global_rotation += delta_mouse_position * mouse_transform_mask
 							
 				gizmo_move.position += delta_mouse_position * mouse_transform_mask
 				DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
