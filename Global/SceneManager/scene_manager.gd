@@ -5,12 +5,14 @@ extends Node
 	# Reloading
 	# ...
 
+var selections: Array[SelectionModule.Selection] = []
 var scene_tree: SceneTree = null
 var current_ui: Control = null
 var project_scene_tree: ProjectSceneTree = null
 var current_camera: Camera3D = null
 var current_viewport: SubViewport = null
 var program_config: ConfigFile = ConfigFile.new()
+var saver_nodes: Array[Node] = []
 
 # Manage loading everything
 func _enter_tree() -> void:
@@ -60,6 +62,7 @@ func import_mesh(paths: PackedStringArray) -> void:
 	var popup: Control = SceneReporter.create_popup("Importing mesh", "", SceneReporter.PopupType.LOADING)
 
 	var importer_finished_callback: Callable = func(file_name: StringName, importer: Node3D, imported_object: Node3D) -> void:
+		imported_object.set_meta("ImportedMesh", 1)
 		popup.description = popup.description.replace(file_name, "[color=green]%s[/color]" % file_name)	
 		importers.remove_at(importers.find(importer))
 		importer_count.count -= 1
@@ -131,7 +134,7 @@ func import_mesh(paths: PackedStringArray) -> void:
 
 func change_scene(scene: PackedScene) -> void:
 	scene_tree.change_scene_to_packed.call_deferred(scene)
-
+	await RenderingServer.frame_post_draw
 
 func get_loaded_node_amount() -> Dictionary:
 	var loaded_node_amount: Dictionary = {
