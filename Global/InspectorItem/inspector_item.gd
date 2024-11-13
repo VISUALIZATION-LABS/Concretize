@@ -113,10 +113,10 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 							node.global_position.x = value
 						)
 						value_Y.value_changed.connect(func(value: float) -> void:
-							node.global_position.x = value
+							node.global_position.y = value
 						)
 						value_Z.value_changed.connect(func(value: float) -> void:
-							node.global_position.x = value
+							node.global_position.z = value
 						)
 					
 					"Rotation":
@@ -124,10 +124,10 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 							node.global_rotation.x = value
 						)
 						value_Y.value_changed.connect(func(value: float) -> void:
-							node.global_rotation.x = value
+							node.global_rotation.y = value
 						)
 						value_Z.value_changed.connect(func(value: float) -> void:
-							node.global_rotation.x = value
+							node.global_rotation.z = value
 						)
 					
 					"Scale":
@@ -135,10 +135,10 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 							node.scale.x = value
 						)
 						value_Y.value_changed.connect(func(value: float) -> void:
-							node.scale.x = value
+							node.scale.y = value
 						)
 						value_Z.value_changed.connect(func(value: float) -> void:
-							node.scale.x = value
+							node.scale.z = value
 						)
 				
 				
