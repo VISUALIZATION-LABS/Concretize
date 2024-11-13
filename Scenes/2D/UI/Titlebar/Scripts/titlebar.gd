@@ -24,6 +24,8 @@ enum Buttons {
 	SELECT_ALL,
 	DESELECT_ALL,
 	INVERT_SELECTION,
+	SNAP_TO_FLOOR,
+	SNAP_TO_CEILING,
 
 	# View
 	UNLIT,
@@ -73,6 +75,8 @@ func _ready() -> void:
 	selection_button.add_item("Select All", Buttons.SELECT_ALL)
 	selection_button.add_item("Deselect All", Buttons.DESELECT_ALL)
 	selection_button.add_item("Invert Selection", Buttons.INVERT_SELECTION)
+	selection_button.add_item("Snap to floor", Buttons.SNAP_TO_FLOOR)
+	selection_button.add_item("Snap to ceiling", Buttons.SNAP_TO_CEILING)
 
 	view_button.add_item("Unlit", Buttons.UNLIT)
 	view_button.add_item("Ambient", Buttons.AMBIENT)
@@ -101,7 +105,6 @@ func _ready() -> void:
 func _on_titlebar_menu_button_pressed(id: int) -> void:
 	match id:
 		Buttons.IMPORT:
-			print("FOO")
 			var file_dialog: FileDialog = FileDialog.new()
 			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 			file_dialog.add_filter("*.obj, *.gltf, *.glb", "3D models")
@@ -128,6 +131,45 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 				)
 			pass
 		
+		Buttons.SAVE_SCENE:
+			var file_dialog: FileDialog = FileDialog.new()
+			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+			
+			# HACK: Gets around issue [#3]
+			if OS.get_name() == "Windows":
+				file_dialog.use_native_dialog = false
+			else:
+				file_dialog.use_native_dialog = true
+			
+			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
+			file_dialog.visible = true
+
+			file_dialog.dir_selected.connect(func(path: String) -> void:
+				var path_array: PackedStringArray = [path]
+				ProjectManager.save_project(path)
+				#print(path)
+			)
+		
+		Buttons.OPEN_SCENE:
+			var file_dialog: FileDialog = FileDialog.new()
+			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+			file_dialog.add_filter("*.csave")
+			
+			# HACK: Gets around issue [#3]
+			if OS.get_name() == "Windows":
+				file_dialog.use_native_dialog = false
+			else:
+				file_dialog.use_native_dialog = true
+			
+			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+			file_dialog.visible = true
+
+			file_dialog.file_selected.connect(func(path: String) -> void:
+				var path_array: PackedStringArray = [path]
+				ProjectManager.load_project(path)
+				#print(path)
+			)
+		
 		Buttons.QUIT:
 			get_tree().quit()
 		
@@ -141,7 +183,41 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			self.add_child(about_panel)
 			about_panel.visible = true
 			pass
+		
+		Buttons.SNAP_TO_FLOOR:
+			var selection_aabb: AABB = AABB(Vector3(0,0,0), Vector3(0,0,0))
+			var center_position: Vector3
+			var counter: int = 0
+			var exclusion_list: Array = []
+			
+			# HACK
+			var space_state: PhysicsDirectSpaceState3D = SceneManager.selections[0].child_meshes[0].get_world_3d().direct_space_state
+			
+			exclusion_list.clear()
+			for selection: SelectionModule.Selection in SceneManager.selections:
+				exclusion_list.append(selection.selected_node)
+				for mesh: MeshInstance3D in selection.child_meshes:
+					center_position = mesh.global_position + mesh.get_aabb().get_center()
+					counter += 1
+					
+					selection_aabb = selection_aabb.merge(mesh.get_aabb())
+			
+			center_position /= counter
 
+			var raycast_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+				center_position - Vector3(0, (selection_aabb.size.y / 2), 0),
+				(center_position - Vector3(0, (selection_aabb.size.y / 2), 0)) - Vector3(0,100,0),
+			)
+			
+			raycast_query.exclude = exclusion_list
+			
+			var result = space_state.intersect_ray(raycast_query)
+			
+
+			if result:
+				print("Result: ", result.position)
+				for selection: SelectionModule.Selection in SceneManager.selections:
+					selection.selected_node.position = result.position
 		_:
 			#var modelBuilder: Node3D = load("res://Scenes/3D/ModelBuilder/model_builder.tscn").instantiate()
 			#SceneManager.scene_tree.current_scene.add_child(modelBuilder, true)
