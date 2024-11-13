@@ -16,6 +16,9 @@ extends Node3D
 
 @onready var gizmo_move: Node3D = preload("res://Scenes/3D/Controls/Gizmo/LiveGizmo.tscn").instantiate()
 @onready var selected_material: Resource = preload("res://Resources/Shaders/3D/SelectionHighlight.tres")
+@onready var selected_aabb_material: Resource = preload("res://Resources/Shaders/3D/aabbOutline.tres")
+
+#var aabb_node: Node3D = Node3D.new()
 
 # -- Raycast parameters --
 
@@ -173,6 +176,8 @@ func _process(_delta: float) -> void:
 				selection_group_end = raycast_query_results_scene_objects.collider.get_parent_node_3d()
 				_make_selection()
 				
+				
+				SceneManager.selections = selections
 				gizmo_move.show()
 		else:
 			# -- Gizmo control --
@@ -237,7 +242,6 @@ func _process(_delta: float) -> void:
 
 				match current_type:
 					TransformClass.MOVE:
-						
 						for selection: Selection in selections:
 							intended_position += delta_mouse_position * mouse_transform_mask
 							#print(intended_position)
@@ -247,16 +251,17 @@ func _process(_delta: float) -> void:
 								#print(snapped(intended_position, Vector3(0.5,0.5s,0.5)))
 							else:
 								selection.selected_node.position += delta_mouse_position * mouse_transform_mask
-							
 
 					TransformClass.SCALE:
 						for selection: Selection in selections:
 							selection.selected_node.scale += delta_mouse_position * mouse_transform_mask	
 					
 					TransformClass.ROTATE:
+						#gizmo_move.update_planes = false
 						for selection: Selection in selections:
 							selection.selected_node.global_rotation += delta_mouse_position * mouse_transform_mask
-							
+				
+				#gizmo_move.update_planes = true
 				gizmo_move.position += delta_mouse_position * mouse_transform_mask
 				DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
 	else:
@@ -317,16 +322,19 @@ func _process(_delta: float) -> void:
 	# Position gizmo to middle of all selections
 
 	var average_position: Vector3 = Vector3(0,0,0)
+	#var average_rotation: Vector3 = Vector3(0,0,0)
 
 	if not selections.is_empty():
 		for selection: Selection in selections:
 			if selection != null:
 				average_position += selection.selected_node.global_position
+				#average_rotation += selection.selected_node.global_rotation
 		
 		average_position /= selections.size()
-
+		#average_rotation /= selections.size()
+		
 	gizmo_move.position = average_position
-
+	#gizmo_move.rotation = average_rotation
 
 func _deselect(selections: Array[Selection], keep_last_selection_data: bool = false, hide_gizmo = true) -> void:
 	for selection: Selection in selections:
@@ -346,6 +354,9 @@ func _deselect(selections: Array[Selection], keep_last_selection_data: bool = fa
 	if hide_gizmo:
 		gizmo_move.hide()
 	
+	#aabb_node.queue_free()
+	#aabb_node = Node3D.new()
+	
 	selections.clear()
 
 func _make_selection() -> void:
@@ -354,7 +365,7 @@ func _make_selection() -> void:
 		return
 
 	var selection_object: Selection = Selection.new()
-
+	
 	# Go up the scene tree
 	if selection_group_start == null || last_selected_object == null:
 		# Go up until scene node
@@ -392,9 +403,26 @@ func _make_selection() -> void:
 
 	selections.append(selection_object)
 	
+	#var selection_aabb: AABB
+	#var aabb_mesh: MeshInstance3D = MeshInstance3D.new()
+	#aabb_mesh.mesh = BoxMesh.new()
+	#aabb_mesh.material_override = selected_aabb_material
+	#aabb_node.add_child(aabb_mesh)
+
 	_find_mesh_children(selection_object)
 
 	_highlight_meshes(selection_object.child_meshes)
+
+	# FIXME
+	#for selection: Selection in selections:
+		#for mesh_instance: MeshInstance3D in selection.child_meshes:
+			#var aabb = mesh_instance.get_aabb()
+			#selection_aabb = selection_aabb.merge(aabb)
+	#
+			#aabb_node.position = selection_aabb.get_center()
+			#aabb_node.scale = selection_aabb.size
+	
+	#selections[0].selected_node.add_child(aabb_node)
 	
 	if selection_object.selected_node.has_method("selected"):
 		selection_object.selected_node.selected()
@@ -410,6 +438,13 @@ func _find_mesh_children(selection: Selection) -> void:
 		selection.child_meshes.append(selection.selected_node)
 
 func _highlight_meshes(meshes: Array[MeshInstance3D]) -> void:
+	#var selection_aabb: AABB
+	
+	#var aabb_mesh: MeshInstance3D = MeshInstance3D.new()
+	#aabb_mesh.mesh = BoxMesh.new()
+	#aabb_mesh.material_override = selected_aabb_material
+	#aabb_node.add_child(aabb_mesh)
+	
 	for mesh_instance: MeshInstance3D in meshes:
 		if mesh_instance.get_meta("highlightable", 1) == 0:
 			break
@@ -422,6 +457,9 @@ func _highlight_meshes(meshes: Array[MeshInstance3D]) -> void:
 					mesh_instance.get_surface_override_material(surface).next_pass = selected_material
 
 func _unhighlight_meshes(meshes: Array[MeshInstance3D]) -> void:
+	#aabb_node.queue_free()
+	#aabb_node = Node3D.new()
+	
 	for mesh_instance: MeshInstance3D in meshes:
 		if mesh_instance != null:
 			for surface: int in mesh_instance.mesh.get_surface_count():
@@ -432,5 +470,9 @@ func _change_gizmo_type(type: String) -> void:
 	match type:
 		"Translate":
 			current_type = TransformClass.MOVE
+			gizmo_move.type = TransformClass.MOVE
+			gizmo_move.local_transform = true
 		"Rotate":
 			current_type = TransformClass.ROTATE
+			gizmo_move.type = TransformClass.ROTATE
+			gizmo_move.local_transform = true

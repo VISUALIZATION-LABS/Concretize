@@ -5,4 +5,4 @@
 [resource]
 render_priority = -128
 shader = ExtResource("1_tnlfx")
-shader_parameter/overlayColor = Color(240, 120, 0, 1)
+shader_parameter/overlayColor = Color(1, 1, 0, 1)
