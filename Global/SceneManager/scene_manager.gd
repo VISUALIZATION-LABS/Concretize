@@ -14,6 +14,15 @@ var current_viewport: SubViewport = null
 var program_config: ConfigFile = ConfigFile.new()
 var saver_nodes: Array[Node] = []
 
+func disable_interaction() -> void:
+	current_camera.movement_enabled = false
+	current_camera.get_child(1).interaction_enabled = false
+
+
+func enable_interaction() -> void:
+	current_camera.movement_enabled = true
+	current_camera.get_child(1).interaction_enabled = true
+
 # Manage loading everything
 func _enter_tree() -> void:
 	scene_tree = get_tree()
@@ -59,7 +68,7 @@ func import_mesh(paths: PackedStringArray) -> void:
 		ErrorManager.raise_error("Cannot import mesh", "Cannot import the desired mesh because there isn't a path to it.")
 		return
 
-	var popup: Control = SceneReporter.create_popup("Importing mesh", "", SceneReporter.PopupType.LOADING)
+	var popup: Control = SceneReporter.create_popup(tr("IMPORTER_NOTIFICATION_TITLE"), "", SceneReporter.PopupType.LOADING)
 
 	var importer_finished_callback: Callable = func(file_name: StringName, importer: Node3D, imported_object: Node3D) -> void:
 		imported_object.set_meta("ImportedMesh", 1)
@@ -86,7 +95,7 @@ func import_mesh(paths: PackedStringArray) -> void:
 		await asset_container.set_preview_texture(await asset_renderer.render())
 		asset_container.node = imported_object.duplicate()
 		asset_container.set_title(file_name.trim_suffix(".obj"))
-		asset_container.set_description("A simple 3D model")
+		asset_container.set_description(tr("ASSET_DESCRIPTION_IMPORTED"))
 		asset_renderer.queue_free()
 		
 		

@@ -40,7 +40,10 @@ var type: SceneReporter.PopupType:
 
 		if type == SceneReporter.PopupType.BUTTON:
 			self.get_node("PanelContainer/Description/ButtonsContainer").show()
-			self.get_node("%ProgressBar")
+			self.get_node("%ProgressBar").hide()
 		else: if type == SceneReporter.PopupType.LOADING:
 			self.get_node("PanelContainer/Description/ButtonsContainer").hide()
 			self.get_node("%ProgressBar").show()
+		else: if type == SceneReporter.PopupType.NONE:
+			self.get_node("PanelContainer/Description/ButtonsContainer").hide()
+			self.get_node("%ProgressBar").hide()

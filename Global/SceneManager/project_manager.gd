@@ -232,11 +232,19 @@ func save_project(path: String) -> void:
 		if not DirAccess.dir_exists_absolute(path + "/data"):
 			await DirAccess.make_dir_absolute(path + "/data")
 		
+		var popup: Control = SceneReporter.create_popup(tr("SAVER_POPUP_TITLE"), tr("SAVER_POPUP_DESCRIPTION"), SceneReporter.PopupType.NONE)
+		
+		SceneManager.current_ui.add_child(popup)
+		
 		var save_as_json = JSON.stringify(_get_scene_nodes(SceneManager.scene_tree.current_scene, path))
 		var save_file = FileAccess.open(path + "/scene_data.csave", FileAccess.WRITE)
 		
 		
 		save_file.store_line(save_as_json)
+		
+		await SceneManager.scene_tree.create_timer(2).timeout
+		
+		popup.queue_free()
 
 func _get_scene_nodes(node: Node3D, save_path: String) -> Dictionary:
 	var save_data: Dictionary = {

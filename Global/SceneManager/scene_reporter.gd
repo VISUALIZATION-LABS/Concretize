@@ -5,6 +5,7 @@ extends Node
 # callable, and is part of scene management.
 
 enum PopupType {
+	NONE,
 	BUTTON,
 	LOADING
 }
