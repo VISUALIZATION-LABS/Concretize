@@ -14,6 +14,7 @@ var previous_mouse_coordinates: Vector2 = Vector2(0,0)
 var current_movement: Vector3 = Vector3(0,0,0)
 
 func _ready():
+	print("READY")
 	SceneManager.current_camera = camera
 	SceneManager.current_viewport = self.get_parent()
 
