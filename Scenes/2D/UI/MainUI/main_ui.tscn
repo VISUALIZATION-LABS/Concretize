@@ -156,5 +156,6 @@ size_flags_horizontal = 3
 
 [node name="Titlebar" parent="." instance=ExtResource("1_8476f")]
 layout_mode = 1
+metadata/_edit_lock_ = true
 
 [node name="PopupMenu" type="PopupMenu" parent="Titlebar"]

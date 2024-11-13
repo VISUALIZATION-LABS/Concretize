@@ -92,6 +92,8 @@ enum TransformType {
 var current_transform: TransformType = TransformType.UNDEFINED
 var current_type: TransformClass = TransformClass.MOVE 
 
+var interaction_enabled: bool = true
+
 func _ready() -> void:
 	# Add all gizmos at 0,0,0
 	
@@ -109,214 +111,215 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	SceneManager.project_scene_tree.selections = selections
-	if Input.is_action_pressed("selection_make"):
-		if camera == null:
-			push_error("ERROR::SELECTION_MODULE::CAMERA_NULL")
-			return
-		
-		# -- Selection handling --
-
-		var mouse_position: Vector2 = SceneManager.current_viewport.get_mouse_position()
-		
-		# Block mouse inputs outside of current viewport
-		if mouse_position.x < 0 || mouse_position.y < 0 || mouse_position.x > SceneManager.current_viewport.size.x || mouse_position.y > SceneManager.current_viewport.size.y - 32:
-			if not gizmo_selected:
+	if interaction_enabled:
+		if Input.is_action_pressed("selection_make"):
+			if camera == null:
+				push_error("ERROR::SELECTION_MODULE::CAMERA_NULL")
 				return
-
-		# Raycasting
-
-		var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
-		var raycast_origin: Vector3 = camera.project_ray_origin(mouse_position)
-		var raycast_end: Vector3 = raycast_origin + camera.project_ray_normal(mouse_position) * RAY_LENGHT
-
-		# Raycast query
-		
-		# We have 2 raycast queries (one for scene objects and one for the gizmo) because we need to check if we've
-		# selected the gizmo later so we don't accidetally select something else when we want to move an object
-
-
-		var raycast_query_scene_objects: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-			raycast_origin,
-			raycast_end,
-			MESH_COLLISION_MASK
-		)
-
-		var raycast_query_gizmo: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-			raycast_origin,
-			raycast_end,
-			GIZMO_COLLISION_MASK
-		)
-
-		# Raycast results
-
-		var raycast_query_results_scene_objects: Dictionary = space_state.intersect_ray(raycast_query_scene_objects)
-		var raycast_query_results_gizmo: Dictionary = space_state.intersect_ray(raycast_query_gizmo)
-
-		# Handle scene object selection
-		if not raycast_query_results_gizmo and not gizmo_selected:
-			if not select_action_pressed:
-				select_action_pressed = true
-				
-				# If we select empty space we should remove all selections and early return
-				if not raycast_query_results_scene_objects:
-					_deselect(selections)
-					return
-				
-				# If we don't hold modifier_0 (which in this case would be "select multiple")
-				# deselect all meshes but this one
-				if not Input.is_action_pressed("modifier_0"):
-					print("ello")
-					_deselect(selections, true)
-				
-				# If we don't hold modifier_1 (which would be "select_deeper") we reset the selection
-				# group start (idk if we should call _deselect)
-				if not Input.is_action_pressed("modifier_1"):
-					selection_group_start = null
-				
-				selection_group_end = raycast_query_results_scene_objects.collider.get_parent_node_3d()
-				_make_selection()
-				
-				
-				SceneManager.selections = selections
-				gizmo_move.show()
-		else:
-			# -- Gizmo control --
-			var collision_mask: int = 0
-			var mouse_transform_mask: Vector3 = Vector3(1,1,1)
-			var raycast_gizmo_object: Node3D = null
-			var delta_mouse_position: Vector3 = Vector3(0,0,0)
-
-			# Get selected gizmo axis
-			if raycast_query_results_gizmo and not gizmo_selected:
-				raycast_gizmo_object = raycast_query_results_gizmo.collider.get_parent_node_3d()
-
-				match raycast_gizmo_object.name:
-					"X_Axis":
-						current_transform = TransformType.X
-
-					"Y_Axis":
-						current_transform = TransformType.Y
-
-					"Z_Axis":
-						current_transform = TransformType.Z
-
-					"Global_Move":
-						current_transform = TransformType.ALL
-
 			
-			match current_transform:
-				TransformType.X:
-					collision_mask = X_TRANSFORM_PLANE_COLLISION_MASK
-					mouse_transform_mask = Vector3(1,0,0)
-				TransformType.Y:
-					collision_mask = Y_TRANSFORM_PLANE_COLLISION_MASK
-					mouse_transform_mask = Vector3(0,1,0)
-				TransformType.Z:
-					collision_mask = Z_TRANSFORM_PLANE_COLLISION_MASK
-					mouse_transform_mask = Vector3(0,0,1)
-				TransformType.ALL:
-					collision_mask = VIEW_TRANSFORM_PLANE_COLLISION_MASK
-					mouse_transform_mask = Vector3(1,1,1)
+			# -- Selection handling --
 
-			# Project mouse to move gizmo in 3D
-			var mouse_raycast_position_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+			var mouse_position: Vector2 = SceneManager.current_viewport.get_mouse_position()
+			
+			# Block mouse inputs outside of current viewport
+			if mouse_position.x < 0 || mouse_position.y < 0 || mouse_position.x > SceneManager.current_viewport.size.x || mouse_position.y > SceneManager.current_viewport.size.y - 32:
+				if not gizmo_selected:
+					return
+
+			# Raycasting
+
+			var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+			var raycast_origin: Vector3 = camera.project_ray_origin(mouse_position)
+			var raycast_end: Vector3 = raycast_origin + camera.project_ray_normal(mouse_position) * RAY_LENGHT
+
+			# Raycast query
+			
+			# We have 2 raycast queries (one for scene objects and one for the gizmo) because we need to check if we've
+			# selected the gizmo later so we don't accidetally select something else when we want to move an object
+
+
+			var raycast_query_scene_objects: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 				raycast_origin,
 				raycast_end,
-				collision_mask
+				MESH_COLLISION_MASK
 			)
 
-			var mouse_raycast_position_query_result: Dictionary = space_state.intersect_ray(mouse_raycast_position_query)
+			var raycast_query_gizmo: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+				raycast_origin,
+				raycast_end,
+				GIZMO_COLLISION_MASK
+			)
 
-			if mouse_raycast_position_query_result:
-				var mouse_projected_position: Vector3 = mouse_raycast_position_query_result.position
+			# Raycast results
 
-				delta_mouse_position = mouse_projected_position - previous_mouse_coordinates
-				previous_mouse_coordinates = mouse_projected_position
+			var raycast_query_results_scene_objects: Dictionary = space_state.intersect_ray(raycast_query_scene_objects)
+			var raycast_query_results_gizmo: Dictionary = space_state.intersect_ray(raycast_query_gizmo)
 
-				if not gizmo_selected:
-					delta_mouse_position = Vector3(0,0,0)
-
-				gizmo_selected = true
-
-				#DebugDraw2D.set_text("Delta mouse:", delta_mouse_position)
-
-				match current_type:
-					TransformClass.MOVE:
-						for selection: Selection in selections:
-							intended_position += delta_mouse_position * mouse_transform_mask
-							#print(intended_position)
-							if Input.is_action_pressed("modifier_2"):
-								
-								selection.selected_node.position = snapped(intended_position, Vector3(1,1,1))
-								#print(snapped(intended_position, Vector3(0.5,0.5s,0.5)))
-							else:
-								selection.selected_node.position += delta_mouse_position * mouse_transform_mask
-
-					TransformClass.SCALE:
-						for selection: Selection in selections:
-							selection.selected_node.scale += delta_mouse_position * mouse_transform_mask	
+			# Handle scene object selection
+			if not raycast_query_results_gizmo and not gizmo_selected:
+				if not select_action_pressed:
+					select_action_pressed = true
 					
-					TransformClass.ROTATE:
-						#gizmo_move.update_planes = false
-						for selection: Selection in selections:
-							selection.selected_node.global_rotation += delta_mouse_position * mouse_transform_mask
+					# If we select empty space we should remove all selections and early return
+					if not raycast_query_results_scene_objects:
+						_deselect(selections)
+						return
+					
+					# If we don't hold modifier_0 (which in this case would be "select multiple")
+					# deselect all meshes but this one
+					if not Input.is_action_pressed("modifier_0"):
+						print("ello")
+						_deselect(selections, true)
+					
+					# If we don't hold modifier_1 (which would be "select_deeper") we reset the selection
+					# group start (idk if we should call _deselect)
+					if not Input.is_action_pressed("modifier_1"):
+						selection_group_start = null
+					
+					selection_group_end = raycast_query_results_scene_objects.collider.get_parent_node_3d()
+					_make_selection()
+					
+					
+					SceneManager.selections = selections
+					gizmo_move.show()
+			else:
+				# -- Gizmo control --
+				var collision_mask: int = 0
+				var mouse_transform_mask: Vector3 = Vector3(1,1,1)
+				var raycast_gizmo_object: Node3D = null
+				var delta_mouse_position: Vector3 = Vector3(0,0,0)
+
+				# Get selected gizmo axis
+				if raycast_query_results_gizmo and not gizmo_selected:
+					raycast_gizmo_object = raycast_query_results_gizmo.collider.get_parent_node_3d()
+
+					match raycast_gizmo_object.name:
+						"X_Axis":
+							current_transform = TransformType.X
+
+						"Y_Axis":
+							current_transform = TransformType.Y
+
+						"Z_Axis":
+							current_transform = TransformType.Z
+
+						"Global_Move":
+							current_transform = TransformType.ALL
+
 				
-				#gizmo_move.update_planes = true
-				gizmo_move.position += delta_mouse_position * mouse_transform_mask
-				DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
-	else:
-		# -- if Input.is_action_pressed("selection_make"): --
-		gizmo_selected = false
-		select_action_pressed = false
-	
-	if not selections.is_empty() && Input.is_action_just_pressed("delete"):
-		var selections_to_be_removed: Array[Selection] = [] 
-		for selection: Selection in selections:
-			# First clean all mesh children and unhighlight them
-			_unhighlight_meshes(selection.child_meshes)
-			selection.child_meshes.clear()
-			
-			# Then kill the selected node
-			
-			SceneManager.current_ui.remove_context_menu_data_by_node(selection.selected_node)
-			
-			selection.selected_node.free()
-			selections_to_be_removed.append(selection)
-		
-		for selection: Selection in selections_to_be_removed:
-			selections.erase(selection)
-		
-		last_selected_object = null
-		
-		SceneManager.project_scene_tree.update_tree()
-		
-		# If we have no more selections, hide the active gizmo
-		if selections.is_empty():
+				match current_transform:
+					TransformType.X:
+						collision_mask = X_TRANSFORM_PLANE_COLLISION_MASK
+						mouse_transform_mask = Vector3(1,0,0)
+					TransformType.Y:
+						collision_mask = Y_TRANSFORM_PLANE_COLLISION_MASK
+						mouse_transform_mask = Vector3(0,1,0)
+					TransformType.Z:
+						collision_mask = Z_TRANSFORM_PLANE_COLLISION_MASK
+						mouse_transform_mask = Vector3(0,0,1)
+					TransformType.ALL:
+						collision_mask = VIEW_TRANSFORM_PLANE_COLLISION_MASK
+						mouse_transform_mask = Vector3(1,1,1)
+
+				# Project mouse to move gizmo in 3D
+				var mouse_raycast_position_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+					raycast_origin,
+					raycast_end,
+					collision_mask
+				)
+
+				var mouse_raycast_position_query_result: Dictionary = space_state.intersect_ray(mouse_raycast_position_query)
+
+				if mouse_raycast_position_query_result:
+					var mouse_projected_position: Vector3 = mouse_raycast_position_query_result.position
+
+					delta_mouse_position = mouse_projected_position - previous_mouse_coordinates
+					previous_mouse_coordinates = mouse_projected_position
+
+					if not gizmo_selected:
+						delta_mouse_position = Vector3(0,0,0)
+
+					gizmo_selected = true
+
+					#DebugDraw2D.set_text("Delta mouse:", delta_mouse_position)
+
+					match current_type:
+						TransformClass.MOVE:
+							for selection: Selection in selections:
+								intended_position += delta_mouse_position * mouse_transform_mask
+								#print(intended_position)
+								if Input.is_action_pressed("modifier_2"):
+									
+									selection.selected_node.position = snapped(intended_position, Vector3(1,1,1))
+									#print(snapped(intended_position, Vector3(0.5,0.5s,0.5)))
+								else:
+									selection.selected_node.position += delta_mouse_position * mouse_transform_mask
+
+						TransformClass.SCALE:
+							for selection: Selection in selections:
+								selection.selected_node.scale += delta_mouse_position * mouse_transform_mask	
+						
+						TransformClass.ROTATE:
+							#gizmo_move.update_planes = false
+							for selection: Selection in selections:
+								selection.selected_node.global_rotation += delta_mouse_position * mouse_transform_mask
+					
+					#gizmo_move.update_planes = true
+					gizmo_move.position += delta_mouse_position * mouse_transform_mask
+					DebugDraw3D.draw_square(mouse_projected_position, 0.03, Color("GREEN"), 10)
+		else:
+			# -- if Input.is_action_pressed("selection_make"): --
 			gizmo_selected = false
-			gizmo_move.hide()
-	
-	if not selections.is_empty() && Input.is_action_just_pressed("duplicate"):
+			select_action_pressed = false
 		
-		# HACK: Fix after having a useable program (REWRITE ALL OF THIS!!!)
-		
-		var duplicated_selections: Array[Selection] = []
-		for selection: Selection in selections:
-			var duplicated_selection: Selection = selection.duplicate()
+		if not selections.is_empty() && Input.is_action_just_pressed("delete"):
+			var selections_to_be_removed: Array[Selection] = [] 
+			for selection: Selection in selections:
+				# First clean all mesh children and unhighlight them
+				_unhighlight_meshes(selection.child_meshes)
+				selection.child_meshes.clear()
+				
+				# Then kill the selected node
+				
+				SceneManager.current_ui.remove_context_menu_data_by_node(selection.selected_node)
+				
+				selection.selected_node.free()
+				selections_to_be_removed.append(selection)
 			
-			if duplicated_selection.selected_node.has_method("selected"):
-				duplicated_selection.selected_node.selected()
+			for selection: Selection in selections_to_be_removed:
+				selections.erase(selection)
 			
-			_highlight_meshes(duplicated_selection.child_meshes)
+			last_selected_object = null
 			
-			duplicated_selections.append(duplicated_selection)
-			selection.selected_node.add_sibling(duplicated_selection.selected_node, true)
+			SceneManager.project_scene_tree.update_tree()
+			
+			# If we have no more selections, hide the active gizmo
+			if selections.is_empty():
+				gizmo_selected = false
+				gizmo_move.hide()
 		
-		_deselect(selections, false, false)
-		
-		selections = duplicated_selections
-		
-		
-		SceneManager.project_scene_tree.update_tree()
+		if not selections.is_empty() && Input.is_action_just_pressed("duplicate"):
+			
+			# HACK: Fix after having a useable program (REWRITE ALL OF THIS!!!)
+			
+			var duplicated_selections: Array[Selection] = []
+			for selection: Selection in selections:
+				var duplicated_selection: Selection = selection.duplicate()
+				
+				if duplicated_selection.selected_node.has_method("selected"):
+					duplicated_selection.selected_node.selected()
+				
+				_highlight_meshes(duplicated_selection.child_meshes)
+				
+				duplicated_selections.append(duplicated_selection)
+				selection.selected_node.add_sibling(duplicated_selection.selected_node, true)
+			
+			_deselect(selections, false, false)
+			
+			selections = duplicated_selections
+			
+			
+			SceneManager.project_scene_tree.update_tree()
 	
 	
 	# Position gizmo to middle of all selections
