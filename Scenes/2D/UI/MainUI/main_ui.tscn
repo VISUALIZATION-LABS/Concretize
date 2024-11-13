@@ -97,6 +97,7 @@ size = Vector2i(575, 450)
 render_target_update_mode = 4
 
 [node name="Freecam" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/SubViewportContainer/SubViewport" instance=ExtResource("2_ex2ey")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
 
 [node name="Control" type="Control" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control"]
 anchors_preset = 0
