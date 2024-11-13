@@ -65,7 +65,12 @@ func _context_menu_id_pressed(id: int) -> void:
 		ContextMenuItems.ADD_ITEM_LIGHT_SPOT:
 			var spot_light: SpotLight = SpotLight.new()
 			spot_light.show_spot = false
-			SceneManager.scene_tree.current_scene.add_child(spot_light,true)
+			SceneManager.scene_tree.current_scene.add_child(spot_light, true)
+		
+		ContextMenuItems.ADD_ITEM_LIGHT_DIRECTIONAL:
+			var directional_light: DirectionalLight = DirectionalLight.new()
+			directional_light.show_help = false
+			SceneManager.scene_tree.current_scene.add_child(directional_light, true)
 
 func add_node_to_inspector(node: Node3D) -> void:
 	var inspector_item: InspectorItem = InspectorItem.new()
@@ -97,6 +102,8 @@ func add_node_to_inspector(node: Node3D) -> void:
 			"Enabled": node.shadow_enabled,
 			"Blur": node.shadow_blur
 		}
+		
+			
 	
 	inspector_item.node = node
 	inspector_item.add_inspector_info(data)
