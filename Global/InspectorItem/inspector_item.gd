@@ -69,6 +69,19 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 				var title_label: Label = Label.new()
 				title_label.text = item
 				
+				match item:
+					"Transform":
+						title_label.text = tr("INSPECTOR_TRANSFORM")
+					
+					"Spot":
+						title_label.text = tr("INSPECTOR_SPOT")
+					
+					"Light":
+						title_label.text = tr("INSPECTOR_LIGHT")
+					
+					"Shadow":
+						title_label.text = tr("INSPECTOR_SHADOW")
+					
 				this.add_child(title_label)
 				this.add_child(_build_inspector(selection_info[item]))
 			TYPE_VECTOR3:
@@ -109,6 +122,7 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 				
 				match item:
 					"Position":
+						title.text = tr("INSPECTOR_POSITION")
 						value_X.value_changed.connect(func(value: float) -> void:
 							node.global_position.x = value
 						)
@@ -120,6 +134,7 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 						)
 					
 					"Rotation":
+						title.text = tr("INSPECTOR_ROTATION")
 						value_X.value_changed.connect(func(value: float) -> void:
 							node.global_rotation.x = value
 						)
@@ -131,6 +146,7 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 						)
 					
 					"Scale":
+						title.text = tr("INSPECTOR_SCALE")
 						value_X.value_changed.connect(func(value: float) -> void:
 							node.scale.x = value
 						)
@@ -162,6 +178,7 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 				if node.is_class("Light3D"):
 					match item:
 						"Color":
+							title.text = tr("INSPECTOR_COLOR")
 							value.color_changed.connect(func(value: Color) -> void:
 								node.light_color = value
 							)
@@ -211,32 +228,38 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 						"SpotLight3D":
 							match item:
 								"Range":
+									title.text = tr("INSPECTOR_RANGE")
 									value.value_changed.connect(func(value: float) -> void:
 										node.spot_range = value
 									)
 								
 								"Attenuation":
+									title.text = tr("INSPECTOR_ATTENUATION")
 									value.value_changed.connect(func(value: float) -> void:
 										node.spot_attenuation = value
 									)
 								
 								"Angle":
+									title.text = tr("INSPECTOR_ANGLE")
 									value.value_changed.connect(func(value: float) -> void:
 										node.spot_angle = value
 									)
 					
 					match item:
 						"Energy":
+							title.text = tr("INSPECTOR_ENERGY")
 							value.value_changed.connect(func(value: float) -> void:
 								node.light_energy = value
 							)
 						
 						"Size":
+							title.text = tr("INSPECTOR_SIZE")
 							value.value_changed.connect(func(value: float) -> void:
 								node.light_size = value
 							)
 						
 						"Blur":
+							title.text = tr("INSPECTOR_BLUR")
 							value.value_changed.connect(func(value: float) -> void:
 								node.shadow_blur = value
 							)

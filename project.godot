@@ -145,6 +145,11 @@ modifier_2={
 ]
 }
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://Locale/locale.en.translation", "res://Locale/locale.pt.translation")
+locale/test="pt"
+
 [rendering]
 
 lights_and_shadows/directional_shadow/size=8192
