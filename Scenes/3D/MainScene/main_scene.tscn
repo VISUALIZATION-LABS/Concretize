@@ -10,11 +10,5 @@
 [node name="_MainMenuUI" parent="_UI" instance=ExtResource("1_deost")]
 unique_name_in_owner = true
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="_WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource("2_owtd3")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
-transform = Transform3D(0.127281, -0.688621, -0.713863, 0.284092, -0.664253, 0.691418, -0.950311, -0.290808, 0.111085, 0, 3.60278, 0)
-light_color = Color(0.8, 0.82, 1, 1)
-light_energy = 3.0
-shadow_enabled = true
