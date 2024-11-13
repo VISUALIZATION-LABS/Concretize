@@ -114,20 +114,17 @@ func _ready() -> void:
 
 func _on_titlebar_menu_button_pressed(id: int) -> void:
 	match id:
+		Buttons.NEW_SCENE:
+			SceneManager.change_scene(preload("res://Scenes/3D/MainScene/main_scene.tscn"))
+		
 		Buttons.IMPORT:
 			var file_dialog: FileDialog = FileDialog.new()
 			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 			file_dialog.add_filter("*.obj, *.gltf, *.glb", "3D models")
 			
-			# HACK: Gets around issue [#3]
-			if OS.get_name() == "Windows":
-				file_dialog.use_native_dialog = false
-			else:
-				file_dialog.use_native_dialog = true
-			
 			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES
-			file_dialog.visible = true
-
+			file_dialog.use_native_dialog = true
+			
 			file_dialog.files_selected.connect(func(paths: PackedStringArray) -> void:
 				print("Selected paths: ")
 				SceneManager.import_mesh(paths)
@@ -139,47 +136,42 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 				SceneManager.import_mesh(path_array)	
 				print(path)
 				)
+			
+			file_dialog.show()
+
+			
 			pass
 		
 		Buttons.SAVE_SCENE:
 			var file_dialog: FileDialog = FileDialog.new()
 			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 			
-			# HACK: Gets around issue [#3]
-			if OS.get_name() == "Windows":
-				file_dialog.use_native_dialog = false
-			else:
-				file_dialog.use_native_dialog = true
-			
 			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
-			file_dialog.visible = true
-
+			file_dialog.use_native_dialog = true
+			
 			file_dialog.dir_selected.connect(func(path: String) -> void:
 				var path_array: PackedStringArray = [path]
 				ProjectManager.save_project(path)
 				#print(path)
 			)
+			
+			file_dialog.show()
 		
 		Buttons.OPEN_SCENE:
 			var file_dialog: FileDialog = FileDialog.new()
 			file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 			file_dialog.add_filter("*.csave")
 			
-			# HACK: Gets around issue [#3]
-			if OS.get_name() == "Windows":
-				file_dialog.use_native_dialog = false
-			else:
-				file_dialog.use_native_dialog = true
-			
 			file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-			file_dialog.visible = true
+			file_dialog.use_native_dialog = true
 
 			file_dialog.file_selected.connect(func(path: String) -> void:
 				var path_array: PackedStringArray = [path]
 				ProjectManager.load_project(path)
 				#print(path)
 			)
-		
+			
+			file_dialog.show()
 		Buttons.QUIT:
 			get_tree().quit()
 			

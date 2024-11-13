@@ -68,6 +68,12 @@ func load_project(path: String) -> void:
 	if not FileAccess.file_exists(path):
 		return
 	
+	var popup: Control = SceneReporter.create_popup("Carregando projeto", "Isso pode demorar alguns minutos.", SceneReporter.PopupType.NONE)
+		
+	SceneManager.current_ui.add_child(popup)
+	popup.show()
+	
+	await SceneManager.scene_tree.create_timer(3).timeout
 	
 	var save_file = FileAccess.open(path, FileAccess.READ)
 	while save_file.get_position() < save_file.get_length():
@@ -224,7 +230,9 @@ func load_project(path: String) -> void:
 								SceneManager.scene_tree.current_scene.add_child(head_node)
 								SceneManager.project_scene_tree.update_tree()
 								
-						#
+	
+	await SceneManager.scene_tree.create_timer(1).timeout
+	popup.queue_free()
 
 func save_project(path: String) -> void:
 	if DirAccess.dir_exists_absolute(path):
@@ -235,6 +243,7 @@ func save_project(path: String) -> void:
 		var popup: Control = SceneReporter.create_popup(tr("SAVER_POPUP_TITLE"), tr("SAVER_POPUP_DESCRIPTION"), SceneReporter.PopupType.NONE)
 		
 		SceneManager.current_ui.add_child(popup)
+		popup.show()
 		
 		var save_as_json = JSON.stringify(_get_scene_nodes(SceneManager.scene_tree.current_scene, path))
 		var save_file = FileAccess.open(path + "/scene_data.csave", FileAccess.WRITE)

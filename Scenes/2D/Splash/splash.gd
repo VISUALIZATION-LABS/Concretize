@@ -4,7 +4,7 @@ extends Control
 
 func _ready() -> void:
 	get_window().transparent = true
-	get_window().mode = Window.MODE_FULLSCREEN
+	get_window().mode = Window.MODE_EXCLUSIVE_FULLSCREEN
 	
 	#await SceneManager.scene_tree.create_timer(3).timeout
 	
