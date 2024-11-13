@@ -18,6 +18,9 @@ func _ready() -> void:
 	SceneManager.current_ui = self
 	SignalBus.hide_section.connect(_hide_section)
 	SignalBus.show_section.connect(_show_section)
+	
+	$"Split_NodeTree-All/NodeTreePanel/MarginContainer/VBoxContainer/ProjectSceneTreeSearchBar".placeholder_text = tr("GUI_PLACEHOLDER_SEARCH")
+	
 	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/Control/HBoxContainer/BTN_MOVE".pressed.connect(_btn_move_pressed)
 	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/Control/HBoxContainer/BTN_ROTATE".pressed.connect(_btn_rotate_pressed)
 	#SceneManager.scene_tree.node_added.connect(SceneManager.update_gui_tree)
@@ -39,18 +42,18 @@ func _process(delta: float) -> void:
 		
 		#var context_menu_submenu_add_item: ContextMenu = ContextMenu.new()
 		
-		context_menu.add_item("Add item", ContextMenuItems.ADD_ITEM)
-		context_menu.add_item("Add spot light", ContextMenuItems.ADD_ITEM_LIGHT_SPOT)
-		context_menu.add_item("Add omnidirectional light", ContextMenuItems.ADD_ITEM_LIGHT_OMNI)
-		context_menu.add_item("Add directional light", ContextMenuItems.ADD_ITEM_LIGHT_DIRECTIONAL)
+		context_menu.add_item(tr("CONTEXT_MENU_ADD_ITEM"), ContextMenuItems.ADD_ITEM)
+		context_menu.add_item(tr("CONTEXT_MENU_ADD_ITEM_LIGHT_SPOT"), ContextMenuItems.ADD_ITEM_LIGHT_SPOT)
+		context_menu.add_item(tr("CONTEXT_MENU_ADD_ITEM_LIGHT_OMNI"), ContextMenuItems.ADD_ITEM_LIGHT_OMNI)
+		context_menu.add_item(tr("CONTEXT_MENU_ADD_ITEM_LIGHT_DIRECTIONAL"), ContextMenuItems.ADD_ITEM_LIGHT_DIRECTIONAL)
 		
 		#context_menu_submenu_add_item.add_item("Add spot light", ContextMenuItems.ADD_ITEM_LIGHT_SPOT)
 		#context_menu_submenu_add_item.add_item("Add omnidirectional light", ContextMenuItems.ADD_ITEM_LIGHT_OMNI)
 		#context_menu_submenu_add_item.add_item("Add directional light", ContextMenuItems.ADD_ITEM_LIGHT_DIRECTIONAL)
 		
-		context_menu.add_item("Delete", ContextMenuItems.DELETE_ITEM)
-		context_menu.add_item("Copy", ContextMenuItems.COPY_ITEM)
-		context_menu.add_item("Paste", ContextMenuItems.PASTE_ITEM)
+		context_menu.add_item(tr("CONTEXT_MENU_DELETE_ITEM"), ContextMenuItems.DELETE_ITEM)
+		context_menu.add_item(tr("CONTEXT_MENU_COPY_ITEM"), ContextMenuItems.COPY_ITEM)
+		context_menu.add_item(tr("CONTEXT_MENU_PASTE_ITEM"), ContextMenuItems.PASTE_ITEM)
 		
 		context_menu.show()
 		context_menu.position = get_viewport().get_mouse_position()

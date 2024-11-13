@@ -28,6 +28,7 @@ enum Buttons {
 	SNAP_TO_CEILING,
 
 	# View
+	NORMAL,
 	UNLIT,
 	AMBIENT,
 	WIREFRAME,
@@ -45,6 +46,14 @@ enum Buttons {
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	# Localization
+	$HBoxContainer/File.text = tr("TITLEBAR_FILE_BUTTON")
+	$HBoxContainer/Edit.text = tr("TITLEBAR_EDIT_BUTTON")
+	$HBoxContainer/Selection.text = tr("TITLEBAR_SELECTION_BUTTON")
+	$HBoxContainer/View.text = tr("TITLEBAR_VIEW_BUTTON")
+	$HBoxContainer/Run.text = tr("TITLEBAR_RUN_BUTTON")
+	$HBoxContainer/Help.text = tr("TITLEBAR_HELP_BUTTON")
+	
 	var file_button: PopupMenu = $HBoxContainer/File.get_popup()
 	var edit_button: PopupMenu = $HBoxContainer/Edit.get_popup()
 	var selection_button: PopupMenu = $HBoxContainer/Selection.get_popup()
@@ -54,41 +63,42 @@ func _ready() -> void:
 
 	var file_button_export_sub_menu: PopupMenu = PopupMenu.new()
 
-	file_button.add_item("New Scene", Buttons.NEW_SCENE)
-	file_button.add_item("Open Scene", Buttons.OPEN_SCENE)
-	file_button.add_item("Save Scene", Buttons.SAVE_SCENE)
-	file_button.add_item("Save Scene As...", Buttons.SAVE_SCENE_AS)
-	file_button.add_item("Import", Buttons.IMPORT)
+	file_button.add_item(tr("TITLEBAR_FILE_NEW_SCENE"), Buttons.NEW_SCENE)
+	file_button.add_item(tr("TITLEBAR_FILE_OPEN_SCENE"), Buttons.OPEN_SCENE)
+	file_button.add_item(tr("TITLEBAR_FILE_SAVE_SCENE"), Buttons.SAVE_SCENE)
+	file_button.add_item(tr("TITLEBAR_FILE_SAVE_SCENE_AS"), Buttons.SAVE_SCENE_AS)
+	file_button.add_item(tr("TITLEBAR_FILE_IMPORT"), Buttons.IMPORT)
 
-	file_button_export_sub_menu.add_item("Export Scene", Buttons.EXPORT_SCENE)
-	file_button_export_sub_menu.add_item("Export Selection", Buttons.EXPORT_SELECTION)
+	file_button_export_sub_menu.add_item(tr("TITLEBAR_FILE_EXPORT_EXPORT_SCENE"), Buttons.EXPORT_SCENE)
+	file_button_export_sub_menu.add_item(tr("TITLEBAR_FILE_EXPORT_EXPORT_SELECTION"), Buttons.EXPORT_SELECTION)
 
-	file_button.add_submenu_node_item("Export", file_button_export_sub_menu)
+	file_button.add_submenu_node_item(tr("TITLEBAR_FILE_EXPORT"), file_button_export_sub_menu)
 	
-	file_button.add_item("Quit", Buttons.QUIT)
+	file_button.add_item(tr("TITLEBAR_FILE_QUIT"), Buttons.QUIT)
 
-	edit_button.add_item("Cut", Buttons.CUT)
-	edit_button.add_item("Copy", Buttons.COPY)
-	edit_button.add_item("Paste", Buttons.PASTE)
-	edit_button.add_item("Preferences", Buttons.PREFERENCES)
+	edit_button.add_item(tr("TITLEBAR_EDIT_CUT"), Buttons.CUT)
+	edit_button.add_item(tr("TITLEBAR_EDIT_COPY"), Buttons.COPY)
+	edit_button.add_item(tr("TITLEBAR_EDIT_PASTE"), Buttons.PASTE)
+	edit_button.add_item(tr("TITLEBAR_EDIT_PREFERENCES"), Buttons.PREFERENCES)
 		
-	selection_button.add_item("Select All", Buttons.SELECT_ALL)
-	selection_button.add_item("Deselect All", Buttons.DESELECT_ALL)
-	selection_button.add_item("Invert Selection", Buttons.INVERT_SELECTION)
-	selection_button.add_item("Snap to floor", Buttons.SNAP_TO_FLOOR)
-	selection_button.add_item("Snap to ceiling", Buttons.SNAP_TO_CEILING)
+	selection_button.add_item(tr("TITLEBAR_SELECTION_SELECT_ALL"), Buttons.SELECT_ALL)
+	selection_button.add_item(tr("TITLEBAR_SELECTION_DESELECT_ALL"), Buttons.DESELECT_ALL)
+	selection_button.add_item(tr("TITLEBAR_SELECTION_INVERT_SELECTION"), Buttons.INVERT_SELECTION)
+	selection_button.add_item(tr("TITLEBAR_SELECTION_SNAP_TO_FLOOR"), Buttons.SNAP_TO_FLOOR)
+	selection_button.add_item(tr("TITLEBAR_SELECTION_SNAP_TO_CEILING"), Buttons.SNAP_TO_CEILING)
 
-	view_button.add_item("Unlit", Buttons.UNLIT)
-	view_button.add_item("Ambient", Buttons.AMBIENT)
-	view_button.add_item("Wireframe", Buttons.WIREFRAME)
+	view_button.add_item(tr("TITLEBAR_VIEW_NORMAL"), Buttons.NORMAL)
+	view_button.add_item(tr("TITLEBAR_VIEW_UNLIT"), Buttons.UNLIT)
+	view_button.add_item(tr("TITLEBAR_VIEW_AMBIENT"), Buttons.AMBIENT)
+	view_button.add_item(tr("TITLEBAR_VIEW_WIREFRAME"), Buttons.WIREFRAME)
 
-	run_button.add_item("Run Project", Buttons.RUN_PROJECT)
-	run_button.add_item("Run Scene", Buttons.RUN_SCENE)
-	run_button.add_item("Run Here", Buttons.RUN_HERE)
+	run_button.add_item(tr("TITLEBAR_RUN_RUN_PROJECT"), Buttons.RUN_PROJECT)
+	run_button.add_item(tr("TITLEBAR_RUN_RUN_SCENE"), Buttons.RUN_SCENE)
+	run_button.add_item(tr("TITLEBAR_RUN_RUN_HERE"), Buttons.RUN_HERE)
 
-	help_button.add_item("About", Buttons.ABOUT)
-	help_button.add_item("Website", Buttons.WEBSITE)
-	help_button.add_item("Documentation", Buttons.DOCUMENTATION)
+	help_button.add_item(tr("TITLEBAR_HELP_ABOUT"), Buttons.ABOUT)
+	help_button.add_item(tr("TITLEBAR_HELP_WEBSITE"), Buttons.WEBSITE)
+	help_button.add_item(tr("TITLEBAR_HELP_DOCUMENTATION"), Buttons.DOCUMENTATION)
 
 	# Connect all buttons
 
@@ -172,6 +182,19 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 		
 		Buttons.QUIT:
 			get_tree().quit()
+			
+		
+		Buttons.NORMAL:
+			SceneManager.current_viewport.debug_draw = Viewport.DEBUG_DRAW_DISABLED
+		
+		Buttons.UNLIT:
+			SceneManager.current_viewport.debug_draw = Viewport.DEBUG_DRAW_UNSHADED
+		
+		Buttons.AMBIENT:
+			SceneManager.current_viewport.debug_draw = Viewport.DEBUG_DRAW_LIGHTING
+			
+		Buttons.WIREFRAME:
+			SceneManager.current_viewport.debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
 		
 		Buttons.WEBSITE:
 			OS.shell_open("https://visualization-labs.github.io/pocketvizwebsite/")
@@ -183,6 +206,11 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			self.add_child(about_panel)
 			about_panel.visible = true
 			pass
+		
+		Buttons.PREFERENCES:
+			var preferences_panel: Control = preload("res://Scenes/2D/UI/Preferences/preferences.tscn").instanciate()
+			self.add_child(preferences_panel)
+			preferences_panel.show()
 		
 		Buttons.SNAP_TO_FLOOR:
 			var selection_aabb: AABB = AABB(Vector3(0,0,0), Vector3(0,0,0))
