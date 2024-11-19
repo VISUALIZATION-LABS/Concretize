@@ -73,7 +73,7 @@ func _process(_delta: float) -> void:
 			_align_plane(Axis.X, Z_PLANE)
 	
 
-func _align_plane(axis: Axis, plane: StaticBody3D, disable_camera_track: bool = false):
+func _align_plane(axis: Axis, plane: StaticBody3D, disable_camera_track: bool = false) -> void:
 	if camera.position != self.position || update_planes != true:
 		match axis:
 			Axis.X:

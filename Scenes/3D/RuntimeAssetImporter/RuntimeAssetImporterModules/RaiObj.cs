@@ -209,6 +209,7 @@ namespace RAI {
 			}
 			
 			private static Error ObjMaterialAssembler(ref Dictionary<string, StandardMaterial3D> materials, ref string path) {
+				
 				// FIXME: RAIImage namespace bugs out
 
 				// Hacky fix for a weird issue with the rai image namespace
@@ -223,6 +224,7 @@ namespace RAI {
 				string currentMaterial = "DefaultMaterial";
 				string texturePath;
 				ushort tokenIndex;
+				bool isPbr = false;
 
 				foreach (string line in dataLine) {
 					string[] token = line.Split(' ', StringSplitOptions.None);
@@ -250,6 +252,7 @@ namespace RAI {
 
 						case "Pr":
 							internalMaterialDict[currentMaterial].Roughness = float.Parse(token[1]);
+							isPbr = true;
 							break;
 						
 						case "Pm":
@@ -274,8 +277,8 @@ namespace RAI {
 							float approxRough = (float)Mathf.Clamp(specExp/(1000*specCoeff), 0.0, 1.0);
 							internalMaterialDict[currentMaterial].Roughness = approxRough;
 
-							GD.Print($"Approximated roughness for {currentMaterial} = {internalMaterialDict[currentMaterial].Roughness}");
-							GD.PushWarning("Using approximated roughness for non-PBR OBJ materials is not reccomended, re-export the mesh with PBR extensions enabled.");
+							// GD.Print($"Approximated roughness for {currentMaterial} = {internalMaterialDict[currentMaterial].Roughness}");
+							// GD.PushWarning("Using approximated roughness for non-PBR OBJ materials is not reccomended, re-export the mesh with PBR extensions enabled.");
 							break;
 						case "d":
 							float alpha = float.Parse(token[1]);
@@ -350,7 +353,7 @@ namespace RAI {
 								
 								
 								
-								GD.Print(tokenIndex);
+								//GD.Print(tokenIndex);
 
 								internalMaterialDict[currentMaterial].NormalScale = float.Parse(token[tokenIndex - 1]);
 							}
@@ -367,6 +370,9 @@ namespace RAI {
 							internalMaterialDict[currentMaterial].NormalEnabled = true;
 							internalMaterialDict[currentMaterial].NormalTexture = TextureLoader(texturePath, false);
 							
+							if (!isPbr)
+								GD.PushWarning("This material is not PBR, shading inconsistencies may happen. To avoid this issue please re-export the mesh with pbr extensions on.");
+
 							break;
 					}
 				}	
