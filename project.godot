@@ -45,6 +45,10 @@ window/per_pixel_transparency/allowed=true
 
 project/assembly_name="Concretize"
 
+[editor]
+
+run/main_run_args="--test=true"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/Todo_Manager/plugin.cfg")
