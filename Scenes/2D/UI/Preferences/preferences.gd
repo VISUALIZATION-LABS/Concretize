@@ -19,7 +19,25 @@ enum Settings {
 	
 }
 
-@onready var entry_container: VBoxContainer = $PanelContainer/MarginContainer/PanelContainer/MarginContainer/VBoxContainer/VBoxContainer
+# This will be read from the save data
+var settings: Dictionary = {
+	"SSIL_enabled": true,
+	"SSIL_quality": RenderingServer.ENV_SSIL_QUALITY_ULTRA,
+	"SSAO_enabled": true,
+	"SSAO_quality": RenderingServer.ENV_SSAO_QUALITY_ULTRA,
+		
+	"SSR_enabled": true,
+	"SSR_quality": RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_HIGH,
+	"SSR_steps": 512,
+
+	"shadow_resolution": 8192,
+	"shadow_filter_quality": RenderingServer.SHADOW_QUALITY_SOFT_ULTRA,
+	
+	"scaling": 1.0,
+	"scaling_method": 0
+}
+
+@onready var entry_container: VBoxContainer = $PanelContainer/MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/VBoxContainer
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -55,4 +73,4 @@ func _ready() -> void:
 	entry_container.add_child(scale_quality)
 	
 func _on_settings_item_selected(id: int) -> void:
-	print(id)
+	pass
