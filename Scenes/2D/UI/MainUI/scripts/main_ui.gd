@@ -2,6 +2,8 @@ extends Control
 
 @onready var popup: PopupMenu = $Titlebar/PopupMenu
 @onready var inspector: VBoxContainer = $"Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer/VBoxContainer"
+@onready var model_picker_dock: Control = $"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer/MarginContainer/ModelPickerDock"
+
 enum ContextMenuItems{
 	ADD_ITEM,
 		ADD_ITEM_LIGHT_SPOT,
@@ -145,5 +147,8 @@ func _show_section(type: String) -> void:
 	ui_node.show()
 
 # Hack
-func add_asset_to_dock(asset_container: Control) -> void:
-	$"Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer/MarginContainer/ModelPickerDock".add_asset(asset_container)
+func add_asset_to_dock(asset_container: Control, object_class_path: String) -> void:
+	model_picker_dock.add_asset(asset_container, object_class_path)
+
+func clear_dock() -> void:
+	model_picker_dock.clear_assets()

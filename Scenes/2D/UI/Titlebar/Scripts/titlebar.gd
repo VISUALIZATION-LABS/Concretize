@@ -12,6 +12,7 @@ enum Buttons {
 		EXPORT_SCENE,
 		EXPORT_SELECTION,
 	#----#
+	CREATE_PACKAGE,
 	QUIT,
 
 	# Edit
@@ -74,6 +75,8 @@ func _ready() -> void:
 
 	file_button.add_submenu_node_item(tr("TITLEBAR_FILE_EXPORT"), file_button_export_sub_menu)
 	
+	
+	file_button.add_item(tr("TITLEBAR_FILE_CREATE_PACKAGE"), Buttons.CREATE_PACKAGE)
 	file_button.add_item(tr("TITLEBAR_FILE_QUIT"), Buttons.QUIT)
 
 	edit_button.add_item(tr("TITLEBAR_EDIT_CUT"), Buttons.CUT)
@@ -128,19 +131,16 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			file_dialog.files_selected.connect(func(paths: PackedStringArray) -> void:
 				print("Selected paths: ")
 				SceneManager.import_mesh(paths)
-				print(paths)
-				)
+			)
 
-			file_dialog.file_selected.connect(func(path: String) -> void:
-				var path_array: PackedStringArray = [path]
-				SceneManager.import_mesh(path_array)	
-				print(path)
-				)
-			
+			#file_dialog.file_selected.connect(func(path: String) -> void:
+				#var path_array: PackedStringArray = [path]
+				#SceneManager.import_mesh(path_array)
+				#
+				#print(path)
+				#)
+			#
 			file_dialog.show()
-
-			
-			pass
 		
 		Buttons.SAVE_SCENE:
 			var file_dialog: FileDialog = FileDialog.new()
@@ -172,6 +172,10 @@ func _on_titlebar_menu_button_pressed(id: int) -> void:
 			)
 			
 			file_dialog.show()
+		
+		Buttons.CREATE_PACKAGE:
+			SceneManager.current_ui.add_child(preload("res://Scenes/2D/UI/PackageWizard/package_wizard.tscn").instantiate())
+			
 		Buttons.QUIT:
 			get_tree().quit()
 			

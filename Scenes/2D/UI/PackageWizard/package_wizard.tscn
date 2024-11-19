@@ -1,0 +1,274 @@
+[gd_scene load_steps=5 format=3 uid="uid://b2joskpc14n54"]
+
+[ext_resource type="Material" uid="uid://m8ji8txoye3d" path="res://Resources/Shaders/GUI/acrylic/acrylic.tres" id="1_3pr4s"]
+[ext_resource type="Script" path="res://Scenes/2D/UI/PackageWizard/package_wizard.gd" id="1_e06ip"]
+[ext_resource type="Shader" path="res://Resources/Shaders/GUI/acrylic/acrylic.gdshader" id="2_rbpxc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rs3ax"]
+shader = ExtResource("2_rbpxc")
+shader_parameter/color = Color(0.29219, 0.29219, 0.29219, 1)
+shader_parameter/blur_amount = 3.0
+
+[node name="PackageWizard" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e06ip")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+material = ExtResource("1_3pr4s")
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -543.0
+offset_top = -283.0
+offset_right = 543.0
+offset_bottom = 291.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Control" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="TitlePanel" type="PanelContainer" parent="PanelContainer/Title"]
+material = SubResource("ShaderMaterial_rs3ax")
+layout_mode = 2
+anchor_right = 1.0
+offset_bottom = 24.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/Title/TitlePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 0
+
+[node name="TitleLabel" type="RichTextLabel" parent="PanelContainer/Title/TitlePanel/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "Package creation wizard"
+fit_content = true
+
+[node name="Contents" type="Control" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/Contents"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 23.0
+offset_bottom = -58.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/Contents/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Information entry" type="PanelContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PanelContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Information"
+fit_content = true
+scroll_active = false
+
+[node name="PackageNameEntry" type="HBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PackageNameEntry"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+text = "Name"
+
+[node name="PackageName" type="LineEdit" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PackageNameEntry"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(270, 0)
+layout_mode = 2
+placeholder_text = "Package name"
+
+[node name="PackageAuthorEntry" type="HBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PackageAuthorEntry"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+text = "Author"
+
+[node name="PackageAuthor" type="LineEdit" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PackageAuthorEntry"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(270, 0)
+layout_mode = 2
+placeholder_text = "Package author"
+
+[node name="PackageClassEntry" type="HBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PackageClassEntry"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+text = "Class"
+
+[node name="PackageClass" type="LineEdit" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer/Information entry/MarginContainer/VBoxContainer/PackageClassEntry"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(270, 0)
+layout_mode = 2
+placeholder_text = "Package class (E.g: Living room)"
+
+[node name="Model entry" type="PanelContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2/PanelContainer/MarginContainer"]
+layout_mode = 2
+text = "Model data"
+fit_content = true
+scroll_active = false
+
+[node name="PackageNameEntry" type="HBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2/PackageNameEntry"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+text = "Name"
+
+[node name="ModelName" type="LineEdit" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2/PackageNameEntry"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Model name"
+
+[node name="PackageNameEntry2" type="HBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2/PackageNameEntry2"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+text = "Class"
+
+[node name="ModelClass" type="LineEdit" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2/PackageNameEntry2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Model class"
+
+[node name="PackageNameEntry3" type="HBoxContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2/PackageNameEntry3"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Description"
+
+[node name="ModelDescription" type="TextEdit" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/VBoxContainer/Model entry/MarginContainer2/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+wrap_mode = 1
+
+[node name="Models" type="PanelContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/Models"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="PanelContainer/Contents/MarginContainer/HBoxContainer/Models/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 5
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="PanelContainer/Contents"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -48.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 45
+alignment = 1
+
+[node name="ButtonCreate" type="Button" parent="PanelContainer/Contents/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Create"
+
+[node name="ButtonAddModel" type="Button" parent="PanelContainer/Contents/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Add Model"
+
+[node name="ButtonCancel" type="Button" parent="PanelContainer/Contents/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Cancel"

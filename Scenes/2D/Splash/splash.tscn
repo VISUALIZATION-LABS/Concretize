@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://cuq83veodef1w"]
+[gd_scene load_steps=5 format=3 uid="uid://cuq83veodef1w"]
 
 [ext_resource type="Script" path="res://Scenes/2D/Splash/splash.gd" id="1_162b2"]
 [ext_resource type="Texture2D" uid="uid://ci24w6esamspo" path="res://Art/Logo/logo-concretize-light.png" id="1_c7xgo"]
@@ -6,9 +6,12 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kjth3"]
 bg_color = Color(0.144063, 0.144063, 0.144062, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_g88e4"]
-font_size = 13
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+shadow_color = Color(0, 0, 0, 0.12549)
+shadow_size = 30
 
 [node name="Splash" type="Control"]
 layout_mode = 3
@@ -86,18 +89,12 @@ offset_right = -18.3021
 offset_bottom = 145.044
 horizontal_scroll_mode = 0
 
-[node name="Label" type="Label" parent="PanelContainer/VSplitContainer/MarginContainer/Control/ScrollContainer"]
+[node name="InfoLabel" type="RichTextLabel" parent="PanelContainer/VSplitContainer/MarginContainer/Control/ScrollContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "Loading Living room.pkg
----
-Loaded Chair
-Loaded Ottoman
-Loaded Diorama
-Loaded Light_fixt0
----
-Loading Bathroom.pkg
-..."
-label_settings = SubResource("LabelSettings_g88e4")
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
 
 [node name="TextureRect" type="TextureRect" parent="PanelContainer/VSplitContainer/MarginContainer/Control"]
 layout_mode = 1

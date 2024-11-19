@@ -1,5 +1,14 @@
 extends Node
 
+var local_assets: Array[Control] = []
+
+func add_asset_to_dock(asset: Control, asset_class: String = "local"):
+	SceneManager.current_ui.add_asset_to_dock(asset, asset_class)
+
+func update_asset_dock():
+	pass
+
+
 func _load_image_from_disk(path: String, is_normal: bool = false) -> ImageTexture:
 	var image: Image = Image.new()
 	image.load(path)
