@@ -1,7 +1,6 @@
 class_name SettingsEntry
 extends Control
 
-
 signal item_selected(id: int)
 
 var _split_container: HBoxContainer = HBoxContainer.new()
@@ -18,6 +17,7 @@ var title: String:
 func _ready() -> void:
 	self.add_child(_split_container)
 	_split_container.custom_minimum_size = Vector2(228,0)
+	_split_container.add_theme_constant_override("separation", 10)
 	_split_container.add_child(_label)
 	_split_container.add_child(_options_button)
 	
