@@ -3,9 +3,9 @@ extends VBoxContainer
 
 var node: Node3D
 var _transform_properties: Dictionary
-var _node_cache: Dictionary
+#var _node_cache: Dictionary
 
-func set_title(string: String):
+func set_title(string: String) -> void:
 	var background: PanelContainer = PanelContainer.new()
 	var margin: MarginContainer = MarginContainer.new()
 	var center: CenterContainer = CenterContainer.new()
@@ -59,7 +59,7 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 	#AHAHAHA DOESN'T FUCKING WORK MATE, WE CAN'T CONNECT SIGNALS!!!
 	
 	
-	for item in selection_info:
+	for item: String in selection_info:
 		match typeof(selection_info[item]):
 			TYPE_STRING:
 				pass
@@ -83,6 +83,10 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 						title_label.text = tr("INSPECTOR_SHADOW")
 					
 				this.add_child(title_label)
+				
+				# This call is unsafe but selection_info will always be a dict
+				
+				@warning_ignore("unsafe_call_argument")
 				this.add_child(_build_inspector(selection_info[item]))
 			TYPE_VECTOR3:
 				var divided_entry: HBoxContainer = HBoxContainer.new()
@@ -269,10 +273,10 @@ func _build_inspector(selection_info: Dictionary) -> Control:
 	return background
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	# HACK for checking transforms
 	if is_instance_valid(node):
-		for key in _transform_properties:
+		for key: String in _transform_properties:
 			if is_instance_valid(_transform_properties[key].x_input) && is_instance_valid(_transform_properties[key].y_input) && is_instance_valid(_transform_properties[key].z_input):
 				match key:
 					"Position":

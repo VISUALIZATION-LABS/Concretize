@@ -18,9 +18,9 @@ func _ready() -> void:
 	panel.add_child(vbox_container)
 
 
-func add_item(name: String, idx: int = -1) -> void:
+func add_item(item_name: String, idx: int = -1) -> void:
 	var button: Button = Button.new()
-	button.text = name
+	button.text = item_name
 	button.set_meta("Index", idx)
 	
 	#if idx < 0:
@@ -31,9 +31,9 @@ func add_item(name: String, idx: int = -1) -> void:
 	
 	button.pressed.connect(_emit_button_pressed_id.bind(button))
 
-func add_submenu(name: String, menu: ContextMenu, idx: int = -1,) -> void:
+func add_submenu(submenu_name: String, menu: ContextMenu, idx: int = -1,) -> void:
 	var button: Button = Button.new()
-	button.text = name
+	button.text = submenu_name
 	button.set_meta("Index", idx)
 
 	button.add_child(menu)

@@ -61,7 +61,7 @@ func _ready() -> void:
 	self.add_child(icon_mesh)
 	self.add_child(directional_helper)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if show_help:
 		directional_helper.show()
 		#diectional_helper.position.z = -directional_helper.mesh.height / 2
