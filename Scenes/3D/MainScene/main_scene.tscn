@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dc845ju7r8wmi"]
+[gd_scene load_steps=4 format=3 uid="uid://dc845ju7r8wmi"]
 
 [ext_resource type="PackedScene" uid="uid://bln1i361dl82r" path="res://Scenes/2D/UI/MainUI/main_ui.tscn" id="1_deost"]
 [ext_resource type="Environment" uid="uid://cauncl1cy33h6" path="res://Resources/Environments/default_environment.tres" id="2_owtd3"]
+[ext_resource type="Script" path="res://Global/Lights/Directional/directional_light.gd" id="3_1cr1p"]
 
 [node name="MainScene" type="Node3D"]
 
@@ -12,3 +13,7 @@ unique_name_in_owner = true
 
 [node name="_WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource("2_owtd3")
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.526659, -0.591686, 0.610359, 0, 0.718005, 0.696038, -0.850077, -0.366575, 0.378144, 0, 0.74493, 0)
+script = ExtResource("3_1cr1p")
