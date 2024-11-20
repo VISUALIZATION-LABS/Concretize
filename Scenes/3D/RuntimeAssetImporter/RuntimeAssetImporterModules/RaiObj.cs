@@ -50,7 +50,7 @@ namespace RAI {
 				string currentObject = "DefaultObject";
 				//string currentMesh = currentObject + '_' + currentMaterial;
 
-				Dictionary<string, StandardMaterial3D> materials = new();
+				Dictionary<string, Material> materials = new();
 
 				//Dictionary<string, List<List<int[]>>> surfDict = new();
 				//Dictionary<string, Dictionary<string, List<List<int[]>>>> surfaces = new();
@@ -208,7 +208,7 @@ namespace RAI {
 				return Error.Ok;
 			}
 			
-			private static Error ObjMaterialAssembler(ref Dictionary<string, StandardMaterial3D> materials, ref string path) {
+			private static Error ObjMaterialAssembler(ref Dictionary<string, Material> materials, ref string path) {
 				
 				// FIXME: RAIImage namespace bugs out
 
@@ -243,7 +243,20 @@ namespace RAI {
 							GD.Print($"Creating material definition for {token[1]}");
 							currentMaterial = token[1];
 
+							
 							internalMaterialDict.Add(currentMaterial, new StandardMaterial3D());
+
+							if (currentMaterial.Split("_").Length > 0) {
+								if (currentMaterial.Split("_")[0] == "g") {
+									internalMaterialDict[currentMaterial].SetMeta("is_glass", true);
+								}
+
+								if (currentMaterial.Split("_")[0] == "e") {
+									internalMaterialDict[currentMaterial].SetMeta("is_emit", true);
+								}
+							}
+
+
 
 							break;
 						case "Ns":
@@ -280,6 +293,22 @@ namespace RAI {
 							// GD.Print($"Approximated roughness for {currentMaterial} = {internalMaterialDict[currentMaterial].Roughness}");
 							// GD.PushWarning("Using approximated roughness for non-PBR OBJ materials is not reccomended, re-export the mesh with PBR extensions enabled.");
 							break;
+						
+						case "Ke":
+							// Emmission
+							if (float.Parse(token[1]) > 0.0f || float.Parse(token[2]) > 0.0f || float.Parse(token[3]) > 0.0f) {
+								internalMaterialDict[currentMaterial].ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded;
+								internalMaterialDict[currentMaterial].AlbedoColor = new Color(float.Parse(token[1]), float.Parse(token[2]), float.Parse(token[3]), 1.0f);
+							}
+
+							
+							break;
+						
+						case "aniso":
+							// We don't use anisotropy because that's too expensive, but it signifies that we do have a pbr material.
+							isPbr = true;
+							break;
+
 						case "d":
 							float alpha = float.Parse(token[1]);
 							if (alpha < 1.0) {
@@ -294,7 +323,7 @@ namespace RAI {
 								tokenIndex = 5;
 
 								// TODO: Test is we always have 3 scale indexes
-								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
 							}
 								
 
@@ -308,6 +337,31 @@ namespace RAI {
 							internalMaterialDict[currentMaterial].AlbedoTexture = TextureLoader(texturePath, false);
 
 							break;
+						
+						case "map_Pm":
+							tokenIndex = 1;
+
+							if (containsScaleAttribute) {
+								tokenIndex = 5;
+
+								// TODO: Test is we always have 3 scale indexes
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
+							}
+
+
+							texturePath=token[tokenIndex..].Join(" ");
+
+							if (texturePath.IsRelativePath()) {
+								texturePath = path.GetBaseDir().PathJoin(texturePath);
+							}
+
+
+							internalMaterialDict[currentMaterial].Metallic = 1.0f;
+							internalMaterialDict[currentMaterial].MetallicTextureChannel = BaseMaterial3D.TextureChannel.Grayscale;
+							internalMaterialDict[currentMaterial].MetallicTexture = TextureLoader(texturePath, false);
+							
+							break;
+
 						case "map_refl" or "map_Pr":
 							tokenIndex = 1;
 
@@ -315,7 +369,7 @@ namespace RAI {
 								tokenIndex = 5;
 
 								// TODO: Test is we always have 3 scale indexes
-								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
 							}
 
 
@@ -338,7 +392,7 @@ namespace RAI {
 								tokenIndex = 5;
 
 								// TODO: Test is we always have 3 scale indexes
-								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
 							}
 
 
@@ -380,11 +434,20 @@ namespace RAI {
 
 				if (internalMaterialDict.Count > 0) {
 					foreach (string materialName in internalMaterialDict.Keys) {
-						materials.Add(materialName, internalMaterialDict[materialName]);
+						if ((bool)internalMaterialDict[materialName].GetMeta("is_glass", false)) {
+							// Lol we discard all out work lmao
+
+							ShaderMaterial glassMaterial = (ShaderMaterial)GD.Load("res://Resources/Shaders/3D/Glass.tres");
+							materials.Add(materialName, glassMaterial);
+
+
+						} else {
+							materials.Add(materialName, internalMaterialDict[materialName]);
+						}
 					}
+
 				} else {
 					// We have no materials
-
 					StandardMaterial3D defaultMaterial = new();
 					materials.Add(currentMaterial, defaultMaterial);
 				}
