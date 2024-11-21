@@ -16,7 +16,7 @@ func _ready() -> void:
 	%ModelDescription.text_changed.connect(_model_description_changed)
 	
 func _model_name_changed(text: String) -> void:
-	if selected_item != null && not text.is_empty():
+	if selected_item != null && not text.is_empty() && not text.ends_with("."):
 		var previous_dict_item: Dictionary = item_data[selected_item.name]
 		selected_item.set_title(text)
 		
@@ -108,7 +108,7 @@ func _save_pkg(path: String) -> void:
 						"name": material.resource_name,
 						"albedo_texture_path": "./data/materials/%s_%s_%s_albedo_tex.png" % [pkg_asset.pkg_asset_name, mesh_child.name, str(surface_idx)] if albedo == 0 else null,
 						"roughness_texture_path": "./data/materials/%s_%s_%s_roughness_tex.png" % [pkg_asset.pkg_asset_name, mesh_child.name, str(surface_idx)] if roughness == 0 else null,
-						"normal_texture_path": "./data/materials/%s_%s_%s_normal.png" % [pkg_asset.pkg_asset_name, mesh_child.name, str(surface_idx)] if normal == 0 else null,
+						"normal_texture_path": "./data/materials/%s_%s_%s_normal_tex.png" % [pkg_asset.pkg_asset_name, mesh_child.name, str(surface_idx)] if normal == 0 else null,
 						"metallic_texture_path": "./data/materials/%s_%s_%s_metallic_tex.png" % [pkg_asset.pkg_asset_name, mesh_child.name, str(surface_idx)] if metallic == 0 else null,
 						"roughness": material.roughness,
 						"metallic": material.metallic,

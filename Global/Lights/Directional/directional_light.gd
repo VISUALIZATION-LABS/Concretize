@@ -28,7 +28,7 @@ func _ready() -> void:
 	directional_helper.set_meta("highlightable", 0)
 	icon_mesh.set_meta("highlightable", 0)
 	
-	self.light_energy = 3.0
+	self.light_energy = 2.0
 	
 	# TODO: Convert the color string to rgb
 	

@@ -23,7 +23,6 @@ func disable_interaction() -> void:
 	current_camera.movement_enabled = false
 	current_camera.get_child(1).interaction_enabled = false
 
-
 func enable_interaction() -> void:
 	current_camera.movement_enabled = true
 	current_camera.get_child(1).interaction_enabled = true
@@ -118,12 +117,15 @@ func load_packages() -> void:
 						if pkg_asset.pkg_asset_data.material_data[surface_array_index].roughness_texture_path != null:
 							material.roughness_texture = ProjectManager._load_image_from_disk(package_directory.get_base_dir() + pkg_asset.pkg_asset_data.material_data[surface_array_index].roughness_texture_path.trim_prefix("."))
 						
+						if pkg_asset.pkg_asset_data.material_data[surface_array_index].metallic_texture_path != null:
+							material.metallic_texture = ProjectManager._load_image_from_disk(package_directory.get_base_dir() + pkg_asset.pkg_asset_data.material_data[surface_array_index].metallic_texture_path.trim_prefix("."))
+						
 						if pkg_asset.pkg_asset_data.material_data[surface_array_index].normal_texture_path != null:
 							material.normal_texture = ProjectManager._load_image_from_disk(package_directory.get_base_dir() + pkg_asset.pkg_asset_data.material_data[surface_array_index].normal_texture_path.trim_prefix("."), true)
-						
+							material.normal_enabled = true
 						
 						material.roughness = pkg_asset.pkg_asset_data.material_data[surface_array_index].roughness
-
+						material.metallic = pkg_asset.pkg_asset_data.material_data[surface_array_index].metallic
 						array_mesh.surface_set_material(surface_array_index, material)
 					
 					mesh_instance.mesh = array_mesh
@@ -132,6 +134,12 @@ func load_packages() -> void:
 					mesh_instance.get_child(0).name = "_collision"
 					
 					node.add_child(mesh_instance)
+				
+				node.set_meta("PackageMesh", {
+					"Package": package_directory.get_basename(),
+					"Class": asset.object_class,
+					"Name": pkg_asset.pkg_asset_name
+				})
 				
 				asset.node = node
 				
@@ -229,10 +237,19 @@ func import_mesh(paths: PackedStringArray, hacky_fix_for_pkg_builder: bool = fal
 			)
 	)
 
-func change_scene(scene: PackedScene) -> void:
+func change_scene(scene: PackedScene, remove_dir_light: bool = false) -> void:
 	scene_tree.change_scene_to_packed.call_deferred(scene)
 	await RenderingServer.frame_post_draw
-	await scene_tree.create_timer(0.5).timeout
+	await scene_tree.create_timer(1).timeout
+	
+	if remove_dir_light:
+		scene_tree.current_scene.get_node("DirectionalLight").queue_free()
+		
+	loaded_packages.clear()
+	#print(package_list)
+	load_packages()
+	
+	
 	add_packages_to_tree()
 
 func get_loaded_node_amount() -> Dictionary:

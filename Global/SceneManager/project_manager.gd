@@ -72,7 +72,7 @@ func _string_array_to_vector_2_array(array: String) -> PackedVector2Array:
 	return packed_vec2_array
 
 func load_project(path: String) -> void:
-	await SceneManager.change_scene(preload("res://Scenes/3D/MainScene/main_scene.tscn"))
+	await SceneManager.change_scene(preload("res://Scenes/3D/MainScene/main_scene.tscn"), true)
 	
 	if not FileAccess.file_exists(path):
 		return
@@ -329,7 +329,7 @@ func _get_scene_nodes(node: Node3D, save_path: String) -> Dictionary:
 							"name": material.resource_name,
 							"albedo_texture_path": "./data/%s_%s_%s_albedo_tex.png" % [child.name, mesh_child.name, str(surface_idx)] if albedo == 0 else null,
 							"roughness_texture_path": "./data/%s_%s_%s_roughness_tex.png" % [child.name, mesh_child.name, str(surface_idx)] if roughness == 0 else null,
-							"normal_texture_path": "./data/%s_%s_%s_normal.png" % [child.name, mesh_child.name, str(surface_idx)] if normal == 0 else null,
+							"normal_texture_path": "./data/%s_%s_%s_normal_tex.png" % [child.name, mesh_child.name, str(surface_idx)] if normal == 0 else null,
 							"metallic_texture_path": "./data/%s_%s_%s_metallic_tex.png" % [child.name, mesh_child.name, str(surface_idx)] if metallic == 0 else null,
 							"roughness": material.roughness,
 							"metallic": material.metallic,
