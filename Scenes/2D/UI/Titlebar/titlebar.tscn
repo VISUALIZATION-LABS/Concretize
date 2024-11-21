@@ -13,7 +13,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_xroyf")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="PanelContainer" parent="."]
 material = ExtResource("2_evsi5")
 layout_mode = 1
 anchors_preset = 10

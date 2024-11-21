@@ -14,7 +14,7 @@ var error_color: Color = Color("#FF4747")
 var warning_color: Color = Color("#FFB547")
 var info_color: Color = Color("#B266FF")
 var self_offset: int = 1
-var count: int = ErrorManager.count;				
+var count: int = ErrorManager.count;
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

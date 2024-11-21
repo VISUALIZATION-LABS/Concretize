@@ -5,19 +5,12 @@
 shader_type spatial;
 render_mode unshaded;
 
-uniform vec4 backgroundColor: source_color;
-uniform vec4 foregroundColor: source_color;
+uniform vec4 overlayColor:source_color = vec4(240, 120, 0, 1);
+
 
 void fragment() {
-	float verticalLines = floor(sin(SCREEN_UV.x * 0.0) + 1.8) + ceil(sin(SCREEN_UV.y * 000.0));
-	float y = step(verticalLines, SCREEN_UV.x);
-
-	if (y < 0.2) {
-		ALBEDO = backgroundColor.rgb * 2.0;
-	} else if (y > 0.9) {
-		ALBEDO = foregroundColor.rgb * 2.0;
-	}
-	ALPHA = 0.5;
+	ALBEDO = overlayColor.rgb;
+	ALPHA = 0.7;
 }
 
 //void light() {

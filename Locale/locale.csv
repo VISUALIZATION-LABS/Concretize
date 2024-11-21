@@ -1,0 +1,70 @@
+keys,en,pt_br
+TITLEBAR_FILE_BUTTON, File, Arquivo
+TITLEBAR_FILE_NEW_SCENE,New scene,Nova cena
+TITLEBAR_FILE_OPEN_SCENE,Open scene,Abrir cena
+TITLEBAR_FILE_SAVE_SCENE,Save scene,Salvar cena
+TITLEBAR_FILE_SAVE_SCENE_AS,Save scene as…,Salvar cena como…
+TITLEBAR_FILE_IMPORT,Import,Importar
+TITLEBAR_FILE_EXPORT,Export,Exportar
+TITLEBAR_FILE_EXPORT_EXPORT_SCENE,Export scene,Exportar cena
+TITLEBAR_FILE_EXPORT_EXPORT_SELECTION,Export selection,Exportar seleção
+TITLEBAR_FILE_QUIT,Quit,Sair
+TITLEBAR_EDIT_BUTTON,Edit,Editar
+TITLEBAR_EDIT_CUT,Cut,Cortar
+TITLEBAR_EDIT_COPY,Copy,Copiar
+TITLEBAR_EDIT_PASTE,Paste,Colar
+TITLEBAR_EDIT_PREFERENCES,Preferences,Preferências
+TITLEBAR_SELECTION_BUTTON,Selection,Seleção
+TITLEBAR_SELECTION_SELECT_ALL,Select all,Selecionar tudo
+TITLEBAR_SELECTION_DESELECT_ALL,Deselect all,Descelecionar tudo
+TITLEBAR_SELECTION_INVERT_SELECTION,Invert selection,Inverter seleção
+TITLEBAR_SELECTION_SNAP_TO_FLOOR,Snap to floor,Ancorar ao chão
+TITLEBAR_SELECTION_SNAP_TO_CEILING,Snap to ceiling,Ancorar ao teto
+TITLEBAR_VIEW_BUTTON,View,Visualizar
+TITLEBAR_VIEW_NORMAL,Normal,Normal
+TITLEBAR_VIEW_UNLIT,Unlit,Sem iluminação
+TITLEBAR_VIEW_AMBIENT,Ambient,Iluminação ambiente
+TITLEBAR_VIEW_WIREFRAME,Wireframe,Malha
+TITLEBAR_RUN_BUTTON,Run,Rodar
+TITLEBAR_RUN_RUN_PROJECT,Run project,Rodar projeto
+TITLEBAR_RUN_RUN_SCENE,Run scene,Rodar cena
+TITLEBAR_RUN_RUN_HERE,Run here,Rodar aqui
+TITLEBAR_HELP_BUTTON,Help,Ajuda
+TITLEBAR_HELP_ABOUT,About,Sobre
+TITLEBAR_HELP_WEBSITE,Website,Website
+TITLEBAR_HELP_DOCUMENTATION,Documentation,Documentação
+,,
+CONTEXT_MENU_ADD_ITEM,Add item,Adicionar objeto
+CONTEXT_MENU_ADD_ITEM_LIGHT_SPOT,Add spot light,Adicionar luz holofote
+CONTEXT_MENU_ADD_ITEM_LIGHT_OMNI,Add omnidirectional light,Adicionar luz omnidirecional
+CONTEXT_MENU_ADD_ITEM_LIGHT_DIRECTIONAL,Add directional light,Adicionar luz direcional
+CONTEXT_MENU_DELETE_ITEM,Delete,Remover
+CONTEXT_MENU_COPY_ITEM,Copy,Copiar
+CONTEXT_MENU_PASTE_ITEM,Paste,Colar
+CONTEXT_MENU_RESET_TRANSFORMS,Reset transforms,Restaurar transformações
+,,
+INSPECTOR_TRANSFORM,Transform,Transformação
+INSPECTOR_POSITION,Position,Posição
+INSPECTOR_ROTATION,Rotation,Rotação
+INSPECTOR_SCALE,Scale,Escala
+INSPECTOR_SPOT,Spot,Holofote
+INSPECTOR_RANGE,Range,Alcançe
+INSPECTOR_RADIUS,Radius,Raio
+INSPECTOR_ATTENUATION,Attenuation,Atenuação
+INSPECTOR_ANGLE,Angle,Ângulo
+INSPECTOR_LIGHT,Light,Luz
+INSPECTOR_COLOR,Color,Cor
+INSPECTOR_ENERGY,Energy,Energia
+INSPECTOR_SIZE,Size,Tamanho
+INSPECTOR_SHADOW,Shadow,Sombra
+INSPECTOR_BLUR,Blur,Desfoque
+INSPECTOR_BIAS,Bias,Separação
+,,
+IMPORTER_NOTIFICATION_TITLE,Importing mesh,Importando malha
+,,
+ASSET_DESCRIPTION_IMPORTED,This model is not part of any package,Esse modelo não é parte de nenhum pacote
+,,
+SAVER_POPUP_TITLE,Saving project…,Salvando projeto…
+SAVER_POPUP_DESCRIPTION,"Concretize is saving your project, this could take a few minutes.","O Concretize está salvando o seu projeto, isso pode demorar alguns minutos."
+,,
+GUI_PLACEHOLDER_SEARCH,Search,Procurar

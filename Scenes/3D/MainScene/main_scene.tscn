@@ -1,32 +1,19 @@
-[gd_scene load_steps=6 format=3 uid="uid://dc845ju7r8wmi"]
+[gd_scene load_steps=4 format=3 uid="uid://dc845ju7r8wmi"]
 
 [ext_resource type="PackedScene" uid="uid://bln1i361dl82r" path="res://Scenes/2D/UI/MainUI/main_ui.tscn" id="1_deost"]
-[ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="1_pi0xa"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wyyue"]
-
-[sub_resource type="Sky" id="Sky_f7how"]
-sky_material = SubResource("ProceduralSkyMaterial_wyyue")
-
-[sub_resource type="Environment" id="Environment_beru5"]
-background_mode = 2
-background_energy_multiplier = 2.0
-sky = SubResource("Sky_f7how")
+[ext_resource type="Environment" uid="uid://cauncl1cy33h6" path="res://Resources/Environments/default_environment.tres" id="2_owtd3"]
+[ext_resource type="Script" path="res://Global/Lights/Directional/directional_light.gd" id="3_1cr1p"]
 
 [node name="MainScene" type="Node3D"]
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="_UI" type="CanvasLayer" parent="."]
 
-[node name="MainMenuUI" parent="UI" instance=ExtResource("1_deost")]
+[node name="_MainMenuUI" parent="_UI" instance=ExtResource("1_deost")]
 unique_name_in_owner = true
 
-[node name="Freecam" parent="." instance=ExtResource("1_pi0xa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0719689, 0.0573227, -0.00435489)
+[node name="_WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_owtd3")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_beru5")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.509514, 0.688627, -0.515933, -0.5975, 0.14832, 0.788032, 0.619184, 0.709784, 0.335884, 0, 3.60278, 0)
-light_energy = 2.0
-shadow_enabled = true
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.526659, -0.591686, 0.610359, 0, 0.718005, 0.696038, -0.850077, -0.366575, 0.378144, 0, 0.74493, 0)
+script = ExtResource("3_1cr1p")

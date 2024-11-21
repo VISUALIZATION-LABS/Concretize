@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://c3vqvwg00n3ug"]
+
+[ext_resource type="Shader" path="res://Resources/Shaders/3D/aabbOutline.gdshader" id="1_81die"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_81die")
+shader_parameter/albedo = Color(0.99, 0.693, 0, 0.0627451)
+shader_parameter/wire_color = Color(0, 0, 0, 1)
+shader_parameter/wire_width = 0.0
+shader_parameter/wire_smoothness = 0.01

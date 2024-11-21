@@ -1,0 +1,119 @@
+[gd_scene load_steps=5 format=3 uid="uid://boshknwo08732"]
+
+[ext_resource type="Script" path="res://Scenes/2D/UI/Prefabs/Popup/internal_popup.gd" id="1_f3vja"]
+[ext_resource type="Material" uid="uid://m8ji8txoye3d" path="res://Resources/Shaders/GUI/acrylic/acrylic.tres" id="1_o0c1x"]
+[ext_resource type="Shader" path="res://Resources/Shaders/GUI/acrylic/acrylic.gdshader" id="2_h2lu0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8vq7k"]
+shader = ExtResource("2_h2lu0")
+shader_parameter/color = Color(0.29219, 0.29219, 0.29219, 1)
+shader_parameter/blur_amount = 3.0
+
+[node name="InternalPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_f3vja")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+material = ExtResource("1_o0c1x")
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -92.0
+offset_right = 256.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Control" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="TitlePanel" type="PanelContainer" parent="PanelContainer/Title"]
+material = SubResource("ShaderMaterial_8vq7k")
+layout_mode = 2
+anchor_right = 1.0
+offset_bottom = 24.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/Title/TitlePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 0
+
+[node name="TitleLabel" type="RichTextLabel" parent="PanelContainer/Title/TitlePanel/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "Title"
+fit_content = true
+
+[node name="Description" type="Control" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/Description"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_top = 23.0
+offset_bottom = 136.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="PanelContainer/Description/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "Description"
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="PanelContainer/Description"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -48.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 45
+alignment = 1
+
+[node name="ButtonPrimary" type="Button" parent="PanelContainer/Description/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Ok"
+
+[node name="ButtonSecondary" type="Button" parent="PanelContainer/Description/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Cancel"
+
+[node name="ProgressBar" type="ProgressBar" parent="PanelContainer/Description"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = -56.0
+offset_right = -64.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0

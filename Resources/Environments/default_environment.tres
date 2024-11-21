@@ -1,14 +1,27 @@
 [gd_resource type="Environment" load_steps=3 format=3 uid="uid://cauncl1cy33h6"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_b8igq"]
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_lhwqt"]
+rayleigh_coefficient = 2.7
+mie_coefficient = 0.006
+mie_eccentricity = 0.92
+mie_color = Color(0.932067, 0.660307, 0.450565, 1)
+ground_color = Color(0.0406929, 0.0155939, 0.0104007, 1)
 
 [sub_resource type="Sky" id="Sky_emmlu"]
-sky_material = SubResource("ProceduralSkyMaterial_b8igq")
+sky_material = SubResource("PhysicalSkyMaterial_lhwqt")
 
 [resource]
 background_mode = 2
+background_energy_multiplier = 2.0
 sky = SubResource("Sky_emmlu")
 tonemap_mode = 3
+ssr_enabled = true
+ssr_max_steps = 512
+ssil_enabled = true
 sdfgi_use_occlusion = true
 sdfgi_bounce_feedback = 1.15
 sdfgi_energy = 2.0
+glow_enabled = true
+glow_intensity = 0.05
+glow_blend_mode = 1
+volumetric_fog_density = 0.008

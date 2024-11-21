@@ -1,19 +1,43 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
-using Godot;
+using Godot;		
 using RAI.RAIImage;
+using RAIManager;
 using RAI.RAISurfAssemble;
+using System.Security.AccessControl;
 
 namespace RAI {
 	namespace RaiOBJ {
 		public partial class RaiOBJ : Node
 		{
+
+			private static float percentageFileRead = 0;
+			private static float totalLines = 1;
+			private static int linesRead = 0;
+
+			private static float percentageObject = 0;
+			private static float totalObjects = 1;
+			private static float objectsAssembled = 0;
+			
+			private static float finalPercentage = 0;
+				
+
+			public static float GetPercentage() {
+				percentageFileRead = linesRead / totalLines * 100.0f;
+				percentageObject = objectsAssembled / totalObjects * 100f;
+				finalPercentage = (percentageFileRead + percentageObject) / 2.0f;
+				return finalPercentage;
+			}
+
+
+			private static string[] dataLine;
 			public static Error ObjMeshAssembler(ref Node3D modelNode, ref string path){
 				path = path.Replace('\\','/');
 
-				string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
+				dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
 
 				// Mesh data
 				List<Vector3> vertexPositions = new();
@@ -26,7 +50,7 @@ namespace RAI {
 				string currentObject = "DefaultObject";
 				//string currentMesh = currentObject + '_' + currentMaterial;
 
-				Dictionary<string, StandardMaterial3D> materials = new();
+				Dictionary<string, Material> materials = new();
 
 				//Dictionary<string, List<List<int[]>>> surfDict = new();
 				//Dictionary<string, Dictionary<string, List<List<int[]>>>> surfaces = new();
@@ -35,6 +59,7 @@ namespace RAI {
 				//Dictionary<string, List<List<int[]>>> surfaces = new();
 
 
+				totalLines = dataLine.Length;
 
 				foreach (string line in dataLine) {
 					string[] token = line.Split(' ', StringSplitOptions.None);
@@ -113,14 +138,13 @@ namespace RAI {
 							break;
 
 						case "f":
-							// Conversion is needed to "reverse" mesh data without mirroring the mesh
-
 							token = token[1..].ToArray();
 							List<int[]> facedef = new();
 
+							// FIXME: Doesn't work with incomplete data, such as normals
 							foreach (string idxGroup in token) {
 								string[] idx = idxGroup.Split('/', StringSplitOptions.None);
-
+								//GD.Print(idxGroup);
 								int[] idxArray = {int.Parse(idx[0]) - 1, int.Parse(idx[1]) - 1, int.Parse(idx[2]) - 1};
 								facedef.Add(idxArray);
 							}
@@ -134,12 +158,16 @@ namespace RAI {
 							//surfDict[currentMesh].Add(facedef);
 							break;
 					} // Switch ends here
-				} // Foreach ends here		
+					//percentage = (totalLines - dataLine.Length) / totalLines * 100;
+					linesRead += 1;
+					//dataLine = dataLine.Skip(1).ToArray();
+				} // Foreach ends here			
 
 				int surfIdx = -1;
 
 				GD.Print("\n");
 				
+				totalObjects = objects.Count;
 				foreach(string objectDef in objects.Keys) {
 					//GD.Print($"Object:\n\n\t{objectDef}\n\nSurfaces:\n");
 
@@ -163,60 +191,25 @@ namespace RAI {
 					meshObject.Mesh = arrayMesh;
 					meshObject.Name = objectDef;
 
+					
 					meshObject.CreateTrimeshCollision();
 
-					modelNode.AddChild(meshObject);
+					// Hide the collision object node
+					if (meshObject.GetChild(0) != null)
+						meshObject.GetChild(0).Name = $"_{meshObject.GetChild(0).Name}";
+
+					modelNode.AddChild(meshObject, true);
 					
 					surfIdx = -1;
+					objectsAssembled += 1;
 					//GD.Print("\n");
 				}
-
-
-
-				// FIXME: Improper surface definitions
-				// We're creating more than one surfdef because of materials
-				// this shouldn't happen, like, ever...
-				// maybe return to this later idk man
-				/*
-
-				foreach(string surfDef in surfDict.Keys) {
-					surfIdx++;
-
-					GD.Print(surfDef + "\n");
-
-					
-					string surfaceName = string.Join("_", surfDef.Split('_')[..^1]);
-					string materialName = surfDef.Split('_')[^1];
-
-					GD.Print($"SurfaceName = {surfaceName}\n");
-					GD.Print($"MaterialName = {materialName}\n");
-					GD.Print($"SurfCount = {surfDict[surfDef].Count}\n----");
-
-					Godot.Collections.Array surfaceArrayData = new();
-					AssembleSurfaceMeshData(surfDict[surfDef], ref vertexPositions, ref vertexNormals, ref vertexTextureCoordinates, ref surfaceArrayData);
-					arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArrayData);
-					arrayMesh.SurfaceSetName(surfIdx, materialName);
-					arrayMesh.SurfaceSetMaterial(surfIdx, materials[materialName]);
-
-					MeshInstance3D meshObject = new() {
-						Name = surfaceName,
-						Mesh = arrayMesh
-					};
-
-					modelNode.AddChild(meshObject);
-					
-					if (surfIdx >= 999) {
-						break;
-					}
-					
-					
-				}
-				*/
 
 				return Error.Ok;
 			}
 			
-			private static Error ObjMaterialAssembler(ref Dictionary<string, StandardMaterial3D> materials, ref string path) {
+			private static Error ObjMaterialAssembler(ref Dictionary<string, Material> materials, ref string path) {
+				
 				// FIXME: RAIImage namespace bugs out
 
 				// Hacky fix for a weird issue with the rai image namespace
@@ -227,12 +220,11 @@ namespace RAI {
 				// Could work by storing the currentMaterial name and the texture paths it holds, so any subsequent
 				// materials can just "steal" from the original without loading from disk
 
-				// FIXME: Looks ugly and botched, fix later for organization and readability
-
 				string[] dataLine = FileAccess.Open(path, FileAccess.ModeFlags.Read).GetAsText().Split('\n', StringSplitOptions.None);
 				string currentMaterial = "DefaultMaterial";
-				string texturePath = "";
-				ushort tokenIndex = 1;
+				string texturePath;
+				ushort tokenIndex;
+				bool isPbr = false;
 
 				foreach (string line in dataLine) {
 					string[] token = line.Split(' ', StringSplitOptions.None);
@@ -251,7 +243,20 @@ namespace RAI {
 							GD.Print($"Creating material definition for {token[1]}");
 							currentMaterial = token[1];
 
+							
 							internalMaterialDict.Add(currentMaterial, new StandardMaterial3D());
+
+							if (currentMaterial.Split("_").Length > 0) {
+								if (currentMaterial.Split("_")[0] == "g") {
+									internalMaterialDict[currentMaterial].SetMeta("is_glass", true);
+								}
+
+								if (currentMaterial.Split("_")[0] == "e") {
+									internalMaterialDict[currentMaterial].SetMeta("is_emit", true);
+								}
+							}
+
+
 
 							break;
 						case "Ns":
@@ -260,6 +265,7 @@ namespace RAI {
 
 						case "Pr":
 							internalMaterialDict[currentMaterial].Roughness = float.Parse(token[1]);
+							isPbr = true;
 							break;
 						
 						case "Pm":
@@ -277,16 +283,32 @@ namespace RAI {
 							);
 							break;
 						case "Ks":
+							// FIXME: Gets called even when we have pbr materials
 							float specExp = internalMaterialDict[currentMaterial].Roughness;
 							float specCoeff = float.Parse(token[1]);
 
-							// FIXME: This approximation is not good enough
 							float approxRough = (float)Mathf.Clamp(specExp/(1000*specCoeff), 0.0, 1.0);
 							internalMaterialDict[currentMaterial].Roughness = approxRough;
 
-							GD.Print($"Approximated roughness for {currentMaterial} = {internalMaterialDict[currentMaterial].Roughness}");
-							GD.PushWarning("Using approximated roughness for non-PBR OBJ materials is not reccomended, re-export the mesh with PBR extensions enabled.");
+							// GD.Print($"Approximated roughness for {currentMaterial} = {internalMaterialDict[currentMaterial].Roughness}");
+							// GD.PushWarning("Using approximated roughness for non-PBR OBJ materials is not reccomended, re-export the mesh with PBR extensions enabled.");
 							break;
+						
+						case "Ke":
+							// Emmission
+							if (float.Parse(token[1]) > 0.0f || float.Parse(token[2]) > 0.0f || float.Parse(token[3]) > 0.0f) {
+								internalMaterialDict[currentMaterial].ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded;
+								internalMaterialDict[currentMaterial].AlbedoColor = new Color(float.Parse(token[1]), float.Parse(token[2]), float.Parse(token[3]), 1.0f);
+							}
+
+							
+							break;
+						
+						case "aniso":
+							// We don't use anisotropy because that's too expensive, but it signifies that we do have a pbr material.
+							isPbr = true;
+							break;
+
 						case "d":
 							float alpha = float.Parse(token[1]);
 							if (alpha < 1.0) {
@@ -301,7 +323,7 @@ namespace RAI {
 								tokenIndex = 5;
 
 								// TODO: Test is we always have 3 scale indexes
-								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
 							}
 								
 
@@ -315,6 +337,31 @@ namespace RAI {
 							internalMaterialDict[currentMaterial].AlbedoTexture = TextureLoader(texturePath, false);
 
 							break;
+						
+						case "map_Pm":
+							tokenIndex = 1;
+
+							if (containsScaleAttribute) {
+								tokenIndex = 5;
+
+								// TODO: Test is we always have 3 scale indexes
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
+							}
+
+
+							texturePath=token[tokenIndex..].Join(" ");
+
+							if (texturePath.IsRelativePath()) {
+								texturePath = path.GetBaseDir().PathJoin(texturePath);
+							}
+
+
+							internalMaterialDict[currentMaterial].Metallic = 1.0f;
+							internalMaterialDict[currentMaterial].MetallicTextureChannel = BaseMaterial3D.TextureChannel.Grayscale;
+							internalMaterialDict[currentMaterial].MetallicTexture = TextureLoader(texturePath, false);
+							
+							break;
+
 						case "map_refl" or "map_Pr":
 							tokenIndex = 1;
 
@@ -322,7 +369,7 @@ namespace RAI {
 								tokenIndex = 5;
 
 								// TODO: Test is we always have 3 scale indexes
-								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
 							}
 
 
@@ -345,7 +392,7 @@ namespace RAI {
 								tokenIndex = 5;
 
 								// TODO: Test is we always have 3 scale indexes
-								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(float.Parse(token[2]), float.Parse(token[3]), float.Parse(token[4]));
+								internalMaterialDict[currentMaterial].Uv1Scale = new Vector3(-float.Parse(token[2]), -float.Parse(token[3]), -float.Parse(token[4]));
 							}
 
 
@@ -360,7 +407,7 @@ namespace RAI {
 								
 								
 								
-								GD.Print(tokenIndex);
+								//GD.Print(tokenIndex);
 
 								internalMaterialDict[currentMaterial].NormalScale = float.Parse(token[tokenIndex - 1]);
 							}
@@ -377,6 +424,9 @@ namespace RAI {
 							internalMaterialDict[currentMaterial].NormalEnabled = true;
 							internalMaterialDict[currentMaterial].NormalTexture = TextureLoader(texturePath, false);
 							
+							if (!isPbr)
+								GD.PushWarning("This material is not PBR, shading inconsistencies may happen. To avoid this issue please re-export the mesh with pbr extensions on.");
+
 							break;
 					}
 				}	
@@ -384,11 +434,20 @@ namespace RAI {
 
 				if (internalMaterialDict.Count > 0) {
 					foreach (string materialName in internalMaterialDict.Keys) {
-						materials.Add(materialName, internalMaterialDict[materialName]);
+						if ((bool)internalMaterialDict[materialName].GetMeta("is_glass", false)) {
+							// Lol we discard all out work lmao
+
+							ShaderMaterial glassMaterial = (ShaderMaterial)GD.Load("res://Resources/Shaders/3D/Glass.tres");
+							materials.Add(materialName, glassMaterial);
+
+
+						} else {
+							materials.Add(materialName, internalMaterialDict[materialName]);
+						}
 					}
+
 				} else {
 					// We have no materials
-
 					StandardMaterial3D defaultMaterial = new();
 					materials.Add(currentMaterial, defaultMaterial);
 				}
@@ -401,5 +460,3 @@ namespace RAI {
 		
 	}
 }
-
-

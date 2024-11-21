@@ -1,9 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://bln1i361dl82r"]
+[gd_scene load_steps=6 format=3 uid="uid://bln1i361dl82r"]
 
 [ext_resource type="Script" path="res://Scenes/2D/UI/MainUI/scripts/main_ui.gd" id="1_4q833"]
 [ext_resource type="PackedScene" uid="uid://olm42616arjd" path="res://Scenes/2D/UI/Titlebar/titlebar.tscn" id="1_8476f"]
+[ext_resource type="Script" path="res://Scenes/2D/UI/SceneTree/Scripts/project_scene_tree.gd" id="2_4sj7s"]
+[ext_resource type="PackedScene" uid="uid://bn1gal135s8ce" path="res://Scenes/3D/Freecam/freecam.tscn" id="2_ex2ey"]
+[ext_resource type="PackedScene" uid="uid://dy6xc3t8jdxdo" path="res://Scenes/2D/UI/ModelPickerDock/ModelPickerDock.tscn" id="5_lctou"]
 
-[node name="MainUI" type="Control"]
+[node name="_MainUI" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,7 +16,146 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_4q833")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Split_NodeTree-All" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+split_offset = 260
+
+[node name="NodeTreePanel" type="PanelContainer" parent="Split_NodeTree-All"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Split_NodeTree-All/NodeTreePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 42
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ReferenceRect" type="ReferenceRect" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer"]
+visible = false
+layout_mode = 2
+border_width = 5.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer"]
+layout_mode = 2
+
+[node name="ProjectSceneTreeSearchBar" type="TextEdit" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+placeholder_text = "Search"
+scroll_smooth = true
+
+[node name="ProjectSceneTree" type="Tree" parent="Split_NodeTree-All/NodeTreePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_4sj7s")
+
+[node name="Split_Properties-Viewport_Assets" type="HSplitContainer" parent="Split_NodeTree-All"]
+layout_mode = 2
+theme_override_constants/separation = 0
+split_offset = 575
+
+[node name="Split_Viewport-Assets" type="VSplitContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets"]
+layout_mode = 2
+theme_override_constants/separation = 0
+split_offset = 450
+
+[node name="Control" type="Control" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets"]
+custom_minimum_size = Vector2(575, 450)
+layout_mode = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control"]
+custom_minimum_size = Vector2(320, 240)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/SubViewportContainer"]
+handle_input_locally = false
+msaa_3d = 2
+positional_shadow_atlas_size = 4096
+size = Vector2i(575, 450)
+render_target_update_mode = 4
+
+[node name="Freecam" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/SubViewportContainer/SubViewport" instance=ExtResource("2_ex2ey")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+
+[node name="Control" type="Control" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control"]
+anchors_preset = 0
+offset_left = 6.0
+offset_top = 37.0
+offset_right = 108.0
+offset_bottom = 81.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BTN_MOVE" type="Button" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/Control/HBoxContainer"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+text = "M"
+
+[node name="BTN_ROTATE" type="Button" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/Control/Control/HBoxContainer"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+text = "R"
+
+[node name="PanelContainer" type="PanelContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets"]
+custom_minimum_size = Vector2(575, 190)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ModelPickerDock" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/Split_Viewport-Assets/PanelContainer/MarginContainer" instance=ExtResource("5_lctou")]
+layout_mode = 2
+
+[node name="PropertiesPanel" type="PanelContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets"]
+custom_minimum_size = Vector2(301, 648)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 42
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Split_NodeTree-All/Split_Properties-Viewport_Assets/PropertiesPanel/MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="Titlebar" parent="." instance=ExtResource("1_8476f")]
 layout_mode = 1
+metadata/_edit_lock_ = true
 
 [node name="PopupMenu" type="PopupMenu" parent="Titlebar"]

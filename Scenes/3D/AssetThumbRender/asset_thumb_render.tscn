@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=3 uid="uid://dsivdlxgf5t8l"]
+
+[ext_resource type="Script" path="res://Scenes/3D/AssetThumbRender/Scripts/asset_thumb_render.gd" id="1_dhom6"]
+
+[sub_resource type="Environment" id="Environment_8ccec"]
+background_mode = 1
+background_color = Color(0.0962047, 0.0962048, 0.0962047, 1)
+
+[node name="Viewport" type="SubViewport"]
+own_world_3d = true
+msaa_3d = 1
+scaling_3d_scale = 2.0
+size = Vector2i(130, 90)
+render_target_update_mode = 4
+script = ExtResource("1_dhom6")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.848831, -0.138737, 0.510136, -0.00893785, 0.961048, 0.276238, -0.528589, -0.239039, 0.814526, 3.66714, 2.84129, 5.66294)
+environment = SubResource("Environment_8ccec")
+projection = 1
+fov = 21.2
+size = 2.205
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+visible = false
+
+[node name="_AssetThumbRender" type="Node3D" parent="."]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5974, 1.11521, 0.823276)
+light_energy = 2.127
+shadow_enabled = true
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.600342, 1.22484, -1.83964)
+light_energy = 2.127
+shadow_enabled = true
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.41651, 0.592253, 0.71049)
+light_energy = 2.127
+shadow_enabled = true
+
+[node name="AssetContainer" type="Node3D" parent="."]

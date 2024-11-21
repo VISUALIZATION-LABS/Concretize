@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://db58l7wudui2g"]
+
+[ext_resource type="Script" path="res://Scenes/3D/Controls/Gizmo/Scripts/live_gizmo_display.gd" id="1_qxp04"]
+[ext_resource type="PackedScene" uid="uid://dl3tnyed1oolk" path="res://Art/Editor/3D/Gizmo/gizmo.tscn" id="2_4d0fj"]
+[ext_resource type="PackedScene" uid="uid://ih7r2yuui4sd" path="res://Art/Editor/3D/Gizmo/rotation.tscn" id="3_o5fi5"]
+
+[node name="_LiveGizmo" type="Node3D"]
+script = ExtResource("1_qxp04")
+
+[node name="Gizmo" parent="." instance=ExtResource("2_4d0fj")]
+
+[node name="Rotation" parent="." instance=ExtResource("3_o5fi5")]
+visible = false
